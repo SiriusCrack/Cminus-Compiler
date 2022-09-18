@@ -12,15 +12,153 @@ extern int line;
 %token <tokenPtr> ID NUMCONST CHARCONST STRINGCONST OPERAND BOOLCONST
 
 %%
-input   : 
-        | '\n'
-        | NUMCONST { printf("Line %d Token: NUMCONST Value: %d  Input: %s\n", line, $1->nvalue, $1->tokenstr); } input
-        | ID { printf("Line %d Token: ID Value: %s\n", line, $1->svalue); } input
-        | CHARCONST { printf("Line %d Token: CHARCONST Value: '%c'  Input: %s\n", line, $1->cvalue, $1->tokenstr); } input
-        | STRINGCONST { printf("Line %d Token: STRINGCONST Value: %s  Len: %d  Input: %s\n", line, $1->svalue, strlen($1->svalue)-2, $1->tokenstr); } input
-        | OPERAND { printf("Line %d Token: %s\n", line, $1->svalue); } input
-        | BOOLCONST { printf("Line %d Token: BOOLCONST Value: %d  Input: %s\n", line, $1->nvalue, $1->tokenstr); } input
-        ;
+program         : declList
+                ;
+declList        : declList decl
+                | decl
+                ;
+decl            : varDecl
+                | funDecl
+                ;
+varDecl         : typeSpec varDeclList ';'
+                ;
+scopedVarDecl   : "static" typeSpec varDeclList ';'
+                | typeSpec varDeclList ';'
+                ;
+varDeclList     : varDeclList ',' varDeclInit
+                | varDeclInit
+                ;
+varDeclInit     : varDeclId
+                | varDeclId ':' simpleExp
+                ;
+varDeclId       : ID
+                | ID '[' NUMCONST ']'
+                ;
+typeSpec        : "bool"
+                | "char"
+                | "int"
+                ;
+funDecl         : typeSpec ID '(' parms ')' compoundStmt
+                | ID '(' parms ')' compoundStmt
+                ;
+parms           : parmList
+                |
+                ;
+parmList        : parmList ';' parmTypeList
+                | parmTypeList
+                ;
+parmTypeList    : typeSpec parmIdList
+                ;
+parmIdList      : parmIdList ',' parmId
+                | parmId
+                ;
+parmId          : ID
+                | ID '[' ']'
+                ;
+stmt            : expStmt
+                | compoundStmt
+                | selectStmt
+                | iterStmt
+                | returnStmt
+                | breakStmt
+                ;
+expStmt         : exp ';'
+                | ';'
+compoundStmt    : '{' localDecls stmtList '}'
+                ;
+localDecls      : localDecls scopedVarDecl
+                | 
+                ;
+stmtList        : stmtList stmt
+                | 
+                ;
+selectStmt      : "if" simpleExp "then" stmt
+                | "if" simpleExp "then" "else" stmt
+                ;
+iterStmt        : "while" simpleExp "then" stmt
+                | "for" ID '=' iterRange "do" stmt
+                ;
+iterRange       : simpleExp "to" simpleExp
+                | simpleExp "to" simpleExp "by" simpleExp
+                ;
+returnStmt      : "return" ';'
+                | "return" exp ';'
+                ;
+breakStmt       : "break" ';'
+                ;
+exp             : mutable assignop exp 
+                | mutable "++"
+                | mutable "--"
+                | simpleExp
+                ;
+assignop        : '='
+                | "+="
+                | "-="
+                | "*="
+                | "/="
+                ;
+simpleExp       : simpleExp "or" andExp
+                | andExp
+                ;
+andExp          : andExp "and" unaryRelExp
+                | unaryRelExp
+                ;
+unaryRelExp     : "not" unaryRelExp
+                | relExp 
+                ;
+relExp          : sumExp relop sumExp
+                | sumExp
+                ;
+relop           : '<'
+                | "<="
+                | '>'
+                | ">="
+                | "=="
+                | "!="
+                ;
+sumExp          : sumExp sumop mulExp
+                | mulExp
+                ;
+sumop           : '+'
+                | '-'
+                ;
+mulExp          : mulExp mulop unaryExp 
+                | unaryExp 
+                ;
+mulop           : '*'
+                | '/'
+                | '%'
+                ;
+unaryExp        : unaryop unaryExp
+                | factor
+                ;
+unaryop         : '-'
+                | '*'
+                | '?'
+                ;
+factor          : mutable
+                | immutable
+                ;
+mutable         : ID
+                | ID '[' exp ']'
+                ;
+immutable       : '(' exp ')'
+                | call
+                | constant
+                ;
+call            : ID '(' args ')'
+                ;
+args            : argList
+                |
+                ;
+argList         : argList ',' exp
+                | exp
+                ;
+constant        : NUMCONST
+                | CHARCONST
+                | STRINGCONST
+                | BOOLCONST
+                ;
 %%
 int main (int argc, char *argv[]) {
     if(argc > 1) {
