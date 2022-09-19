@@ -9,7 +9,57 @@ extern int line;
 %union {
     struct TokenData *tokenPtr;
 }
-%token <tokenPtr> ID NUMCONST CHARCONST STRINGCONST OPERAND BOOLCONST
+%token <tokenPtr> 
+ID
+NUMCONST
+CHARCONST
+STRINGCONST
+BOOLCONST
+ytlesser
+ytgreater
+ytequals
+ytadd
+ytsub
+ytmul
+ytdiv
+ytlbracket
+ytrbracket
+ytquestion
+ytcomma
+ytsemicolon
+ytcolon
+ytlbrace
+ytrbrace
+ytlparen
+ytrparen
+ytmod
+ytand
+ytor
+yteq
+ytnoteq
+yteqlesser
+yteqgreater
+ytassadd
+ytasssub
+ytassmul
+ytassdiv
+ytinc
+ytdec
+ytnot
+ytint
+ytif
+ytfor
+ytto
+ytby
+ytdo
+ytthen
+ytbreak
+ytelse
+ytwhile
+ytreturn
+ytbool
+ytchar
+ytstatic
 
 %%
 program         : declList
@@ -20,40 +70,40 @@ declList        : declList decl
 decl            : varDecl
                 | funDecl
                 ;
-varDecl         : typeSpec varDeclList ';'
+varDecl         : typeSpec varDeclList ytsemicolon
                 ;
-scopedVarDecl   : "static" typeSpec varDeclList ';'
-                | typeSpec varDeclList ';'
+scopedVarDecl   : ytstatic typeSpec varDeclList ytsemicolon
+                | typeSpec varDeclList ytsemicolon
                 ;
-varDeclList     : varDeclList ',' varDeclInit
+varDeclList     : varDeclList ytcomma varDeclInit
                 | varDeclInit
                 ;
 varDeclInit     : varDeclId
-                | varDeclId ':' simpleExp
+                | varDeclId ytcolon simpleExp
                 ;
 varDeclId       : ID
-                | ID '[' NUMCONST ']'
+                | ID ytlbracket NUMCONST ytrbracket
                 ;
-typeSpec        : "bool"
-                | "char"
-                | "int"
+typeSpec        : ytbool
+                | ytchar
+                | ytint
                 ;
-funDecl         : typeSpec ID '(' parms ')' compoundStmt
-                | ID '(' parms ')' compoundStmt
+funDecl         : typeSpec ID ytlparen parms ytrparen compoundStmt
+                | ID ytlparen parms ytrparen compoundStmt
                 ;
 parms           : parmList
                 |
                 ;
-parmList        : parmList ';' parmTypeList
+parmList        : parmList ytsemicolon parmTypeList
                 | parmTypeList
                 ;
 parmTypeList    : typeSpec parmIdList
                 ;
-parmIdList      : parmIdList ',' parmId
+parmIdList      : parmIdList ytcomma parmId
                 | parmId
                 ;
 parmId          : ID
-                | ID '[' ']'
+                | ID ytlbracket ytrbracket
                 ;
 stmt            : expStmt
                 | compoundStmt
@@ -62,9 +112,9 @@ stmt            : expStmt
                 | returnStmt
                 | breakStmt
                 ;
-expStmt         : exp ';'
-                | ';'
-compoundStmt    : '{' localDecls stmtList '}'
+expStmt         : exp ytsemicolon
+                | ytsemicolon
+compoundStmt    : ytlbrace localDecls stmtList ytrbrace
                 ;
 localDecls      : localDecls scopedVarDecl
                 | 
@@ -72,86 +122,86 @@ localDecls      : localDecls scopedVarDecl
 stmtList        : stmtList stmt
                 | 
                 ;
-selectStmt      : "if" simpleExp "then" stmt
-                | "if" simpleExp "then" "else" stmt
+selectStmt      : ytif simpleExp ytthen stmt
+                | ytif simpleExp ytthen ytelse stmt
                 ;
-iterStmt        : "while" simpleExp "then" stmt
-                | "for" ID '=' iterRange "do" stmt
+iterStmt        : ytwhile simpleExp ytthen stmt
+                | ytfor ID ytequals iterRange ytdo stmt
                 ;
-iterRange       : simpleExp "to" simpleExp
-                | simpleExp "to" simpleExp "by" simpleExp
+iterRange       : simpleExp ytto simpleExp
+                | simpleExp ytto simpleExp ytby simpleExp
                 ;
-returnStmt      : "return" ';'
-                | "return" exp ';'
+returnStmt      : ytreturn ytsemicolon
+                | ytreturn exp ytsemicolon
                 ;
-breakStmt       : "break" ';'
+breakStmt       : ytbreak ytsemicolon
                 ;
 exp             : mutable assignop exp 
-                | mutable "++"
-                | mutable "--"
+                | mutable ytinc
+                | mutable ytdec
                 | simpleExp
                 ;
-assignop        : '='
-                | "+="
-                | "-="
-                | "*="
-                | "/="
+assignop        : ytequals
+                | ytassadd
+                | ytasssub
+                | ytassmul
+                | ytassdiv
                 ;
-simpleExp       : simpleExp "or" andExp
+simpleExp       : simpleExp ytor andExp
                 | andExp
                 ;
-andExp          : andExp "and" unaryRelExp
+andExp          : andExp ytand unaryRelExp
                 | unaryRelExp
                 ;
-unaryRelExp     : "not" unaryRelExp
+unaryRelExp     : ytnot unaryRelExp
                 | relExp 
                 ;
 relExp          : sumExp relop sumExp
                 | sumExp
                 ;
-relop           : '<'
-                | "<="
-                | '>'
-                | ">="
-                | "=="
-                | "!="
+relop           : ytlesser
+                | yteqlesser
+                | ytgreater
+                | yteqgreater
+                | yteq
+                | ytnoteq
                 ;
 sumExp          : sumExp sumop mulExp
                 | mulExp
                 ;
-sumop           : '+'
-                | '-'
+sumop           : ytadd
+                | ytsub
                 ;
 mulExp          : mulExp mulop unaryExp 
                 | unaryExp 
                 ;
-mulop           : '*'
-                | '/'
-                | '%'
+mulop           : ytmul
+                | ytdiv
+                | ytmod
                 ;
 unaryExp        : unaryop unaryExp
                 | factor
                 ;
-unaryop         : '-'
-                | '*'
-                | '?'
+unaryop         : ytsub
+                | ytmul
+                | ytquestion
                 ;
 factor          : mutable
                 | immutable
                 ;
 mutable         : ID
-                | ID '[' exp ']'
+                | ID ytlbracket exp ytrbracket
                 ;
-immutable       : '(' exp ')'
+immutable       : ytlparen exp ytrparen
                 | call
                 | constant
                 ;
-call            : ID '(' args ')'
+call            : ID ytlparen args ytrparen
                 ;
 args            : argList
                 |
                 ;
-argList         : argList ',' exp
+argList         : argList ytcomma exp
                 | exp
                 ;
 constant        : NUMCONST
@@ -168,6 +218,7 @@ int main (int argc, char *argv[]) {
         }
     }
     yyparse();
+    printf("nice\n");
     return 0;
 }
 

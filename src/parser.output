@@ -1,8 +1,3 @@
-Terminals unused in grammar
-
-    OPERAND
-
-
 Grammar
 
     0 $accept: program $end
@@ -15,40 +10,40 @@ Grammar
     4 decl: varDecl
     5     | funDecl
 
-    6 varDecl: typeSpec varDeclList ';'
+    6 varDecl: typeSpec varDeclList ytsemicolon
 
-    7 scopedVarDecl: "static" typeSpec varDeclList ';'
-    8              | typeSpec varDeclList ';'
+    7 scopedVarDecl: ytstatic typeSpec varDeclList ytsemicolon
+    8              | typeSpec varDeclList ytsemicolon
 
-    9 varDeclList: varDeclList ',' varDeclInit
+    9 varDeclList: varDeclList ytcomma varDeclInit
    10            | varDeclInit
 
    11 varDeclInit: varDeclId
-   12            | varDeclId ':' simpleExp
+   12            | varDeclId ytcolon simpleExp
 
    13 varDeclId: ID
-   14          | ID '[' NUMCONST ']'
+   14          | ID ytlbracket NUMCONST ytrbracket
 
-   15 typeSpec: "bool"
-   16         | "char"
-   17         | "int"
+   15 typeSpec: ytbool
+   16         | ytchar
+   17         | ytint
 
-   18 funDecl: typeSpec ID '(' parms ')' compoundStmt
-   19        | ID '(' parms ')' compoundStmt
+   18 funDecl: typeSpec ID ytlparen parms ytrparen compoundStmt
+   19        | ID ytlparen parms ytrparen compoundStmt
 
    20 parms: parmList
    21      | ε
 
-   22 parmList: parmList ';' parmTypeList
+   22 parmList: parmList ytsemicolon parmTypeList
    23         | parmTypeList
 
    24 parmTypeList: typeSpec parmIdList
 
-   25 parmIdList: parmIdList ',' parmId
+   25 parmIdList: parmIdList ytcomma parmId
    26           | parmId
 
    27 parmId: ID
-   28       | ID '[' ']'
+   28       | ID ytlbracket ytrbracket
 
    29 stmt: expStmt
    30     | compoundStmt
@@ -57,10 +52,10 @@ Grammar
    33     | returnStmt
    34     | breakStmt
 
-   35 expStmt: exp ';'
-   36        | ';'
+   35 expStmt: exp ytsemicolon
+   36        | ytsemicolon
 
-   37 compoundStmt: '{' localDecls stmtList '}'
+   37 compoundStmt: ytlbrace localDecls stmtList ytrbrace
 
    38 localDecls: localDecls scopedVarDecl
    39           | ε
@@ -68,86 +63,86 @@ Grammar
    40 stmtList: stmtList stmt
    41         | ε
 
-   42 selectStmt: "if" simpleExp "then" stmt
-   43           | "if" simpleExp "then" "else" stmt
+   42 selectStmt: ytif simpleExp ytthen stmt
+   43           | ytif simpleExp ytthen ytelse stmt
 
-   44 iterStmt: "while" simpleExp "then" stmt
-   45         | "for" ID '=' iterRange "do" stmt
+   44 iterStmt: ytwhile simpleExp ytthen stmt
+   45         | ytfor ID ytequals iterRange ytdo stmt
 
-   46 iterRange: simpleExp "to" simpleExp
-   47          | simpleExp "to" simpleExp "by" simpleExp
+   46 iterRange: simpleExp ytto simpleExp
+   47          | simpleExp ytto simpleExp ytby simpleExp
 
-   48 returnStmt: "return" ';'
-   49           | "return" exp ';'
+   48 returnStmt: ytreturn ytsemicolon
+   49           | ytreturn exp ytsemicolon
 
-   50 breakStmt: "break" ';'
+   50 breakStmt: ytbreak ytsemicolon
 
    51 exp: mutable assignop exp
-   52    | mutable "++"
-   53    | mutable "--"
+   52    | mutable ytinc
+   53    | mutable ytdec
    54    | simpleExp
 
-   55 assignop: '='
-   56         | "+="
-   57         | "-="
-   58         | "*="
-   59         | "/="
+   55 assignop: ytequals
+   56         | ytassadd
+   57         | ytasssub
+   58         | ytassmul
+   59         | ytassdiv
 
-   60 simpleExp: simpleExp "or" andExp
+   60 simpleExp: simpleExp ytor andExp
    61          | andExp
 
-   62 andExp: andExp "and" unaryRelExp
+   62 andExp: andExp ytand unaryRelExp
    63       | unaryRelExp
 
-   64 unaryRelExp: "not" unaryRelExp
+   64 unaryRelExp: ytnot unaryRelExp
    65            | relExp
 
    66 relExp: sumExp relop sumExp
    67       | sumExp
 
-   68 relop: '<'
-   69      | "<="
-   70      | '>'
-   71      | ">="
-   72      | "=="
-   73      | "!="
+   68 relop: ytlesser
+   69      | yteqlesser
+   70      | ytgreater
+   71      | yteqgreater
+   72      | yteq
+   73      | ytnoteq
 
    74 sumExp: sumExp sumop mulExp
    75       | mulExp
 
-   76 sumop: '+'
-   77      | '-'
+   76 sumop: ytadd
+   77      | ytsub
 
    78 mulExp: mulExp mulop unaryExp
    79       | unaryExp
 
-   80 mulop: '*'
-   81      | '/'
-   82      | '%'
+   80 mulop: ytmul
+   81      | ytdiv
+   82      | ytmod
 
    83 unaryExp: unaryop unaryExp
    84         | factor
 
-   85 unaryop: '-'
-   86        | '*'
-   87        | '?'
+   85 unaryop: ytsub
+   86        | ytmul
+   87        | ytquestion
 
    88 factor: mutable
    89       | immutable
 
    90 mutable: ID
-   91        | ID '[' exp ']'
+   91        | ID ytlbracket exp ytrbracket
 
-   92 immutable: '(' exp ')'
+   92 immutable: ytlparen exp ytrparen
    93          | call
    94          | constant
 
-   95 call: ID '(' args ')'
+   95 call: ID ytlparen args ytrparen
 
    96 args: argList
    97     | ε
 
-   98 argList: argList ',' exp
+   98 argList: argList ytcomma exp
    99        | exp
 
   100 constant: NUMCONST
@@ -159,197 +154,196 @@ Grammar
 Terminals, with rules where they appear
 
     $end (0) 0
-    '%' (37) 82
-    '(' (40) 18 19 92 95
-    ')' (41) 18 19 92 95
-    '*' (42) 80 86
-    '+' (43) 76
-    ',' (44) 9 25 98
-    '-' (45) 77 85
-    '/' (47) 81
-    ':' (58) 12
-    ';' (59) 6 7 8 22 35 36 48 49 50
-    '<' (60) 68
-    '=' (61) 45 55
-    '>' (62) 70
-    '?' (63) 87
-    '[' (91) 14 28 91
-    ']' (93) 14 28 91
-    '{' (123) 37
-    '}' (125) 37
     error (256)
     ID <tokenPtr> (258) 13 14 18 19 27 28 45 90 91 95
     NUMCONST <tokenPtr> (259) 14 100
     CHARCONST <tokenPtr> (260) 101
     STRINGCONST <tokenPtr> (261) 102
-    OPERAND <tokenPtr> (262)
-    BOOLCONST <tokenPtr> (263) 103
-    "static" (264) 7
-    "bool" (265) 15
-    "char" (266) 16
-    "int" (267) 17
-    "if" (268) 42 43
-    "then" (269) 42 43 44
-    "else" (270) 43
-    "while" (271) 44
-    "for" (272) 45
-    "do" (273) 45
-    "to" (274) 46 47
-    "by" (275) 47
-    "return" (276) 48 49
-    "break" (277) 50
-    "++" (278) 52
-    "--" (279) 53
-    "+=" (280) 56
-    "-=" (281) 57
-    "*=" (282) 58
-    "/=" (283) 59
-    "or" (284) 60
-    "and" (285) 62
-    "not" (286) 64
-    "<=" (287) 69
-    ">=" (288) 71
-    "==" (289) 72
-    "!=" (290) 73
+    BOOLCONST <tokenPtr> (262) 103
+    ytlesser <tokenPtr> (263) 68
+    ytgreater <tokenPtr> (264) 70
+    ytequals <tokenPtr> (265) 45 55
+    ytadd <tokenPtr> (266) 76
+    ytsub <tokenPtr> (267) 77 85
+    ytmul <tokenPtr> (268) 80 86
+    ytdiv <tokenPtr> (269) 81
+    ytlbracket <tokenPtr> (270) 14 28 91
+    ytrbracket <tokenPtr> (271) 14 28 91
+    ytquestion <tokenPtr> (272) 87
+    ytcomma <tokenPtr> (273) 9 25 98
+    ytsemicolon <tokenPtr> (274) 6 7 8 22 35 36 48 49 50
+    ytcolon <tokenPtr> (275) 12
+    ytlbrace <tokenPtr> (276) 37
+    ytrbrace <tokenPtr> (277) 37
+    ytlparen <tokenPtr> (278) 18 19 92 95
+    ytrparen <tokenPtr> (279) 18 19 92 95
+    ytmod <tokenPtr> (280) 82
+    ytand <tokenPtr> (281) 62
+    ytor <tokenPtr> (282) 60
+    yteq <tokenPtr> (283) 72
+    ytnoteq <tokenPtr> (284) 73
+    yteqlesser <tokenPtr> (285) 69
+    yteqgreater <tokenPtr> (286) 71
+    ytassadd <tokenPtr> (287) 56
+    ytasssub <tokenPtr> (288) 57
+    ytassmul <tokenPtr> (289) 58
+    ytassdiv <tokenPtr> (290) 59
+    ytinc <tokenPtr> (291) 52
+    ytdec <tokenPtr> (292) 53
+    ytnot <tokenPtr> (293) 64
+    ytint <tokenPtr> (294) 17
+    ytif <tokenPtr> (295) 42 43
+    ytfor <tokenPtr> (296) 45
+    ytto <tokenPtr> (297) 46 47
+    ytby <tokenPtr> (298) 47
+    ytdo <tokenPtr> (299) 45
+    ytthen <tokenPtr> (300) 42 43 44
+    ytbreak <tokenPtr> (301) 50
+    ytelse <tokenPtr> (302) 43
+    ytwhile <tokenPtr> (303) 44
+    ytreturn <tokenPtr> (304) 48 49
+    ytbool <tokenPtr> (305) 15
+    ytchar <tokenPtr> (306) 16
+    ytstatic <tokenPtr> (307) 7
 
 
 Nonterminals, with rules where they appear
 
-    $accept (54)
+    $accept (53)
         on left: 0
-    program (55)
+    program (54)
         on left: 1
         on right: 0
-    declList (56)
+    declList (55)
         on left: 2 3
         on right: 1 2
-    decl (57)
+    decl (56)
         on left: 4 5
         on right: 2 3
-    varDecl (58)
+    varDecl (57)
         on left: 6
         on right: 4
-    scopedVarDecl (59)
+    scopedVarDecl (58)
         on left: 7 8
         on right: 38
-    varDeclList (60)
+    varDeclList (59)
         on left: 9 10
         on right: 6 7 8 9
-    varDeclInit (61)
+    varDeclInit (60)
         on left: 11 12
         on right: 9 10
-    varDeclId (62)
+    varDeclId (61)
         on left: 13 14
         on right: 11 12
-    typeSpec (63)
+    typeSpec (62)
         on left: 15 16 17
         on right: 6 7 8 18 24
-    funDecl (64)
+    funDecl (63)
         on left: 18 19
         on right: 5
-    parms (65)
+    parms (64)
         on left: 20 21
         on right: 18 19
-    parmList (66)
+    parmList (65)
         on left: 22 23
         on right: 20 22
-    parmTypeList (67)
+    parmTypeList (66)
         on left: 24
         on right: 22 23
-    parmIdList (68)
+    parmIdList (67)
         on left: 25 26
         on right: 24 25
-    parmId (69)
+    parmId (68)
         on left: 27 28
         on right: 25 26
-    stmt (70)
+    stmt (69)
         on left: 29 30 31 32 33 34
         on right: 40 42 43 44 45
-    expStmt (71)
+    expStmt (70)
         on left: 35 36
         on right: 29
-    compoundStmt (72)
+    compoundStmt (71)
         on left: 37
         on right: 18 19 30
-    localDecls (73)
+    localDecls (72)
         on left: 38 39
         on right: 37 38
-    stmtList (74)
+    stmtList (73)
         on left: 40 41
         on right: 37 40
-    selectStmt (75)
+    selectStmt (74)
         on left: 42 43
         on right: 31
-    iterStmt (76)
+    iterStmt (75)
         on left: 44 45
         on right: 32
-    iterRange (77)
+    iterRange (76)
         on left: 46 47
         on right: 45
-    returnStmt (78)
+    returnStmt (77)
         on left: 48 49
         on right: 33
-    breakStmt (79)
+    breakStmt (78)
         on left: 50
         on right: 34
-    exp (80)
+    exp (79)
         on left: 51 52 53 54
         on right: 35 49 51 91 92 98 99
-    assignop (81)
+    assignop (80)
         on left: 55 56 57 58 59
         on right: 51
-    simpleExp (82)
+    simpleExp (81)
         on left: 60 61
         on right: 12 42 43 44 46 47 54 60
-    andExp (83)
+    andExp (82)
         on left: 62 63
         on right: 60 61 62
-    unaryRelExp (84)
+    unaryRelExp (83)
         on left: 64 65
         on right: 62 63 64
-    relExp (85)
+    relExp (84)
         on left: 66 67
         on right: 65
-    relop (86)
+    relop (85)
         on left: 68 69 70 71 72 73
         on right: 66
-    sumExp (87)
+    sumExp (86)
         on left: 74 75
         on right: 66 67 74
-    sumop (88)
+    sumop (87)
         on left: 76 77
         on right: 74
-    mulExp (89)
+    mulExp (88)
         on left: 78 79
         on right: 74 75 78
-    mulop (90)
+    mulop (89)
         on left: 80 81 82
         on right: 78
-    unaryExp (91)
+    unaryExp (90)
         on left: 83 84
         on right: 78 79 83
-    unaryop (92)
+    unaryop (91)
         on left: 85 86 87
         on right: 83
-    factor (93)
+    factor (92)
         on left: 88 89
         on right: 84
-    mutable (94)
+    mutable (93)
         on left: 90 91
         on right: 51 52 53 88
-    immutable (95)
+    immutable (94)
         on left: 92 93 94
         on right: 89
-    call (96)
+    call (95)
         on left: 95
         on right: 93
-    args (97)
+    args (96)
         on left: 96 97
         on right: 95
-    argList (98)
+    argList (97)
         on left: 98 99
         on right: 96 98
-    constant (99)
+    constant (98)
         on left: 100 101 102 103
         on right: 94
 
@@ -359,9 +353,9 @@ State 0
     0 $accept: • program $end
 
     ID      shift, and go to state 1
-    "bool"  shift, and go to state 2
-    "char"  shift, and go to state 3
-    "int"   shift, and go to state 4
+    ytint   shift, and go to state 2
+    ytbool  shift, and go to state 3
+    ytchar  shift, and go to state 4
 
     program   go to state 5
     declList  go to state 6
@@ -373,30 +367,30 @@ State 0
 
 State 1
 
-   19 funDecl: ID • '(' parms ')' compoundStmt
+   19 funDecl: ID • ytlparen parms ytrparen compoundStmt
 
-    '('  shift, and go to state 11
+    ytlparen  shift, and go to state 11
 
 
 State 2
 
-   15 typeSpec: "bool" •
+   17 typeSpec: ytint •
 
-    $default  reduce using rule 15 (typeSpec)
+    $default  reduce using rule 17 (typeSpec)
 
 
 State 3
 
-   16 typeSpec: "char" •
+   15 typeSpec: ytbool •
 
-    $default  reduce using rule 16 (typeSpec)
+    $default  reduce using rule 15 (typeSpec)
 
 
 State 4
 
-   17 typeSpec: "int" •
+   16 typeSpec: ytchar •
 
-    $default  reduce using rule 17 (typeSpec)
+    $default  reduce using rule 16 (typeSpec)
 
 
 State 5
@@ -412,9 +406,9 @@ State 6
     2 declList: declList • decl
 
     ID      shift, and go to state 1
-    "bool"  shift, and go to state 2
-    "char"  shift, and go to state 3
-    "int"   shift, and go to state 4
+    ytint   shift, and go to state 2
+    ytbool  shift, and go to state 3
+    ytchar  shift, and go to state 4
 
     $default  reduce using rule 1 (program)
 
@@ -440,8 +434,8 @@ State 8
 
 State 9
 
-    6 varDecl: typeSpec • varDeclList ';'
-   18 funDecl: typeSpec • ID '(' parms ')' compoundStmt
+    6 varDecl: typeSpec • varDeclList ytsemicolon
+   18 funDecl: typeSpec • ID ytlparen parms ytrparen compoundStmt
 
     ID  shift, and go to state 14
 
@@ -459,11 +453,11 @@ State 10
 
 State 11
 
-   19 funDecl: ID '(' • parms ')' compoundStmt
+   19 funDecl: ID ytlparen • parms ytrparen compoundStmt
 
-    "bool"  shift, and go to state 2
-    "char"  shift, and go to state 3
-    "int"   shift, and go to state 4
+    ytint   shift, and go to state 2
+    ytbool  shift, and go to state 3
+    ytchar  shift, and go to state 4
 
     $default  reduce using rule 21 (parms)
 
@@ -490,22 +484,22 @@ State 13
 State 14
 
    13 varDeclId: ID •
-   14          | ID • '[' NUMCONST ']'
-   18 funDecl: typeSpec ID • '(' parms ')' compoundStmt
+   14          | ID • ytlbracket NUMCONST ytrbracket
+   18 funDecl: typeSpec ID • ytlparen parms ytrparen compoundStmt
 
-    '['  shift, and go to state 22
-    '('  shift, and go to state 23
+    ytlbracket  shift, and go to state 22
+    ytlparen    shift, and go to state 23
 
     $default  reduce using rule 13 (varDeclId)
 
 
 State 15
 
-    6 varDecl: typeSpec varDeclList • ';'
-    9 varDeclList: varDeclList • ',' varDeclInit
+    6 varDecl: typeSpec varDeclList • ytsemicolon
+    9 varDeclList: varDeclList • ytcomma varDeclInit
 
-    ';'  shift, and go to state 24
-    ','  shift, and go to state 25
+    ytcomma      shift, and go to state 24
+    ytsemicolon  shift, and go to state 25
 
 
 State 16
@@ -518,9 +512,9 @@ State 16
 State 17
 
    11 varDeclInit: varDeclId •
-   12            | varDeclId • ':' simpleExp
+   12            | varDeclId • ytcolon simpleExp
 
-    ':'  shift, and go to state 26
+    ytcolon  shift, and go to state 26
 
     $default  reduce using rule 11 (varDeclInit)
 
@@ -537,17 +531,17 @@ State 18
 
 State 19
 
-   19 funDecl: ID '(' parms • ')' compoundStmt
+   19 funDecl: ID ytlparen parms • ytrparen compoundStmt
 
-    ')'  shift, and go to state 30
+    ytrparen  shift, and go to state 30
 
 
 State 20
 
    20 parms: parmList •
-   22 parmList: parmList • ';' parmTypeList
+   22 parmList: parmList • ytsemicolon parmTypeList
 
-    ';'  shift, and go to state 31
+    ytsemicolon  shift, and go to state 31
 
     $default  reduce using rule 20 (parms)
 
@@ -561,18 +555,18 @@ State 21
 
 State 22
 
-   14 varDeclId: ID '[' • NUMCONST ']'
+   14 varDeclId: ID ytlbracket • NUMCONST ytrbracket
 
     NUMCONST  shift, and go to state 32
 
 
 State 23
 
-   18 funDecl: typeSpec ID '(' • parms ')' compoundStmt
+   18 funDecl: typeSpec ID ytlparen • parms ytrparen compoundStmt
 
-    "bool"  shift, and go to state 2
-    "char"  shift, and go to state 3
-    "int"   shift, and go to state 4
+    ytint   shift, and go to state 2
+    ytbool  shift, and go to state 3
+    ytchar  shift, and go to state 4
 
     $default  reduce using rule 21 (parms)
 
@@ -584,14 +578,7 @@ State 23
 
 State 24
 
-    6 varDecl: typeSpec varDeclList ';' •
-
-    $default  reduce using rule 6 (varDecl)
-
-
-State 25
-
-    9 varDeclList: varDeclList ',' • varDeclInit
+    9 varDeclList: varDeclList ytcomma • varDeclInit
 
     ID  shift, and go to state 34
 
@@ -599,20 +586,27 @@ State 25
     varDeclId    go to state 17
 
 
+State 25
+
+    6 varDecl: typeSpec varDeclList ytsemicolon •
+
+    $default  reduce using rule 6 (varDecl)
+
+
 State 26
 
-   12 varDeclInit: varDeclId ':' • simpleExp
+   12 varDeclInit: varDeclId ytcolon • simpleExp
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
 
     simpleExp    go to state 46
     andExp       go to state 47
@@ -632,9 +626,9 @@ State 26
 State 27
 
    27 parmId: ID •
-   28       | ID • '[' ']'
+   28       | ID • ytlbracket ytrbracket
 
-    '['  shift, and go to state 59
+    ytlbracket  shift, and go to state 59
 
     $default  reduce using rule 27 (parmId)
 
@@ -642,9 +636,9 @@ State 27
 State 28
 
    24 parmTypeList: typeSpec parmIdList •
-   25 parmIdList: parmIdList • ',' parmId
+   25 parmIdList: parmIdList • ytcomma parmId
 
-    ','  shift, and go to state 60
+    ytcomma  shift, and go to state 60
 
     $default  reduce using rule 24 (parmTypeList)
 
@@ -658,20 +652,20 @@ State 29
 
 State 30
 
-   19 funDecl: ID '(' parms ')' • compoundStmt
+   19 funDecl: ID ytlparen parms ytrparen • compoundStmt
 
-    '{'  shift, and go to state 61
+    ytlbrace  shift, and go to state 61
 
     compoundStmt  go to state 62
 
 
 State 31
 
-   22 parmList: parmList ';' • parmTypeList
+   22 parmList: parmList ytsemicolon • parmTypeList
 
-    "bool"  shift, and go to state 2
-    "char"  shift, and go to state 3
-    "int"   shift, and go to state 4
+    ytint   shift, and go to state 2
+    ytbool  shift, and go to state 3
+    ytchar  shift, and go to state 4
 
     typeSpec      go to state 18
     parmTypeList  go to state 63
@@ -679,31 +673,31 @@ State 31
 
 State 32
 
-   14 varDeclId: ID '[' NUMCONST • ']'
+   14 varDeclId: ID ytlbracket NUMCONST • ytrbracket
 
-    ']'  shift, and go to state 64
+    ytrbracket  shift, and go to state 64
 
 
 State 33
 
-   18 funDecl: typeSpec ID '(' parms • ')' compoundStmt
+   18 funDecl: typeSpec ID ytlparen parms • ytrparen compoundStmt
 
-    ')'  shift, and go to state 65
+    ytrparen  shift, and go to state 65
 
 
 State 34
 
    13 varDeclId: ID •
-   14          | ID • '[' NUMCONST ']'
+   14          | ID • ytlbracket NUMCONST ytrbracket
 
-    '['  shift, and go to state 22
+    ytlbracket  shift, and go to state 22
 
     $default  reduce using rule 13 (varDeclId)
 
 
 State 35
 
-    9 varDeclList: varDeclList ',' varDeclInit •
+    9 varDeclList: varDeclList ytcomma varDeclInit •
 
     $default  reduce using rule 9 (varDeclList)
 
@@ -711,11 +705,11 @@ State 35
 State 36
 
    90 mutable: ID •
-   91        | ID • '[' exp ']'
-   95 call: ID • '(' args ')'
+   91        | ID • ytlbracket exp ytrbracket
+   95 call: ID • ytlparen args ytrparen
 
-    '['  shift, and go to state 66
-    '('  shift, and go to state 67
+    ytlbracket  shift, and go to state 66
+    ytlparen    shift, and go to state 67
 
     $default  reduce using rule 90 (mutable)
 
@@ -750,18 +744,39 @@ State 40
 
 State 41
 
-   92 immutable: '(' • exp ')'
+   85 unaryop: ytsub •
+
+    $default  reduce using rule 85 (unaryop)
+
+
+State 42
+
+   86 unaryop: ytmul •
+
+    $default  reduce using rule 86 (unaryop)
+
+
+State 43
+
+   87 unaryop: ytquestion •
+
+    $default  reduce using rule 87 (unaryop)
+
+
+State 44
+
+   92 immutable: ytlparen • exp ytrparen
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
 
     exp          go to state 68
     simpleExp    go to state 69
@@ -779,20 +794,20 @@ State 41
     constant     go to state 58
 
 
-State 42
+State 45
 
-   64 unaryRelExp: "not" • unaryRelExp
+   64 unaryRelExp: ytnot • unaryRelExp
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
 
     unaryRelExp  go to state 71
     relExp       go to state 49
@@ -807,33 +822,12 @@ State 42
     constant     go to state 58
 
 
-State 43
-
-   85 unaryop: '-' •
-
-    $default  reduce using rule 85 (unaryop)
-
-
-State 44
-
-   86 unaryop: '*' •
-
-    $default  reduce using rule 86 (unaryop)
-
-
-State 45
-
-   87 unaryop: '?' •
-
-    $default  reduce using rule 87 (unaryop)
-
-
 State 46
 
-   12 varDeclInit: varDeclId ':' simpleExp •
-   60 simpleExp: simpleExp • "or" andExp
+   12 varDeclInit: varDeclId ytcolon simpleExp •
+   60 simpleExp: simpleExp • ytor andExp
 
-    "or"  shift, and go to state 72
+    ytor  shift, and go to state 72
 
     $default  reduce using rule 12 (varDeclInit)
 
@@ -841,9 +835,9 @@ State 46
 State 47
 
    61 simpleExp: andExp •
-   62 andExp: andExp • "and" unaryRelExp
+   62 andExp: andExp • ytand unaryRelExp
 
-    "and"  shift, and go to state 73
+    ytand  shift, and go to state 73
 
     $default  reduce using rule 61 (simpleExp)
 
@@ -868,14 +862,14 @@ State 50
    67       | sumExp •
    74 sumExp: sumExp • sumop mulExp
 
-    '<'   shift, and go to state 74
-    "<="  shift, and go to state 75
-    '>'   shift, and go to state 76
-    ">="  shift, and go to state 77
-    "=="  shift, and go to state 78
-    "!="  shift, and go to state 79
-    '+'   shift, and go to state 80
-    '-'   shift, and go to state 81
+    ytlesser     shift, and go to state 74
+    ytgreater    shift, and go to state 75
+    ytadd        shift, and go to state 76
+    ytsub        shift, and go to state 77
+    yteq         shift, and go to state 78
+    ytnoteq      shift, and go to state 79
+    yteqlesser   shift, and go to state 80
+    yteqgreater  shift, and go to state 81
 
     $default  reduce using rule 67 (relExp)
 
@@ -888,9 +882,9 @@ State 51
    75 sumExp: mulExp •
    78 mulExp: mulExp • mulop unaryExp
 
-    '*'  shift, and go to state 84
-    '/'  shift, and go to state 85
-    '%'  shift, and go to state 86
+    ytmul  shift, and go to state 84
+    ytdiv  shift, and go to state 85
+    ytmod  shift, and go to state 86
 
     $default  reduce using rule 75 (sumExp)
 
@@ -913,10 +907,10 @@ State 53
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
 
     unaryExp   go to state 88
     unaryop    go to state 53
@@ -964,14 +958,14 @@ State 58
 
 State 59
 
-   28 parmId: ID '[' • ']'
+   28 parmId: ID ytlbracket • ytrbracket
 
-    ']'  shift, and go to state 89
+    ytrbracket  shift, and go to state 89
 
 
 State 60
 
-   25 parmIdList: parmIdList ',' • parmId
+   25 parmIdList: parmIdList ytcomma • parmId
 
     ID  shift, and go to state 27
 
@@ -980,7 +974,7 @@ State 60
 
 State 61
 
-   37 compoundStmt: '{' • localDecls stmtList '}'
+   37 compoundStmt: ytlbrace • localDecls stmtList ytrbrace
 
     $default  reduce using rule 39 (localDecls)
 
@@ -989,48 +983,48 @@ State 61
 
 State 62
 
-   19 funDecl: ID '(' parms ')' compoundStmt •
+   19 funDecl: ID ytlparen parms ytrparen compoundStmt •
 
     $default  reduce using rule 19 (funDecl)
 
 
 State 63
 
-   22 parmList: parmList ';' parmTypeList •
+   22 parmList: parmList ytsemicolon parmTypeList •
 
     $default  reduce using rule 22 (parmList)
 
 
 State 64
 
-   14 varDeclId: ID '[' NUMCONST ']' •
+   14 varDeclId: ID ytlbracket NUMCONST ytrbracket •
 
     $default  reduce using rule 14 (varDeclId)
 
 
 State 65
 
-   18 funDecl: typeSpec ID '(' parms ')' • compoundStmt
+   18 funDecl: typeSpec ID ytlparen parms ytrparen • compoundStmt
 
-    '{'  shift, and go to state 61
+    ytlbrace  shift, and go to state 61
 
     compoundStmt  go to state 92
 
 
 State 66
 
-   91 mutable: ID '[' • exp ']'
+   91 mutable: ID ytlbracket • exp ytrbracket
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
 
     exp          go to state 93
     simpleExp    go to state 69
@@ -1050,18 +1044,18 @@ State 66
 
 State 67
 
-   95 call: ID '(' • args ')'
+   95 call: ID ytlparen • args ytrparen
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
 
     $default  reduce using rule 97 (args)
 
@@ -1085,17 +1079,17 @@ State 67
 
 State 68
 
-   92 immutable: '(' exp • ')'
+   92 immutable: ytlparen exp • ytrparen
 
-    ')'  shift, and go to state 97
+    ytrparen  shift, and go to state 97
 
 
 State 69
 
    54 exp: simpleExp •
-   60 simpleExp: simpleExp • "or" andExp
+   60 simpleExp: simpleExp • ytor andExp
 
-    "or"  shift, and go to state 72
+    ytor  shift, and go to state 72
 
     $default  reduce using rule 54 (exp)
 
@@ -1103,17 +1097,17 @@ State 69
 State 70
 
    51 exp: mutable • assignop exp
-   52    | mutable • "++"
-   53    | mutable • "--"
+   52    | mutable • ytinc
+   53    | mutable • ytdec
    88 factor: mutable •
 
-    '='   shift, and go to state 98
-    "++"  shift, and go to state 99
-    "--"  shift, and go to state 100
-    "+="  shift, and go to state 101
-    "-="  shift, and go to state 102
-    "*="  shift, and go to state 103
-    "/="  shift, and go to state 104
+    ytequals  shift, and go to state 98
+    ytassadd  shift, and go to state 99
+    ytasssub  shift, and go to state 100
+    ytassmul  shift, and go to state 101
+    ytassdiv  shift, and go to state 102
+    ytinc     shift, and go to state 103
+    ytdec     shift, and go to state 104
 
     $default  reduce using rule 88 (factor)
 
@@ -1122,25 +1116,25 @@ State 70
 
 State 71
 
-   64 unaryRelExp: "not" unaryRelExp •
+   64 unaryRelExp: ytnot unaryRelExp •
 
     $default  reduce using rule 64 (unaryRelExp)
 
 
 State 72
 
-   60 simpleExp: simpleExp "or" • andExp
+   60 simpleExp: simpleExp ytor • andExp
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
 
     andExp       go to state 106
     unaryRelExp  go to state 48
@@ -1158,18 +1152,18 @@ State 72
 
 State 73
 
-   62 andExp: andExp "and" • unaryRelExp
+   62 andExp: andExp ytand • unaryRelExp
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
 
     unaryRelExp  go to state 107
     relExp       go to state 49
@@ -1186,58 +1180,58 @@ State 73
 
 State 74
 
-   68 relop: '<' •
+   68 relop: ytlesser •
 
     $default  reduce using rule 68 (relop)
 
 
 State 75
 
-   69 relop: "<=" •
-
-    $default  reduce using rule 69 (relop)
-
-
-State 76
-
-   70 relop: '>' •
+   70 relop: ytgreater •
 
     $default  reduce using rule 70 (relop)
 
 
+State 76
+
+   76 sumop: ytadd •
+
+    $default  reduce using rule 76 (sumop)
+
+
 State 77
 
-   71 relop: ">=" •
+   77 sumop: ytsub •
 
-    $default  reduce using rule 71 (relop)
+    $default  reduce using rule 77 (sumop)
 
 
 State 78
 
-   72 relop: "==" •
+   72 relop: yteq •
 
     $default  reduce using rule 72 (relop)
 
 
 State 79
 
-   73 relop: "!=" •
+   73 relop: ytnoteq •
 
     $default  reduce using rule 73 (relop)
 
 
 State 80
 
-   76 sumop: '+' •
+   69 relop: yteqlesser •
 
-    $default  reduce using rule 76 (sumop)
+    $default  reduce using rule 69 (relop)
 
 
 State 81
 
-   77 sumop: '-' •
+   71 relop: yteqgreater •
 
-    $default  reduce using rule 77 (sumop)
+    $default  reduce using rule 71 (relop)
 
 
 State 82
@@ -1249,10 +1243,10 @@ State 82
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
 
     sumExp     go to state 108
     mulExp     go to state 51
@@ -1274,10 +1268,10 @@ State 83
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
 
     mulExp     go to state 109
     unaryExp   go to state 52
@@ -1291,21 +1285,21 @@ State 83
 
 State 84
 
-   80 mulop: '*' •
+   80 mulop: ytmul •
 
     $default  reduce using rule 80 (mulop)
 
 
 State 85
 
-   81 mulop: '/' •
+   81 mulop: ytdiv •
 
     $default  reduce using rule 81 (mulop)
 
 
 State 86
 
-   82 mulop: '%' •
+   82 mulop: ytmod •
 
     $default  reduce using rule 82 (mulop)
 
@@ -1319,10 +1313,10 @@ State 87
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
 
     unaryExp   go to state 110
     unaryop    go to state 53
@@ -1342,27 +1336,27 @@ State 88
 
 State 89
 
-   28 parmId: ID '[' ']' •
+   28 parmId: ID ytlbracket ytrbracket •
 
     $default  reduce using rule 28 (parmId)
 
 
 State 90
 
-   25 parmIdList: parmIdList ',' parmId •
+   25 parmIdList: parmIdList ytcomma parmId •
 
     $default  reduce using rule 25 (parmIdList)
 
 
 State 91
 
-   37 compoundStmt: '{' localDecls • stmtList '}'
+   37 compoundStmt: ytlbrace localDecls • stmtList ytrbrace
    38 localDecls: localDecls • scopedVarDecl
 
-    "static"  shift, and go to state 111
-    "bool"    shift, and go to state 2
-    "char"    shift, and go to state 3
-    "int"     shift, and go to state 4
+    ytint     shift, and go to state 2
+    ytbool    shift, and go to state 3
+    ytchar    shift, and go to state 4
+    ytstatic  shift, and go to state 111
 
     $default  reduce using rule 41 (stmtList)
 
@@ -1373,16 +1367,16 @@ State 91
 
 State 92
 
-   18 funDecl: typeSpec ID '(' parms ')' compoundStmt •
+   18 funDecl: typeSpec ID ytlparen parms ytrparen compoundStmt •
 
     $default  reduce using rule 18 (funDecl)
 
 
 State 93
 
-   91 mutable: ID '[' exp • ']'
+   91 mutable: ID ytlbracket exp • ytrbracket
 
-    ']'  shift, and go to state 115
+    ytrbracket  shift, and go to state 115
 
 
 State 94
@@ -1394,75 +1388,75 @@ State 94
 
 State 95
 
-   95 call: ID '(' args • ')'
+   95 call: ID ytlparen args • ytrparen
 
-    ')'  shift, and go to state 116
+    ytrparen  shift, and go to state 116
 
 
 State 96
 
    96 args: argList •
-   98 argList: argList • ',' exp
+   98 argList: argList • ytcomma exp
 
-    ','  shift, and go to state 117
+    ytcomma  shift, and go to state 117
 
     $default  reduce using rule 96 (args)
 
 
 State 97
 
-   92 immutable: '(' exp ')' •
+   92 immutable: ytlparen exp ytrparen •
 
     $default  reduce using rule 92 (immutable)
 
 
 State 98
 
-   55 assignop: '=' •
+   55 assignop: ytequals •
 
     $default  reduce using rule 55 (assignop)
 
 
 State 99
 
-   52 exp: mutable "++" •
-
-    $default  reduce using rule 52 (exp)
-
-
-State 100
-
-   53 exp: mutable "--" •
-
-    $default  reduce using rule 53 (exp)
-
-
-State 101
-
-   56 assignop: "+=" •
+   56 assignop: ytassadd •
 
     $default  reduce using rule 56 (assignop)
 
 
-State 102
+State 100
 
-   57 assignop: "-=" •
+   57 assignop: ytasssub •
 
     $default  reduce using rule 57 (assignop)
 
 
-State 103
+State 101
 
-   58 assignop: "*=" •
+   58 assignop: ytassmul •
 
     $default  reduce using rule 58 (assignop)
 
 
-State 104
+State 102
 
-   59 assignop: "/=" •
+   59 assignop: ytassdiv •
 
     $default  reduce using rule 59 (assignop)
+
+
+State 103
+
+   52 exp: mutable ytinc •
+
+    $default  reduce using rule 52 (exp)
+
+
+State 104
+
+   53 exp: mutable ytdec •
+
+    $default  reduce using rule 53 (exp)
 
 
 State 105
@@ -1474,11 +1468,11 @@ State 105
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
 
     exp          go to state 118
     simpleExp    go to state 69
@@ -1498,17 +1492,17 @@ State 105
 
 State 106
 
-   60 simpleExp: simpleExp "or" andExp •
-   62 andExp: andExp • "and" unaryRelExp
+   60 simpleExp: simpleExp ytor andExp •
+   62 andExp: andExp • ytand unaryRelExp
 
-    "and"  shift, and go to state 73
+    ytand  shift, and go to state 73
 
     $default  reduce using rule 60 (simpleExp)
 
 
 State 107
 
-   62 andExp: andExp "and" unaryRelExp •
+   62 andExp: andExp ytand unaryRelExp •
 
     $default  reduce using rule 62 (andExp)
 
@@ -1518,8 +1512,8 @@ State 108
    66 relExp: sumExp relop sumExp •
    74 sumExp: sumExp • sumop mulExp
 
-    '+'  shift, and go to state 80
-    '-'  shift, and go to state 81
+    ytadd  shift, and go to state 76
+    ytsub  shift, and go to state 77
 
     $default  reduce using rule 66 (relExp)
 
@@ -1531,9 +1525,9 @@ State 109
    74 sumExp: sumExp sumop mulExp •
    78 mulExp: mulExp • mulop unaryExp
 
-    '*'  shift, and go to state 84
-    '/'  shift, and go to state 85
-    '%'  shift, and go to state 86
+    ytmul  shift, and go to state 84
+    ytdiv  shift, and go to state 85
+    ytmod  shift, and go to state 86
 
     $default  reduce using rule 74 (sumExp)
 
@@ -1549,11 +1543,11 @@ State 110
 
 State 111
 
-    7 scopedVarDecl: "static" • typeSpec varDeclList ';'
+    7 scopedVarDecl: ytstatic • typeSpec varDeclList ytsemicolon
 
-    "bool"  shift, and go to state 2
-    "char"  shift, and go to state 3
-    "int"   shift, and go to state 4
+    ytint   shift, and go to state 2
+    ytbool  shift, and go to state 3
+    ytchar  shift, and go to state 4
 
     typeSpec  go to state 119
 
@@ -1567,7 +1561,7 @@ State 112
 
 State 113
 
-    8 scopedVarDecl: typeSpec • varDeclList ';'
+    8 scopedVarDecl: typeSpec • varDeclList ytsemicolon
 
     ID  shift, and go to state 34
 
@@ -1578,7 +1572,7 @@ State 113
 
 State 114
 
-   37 compoundStmt: '{' localDecls stmtList • '}'
+   37 compoundStmt: ytlbrace localDecls stmtList • ytrbrace
    40 stmtList: stmtList • stmt
 
     ID           shift, and go to state 36
@@ -1586,19 +1580,19 @@ State 114
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    ';'          shift, and go to state 121
-    '('          shift, and go to state 41
-    '{'          shift, and go to state 61
-    '}'          shift, and go to state 122
-    "if"         shift, and go to state 123
-    "while"      shift, and go to state 124
-    "for"        shift, and go to state 125
-    "return"     shift, and go to state 126
-    "break"      shift, and go to state 127
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytsemicolon  shift, and go to state 121
+    ytlbrace     shift, and go to state 61
+    ytrbrace     shift, and go to state 122
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
+    ytif         shift, and go to state 123
+    ytfor        shift, and go to state 124
+    ytbreak      shift, and go to state 125
+    ytwhile      shift, and go to state 126
+    ytreturn     shift, and go to state 127
 
     stmt          go to state 128
     expStmt       go to state 129
@@ -1625,32 +1619,32 @@ State 114
 
 State 115
 
-   91 mutable: ID '[' exp ']' •
+   91 mutable: ID ytlbracket exp ytrbracket •
 
     $default  reduce using rule 91 (mutable)
 
 
 State 116
 
-   95 call: ID '(' args ')' •
+   95 call: ID ytlparen args ytrparen •
 
     $default  reduce using rule 95 (call)
 
 
 State 117
 
-   98 argList: argList ',' • exp
+   98 argList: argList ytcomma • exp
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
 
     exp          go to state 136
     simpleExp    go to state 69
@@ -1677,7 +1671,7 @@ State 118
 
 State 119
 
-    7 scopedVarDecl: "static" typeSpec • varDeclList ';'
+    7 scopedVarDecl: ytstatic typeSpec • varDeclList ytsemicolon
 
     ID  shift, and go to state 34
 
@@ -1688,42 +1682,42 @@ State 119
 
 State 120
 
-    8 scopedVarDecl: typeSpec varDeclList • ';'
-    9 varDeclList: varDeclList • ',' varDeclInit
+    8 scopedVarDecl: typeSpec varDeclList • ytsemicolon
+    9 varDeclList: varDeclList • ytcomma varDeclInit
 
-    ';'  shift, and go to state 138
-    ','  shift, and go to state 25
+    ytcomma      shift, and go to state 24
+    ytsemicolon  shift, and go to state 138
 
 
 State 121
 
-   36 expStmt: ';' •
+   36 expStmt: ytsemicolon •
 
     $default  reduce using rule 36 (expStmt)
 
 
 State 122
 
-   37 compoundStmt: '{' localDecls stmtList '}' •
+   37 compoundStmt: ytlbrace localDecls stmtList ytrbrace •
 
     $default  reduce using rule 37 (compoundStmt)
 
 
 State 123
 
-   42 selectStmt: "if" • simpleExp "then" stmt
-   43           | "if" • simpleExp "then" "else" stmt
+   42 selectStmt: ytif • simpleExp ytthen stmt
+   43           | ytif • simpleExp ytthen ytelse stmt
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
 
     simpleExp    go to state 139
     andExp       go to state 47
@@ -1742,20 +1736,34 @@ State 123
 
 State 124
 
-   44 iterStmt: "while" • simpleExp "then" stmt
+   45 iterStmt: ytfor • ID ytequals iterRange ytdo stmt
+
+    ID  shift, and go to state 140
+
+
+State 125
+
+   50 breakStmt: ytbreak • ytsemicolon
+
+    ytsemicolon  shift, and go to state 141
+
+
+State 126
+
+   44 iterStmt: ytwhile • simpleExp ytthen stmt
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
 
-    simpleExp    go to state 140
+    simpleExp    go to state 142
     andExp       go to state 47
     unaryRelExp  go to state 48
     relExp       go to state 49
@@ -1770,31 +1778,24 @@ State 124
     constant     go to state 58
 
 
-State 125
+State 127
 
-   45 iterStmt: "for" • ID '=' iterRange "do" stmt
-
-    ID  shift, and go to state 141
-
-
-State 126
-
-   48 returnStmt: "return" • ';'
-   49           | "return" • exp ';'
+   48 returnStmt: ytreturn • ytsemicolon
+   49           | ytreturn • exp ytsemicolon
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    ';'          shift, and go to state 142
-    '('          shift, and go to state 41
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytsemicolon  shift, and go to state 143
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
 
-    exp          go to state 143
+    exp          go to state 144
     simpleExp    go to state 69
     andExp       go to state 47
     unaryRelExp  go to state 48
@@ -1808,13 +1809,6 @@ State 126
     immutable    go to state 56
     call         go to state 57
     constant     go to state 58
-
-
-State 127
-
-   50 breakStmt: "break" • ';'
-
-    ';'  shift, and go to state 144
 
 
 State 128
@@ -1868,118 +1862,118 @@ State 134
 
 State 135
 
-   35 expStmt: exp • ';'
+   35 expStmt: exp • ytsemicolon
 
-    ';'  shift, and go to state 145
+    ytsemicolon  shift, and go to state 145
 
 
 State 136
 
-   98 argList: argList ',' exp •
+   98 argList: argList ytcomma exp •
 
     $default  reduce using rule 98 (argList)
 
 
 State 137
 
-    7 scopedVarDecl: "static" typeSpec varDeclList • ';'
-    9 varDeclList: varDeclList • ',' varDeclInit
+    7 scopedVarDecl: ytstatic typeSpec varDeclList • ytsemicolon
+    9 varDeclList: varDeclList • ytcomma varDeclInit
 
-    ';'  shift, and go to state 146
-    ','  shift, and go to state 25
+    ytcomma      shift, and go to state 24
+    ytsemicolon  shift, and go to state 146
 
 
 State 138
 
-    8 scopedVarDecl: typeSpec varDeclList ';' •
+    8 scopedVarDecl: typeSpec varDeclList ytsemicolon •
 
     $default  reduce using rule 8 (scopedVarDecl)
 
 
 State 139
 
-   42 selectStmt: "if" simpleExp • "then" stmt
-   43           | "if" simpleExp • "then" "else" stmt
-   60 simpleExp: simpleExp • "or" andExp
+   42 selectStmt: ytif simpleExp • ytthen stmt
+   43           | ytif simpleExp • ytthen ytelse stmt
+   60 simpleExp: simpleExp • ytor andExp
 
-    "then"  shift, and go to state 147
-    "or"    shift, and go to state 72
+    ytor    shift, and go to state 72
+    ytthen  shift, and go to state 147
 
 
 State 140
 
-   44 iterStmt: "while" simpleExp • "then" stmt
-   60 simpleExp: simpleExp • "or" andExp
+   45 iterStmt: ytfor ID • ytequals iterRange ytdo stmt
 
-    "then"  shift, and go to state 148
-    "or"    shift, and go to state 72
+    ytequals  shift, and go to state 148
 
 
 State 141
 
-   45 iterStmt: "for" ID • '=' iterRange "do" stmt
-
-    '='  shift, and go to state 149
-
-
-State 142
-
-   48 returnStmt: "return" ';' •
-
-    $default  reduce using rule 48 (returnStmt)
-
-
-State 143
-
-   49 returnStmt: "return" exp • ';'
-
-    ';'  shift, and go to state 150
-
-
-State 144
-
-   50 breakStmt: "break" ';' •
+   50 breakStmt: ytbreak ytsemicolon •
 
     $default  reduce using rule 50 (breakStmt)
 
 
+State 142
+
+   44 iterStmt: ytwhile simpleExp • ytthen stmt
+   60 simpleExp: simpleExp • ytor andExp
+
+    ytor    shift, and go to state 72
+    ytthen  shift, and go to state 149
+
+
+State 143
+
+   48 returnStmt: ytreturn ytsemicolon •
+
+    $default  reduce using rule 48 (returnStmt)
+
+
+State 144
+
+   49 returnStmt: ytreturn exp • ytsemicolon
+
+    ytsemicolon  shift, and go to state 150
+
+
 State 145
 
-   35 expStmt: exp ';' •
+   35 expStmt: exp ytsemicolon •
 
     $default  reduce using rule 35 (expStmt)
 
 
 State 146
 
-    7 scopedVarDecl: "static" typeSpec varDeclList ';' •
+    7 scopedVarDecl: ytstatic typeSpec varDeclList ytsemicolon •
 
     $default  reduce using rule 7 (scopedVarDecl)
 
 
 State 147
 
-   42 selectStmt: "if" simpleExp "then" • stmt
-   43           | "if" simpleExp "then" • "else" stmt
+   42 selectStmt: ytif simpleExp ytthen • stmt
+   43           | ytif simpleExp ytthen • ytelse stmt
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    ';'          shift, and go to state 121
-    '('          shift, and go to state 41
-    '{'          shift, and go to state 61
-    "if"         shift, and go to state 123
-    "else"       shift, and go to state 151
-    "while"      shift, and go to state 124
-    "for"        shift, and go to state 125
-    "return"     shift, and go to state 126
-    "break"      shift, and go to state 127
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytsemicolon  shift, and go to state 121
+    ytlbrace     shift, and go to state 61
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
+    ytif         shift, and go to state 123
+    ytfor        shift, and go to state 124
+    ytbreak      shift, and go to state 125
+    ytelse       shift, and go to state 151
+    ytwhile      shift, and go to state 126
+    ytreturn     shift, and go to state 127
 
     stmt          go to state 152
     expStmt       go to state 129
@@ -2006,27 +2000,58 @@ State 147
 
 State 148
 
-   44 iterStmt: "while" simpleExp "then" • stmt
+   45 iterStmt: ytfor ID ytequals • iterRange ytdo stmt
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    ';'          shift, and go to state 121
-    '('          shift, and go to state 41
-    '{'          shift, and go to state 61
-    "if"         shift, and go to state 123
-    "while"      shift, and go to state 124
-    "for"        shift, and go to state 125
-    "return"     shift, and go to state 126
-    "break"      shift, and go to state 127
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
 
-    stmt          go to state 153
+    iterRange    go to state 153
+    simpleExp    go to state 154
+    andExp       go to state 47
+    unaryRelExp  go to state 48
+    relExp       go to state 49
+    sumExp       go to state 50
+    mulExp       go to state 51
+    unaryExp     go to state 52
+    unaryop      go to state 53
+    factor       go to state 54
+    mutable      go to state 55
+    immutable    go to state 56
+    call         go to state 57
+    constant     go to state 58
+
+
+State 149
+
+   44 iterStmt: ytwhile simpleExp ytthen • stmt
+
+    ID           shift, and go to state 36
+    NUMCONST     shift, and go to state 37
+    CHARCONST    shift, and go to state 38
+    STRINGCONST  shift, and go to state 39
+    BOOLCONST    shift, and go to state 40
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytsemicolon  shift, and go to state 121
+    ytlbrace     shift, and go to state 61
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
+    ytif         shift, and go to state 123
+    ytfor        shift, and go to state 124
+    ytbreak      shift, and go to state 125
+    ytwhile      shift, and go to state 126
+    ytreturn     shift, and go to state 127
+
+    stmt          go to state 155
     expStmt       go to state 129
     compoundStmt  go to state 130
     selectStmt    go to state 131
@@ -2049,65 +2074,34 @@ State 148
     constant      go to state 58
 
 
-State 149
-
-   45 iterStmt: "for" ID '=' • iterRange "do" stmt
-
-    ID           shift, and go to state 36
-    NUMCONST     shift, and go to state 37
-    CHARCONST    shift, and go to state 38
-    STRINGCONST  shift, and go to state 39
-    BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
-
-    iterRange    go to state 154
-    simpleExp    go to state 155
-    andExp       go to state 47
-    unaryRelExp  go to state 48
-    relExp       go to state 49
-    sumExp       go to state 50
-    mulExp       go to state 51
-    unaryExp     go to state 52
-    unaryop      go to state 53
-    factor       go to state 54
-    mutable      go to state 55
-    immutable    go to state 56
-    call         go to state 57
-    constant     go to state 58
-
-
 State 150
 
-   49 returnStmt: "return" exp ';' •
+   49 returnStmt: ytreturn exp ytsemicolon •
 
     $default  reduce using rule 49 (returnStmt)
 
 
 State 151
 
-   43 selectStmt: "if" simpleExp "then" "else" • stmt
+   43 selectStmt: ytif simpleExp ytthen ytelse • stmt
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    ';'          shift, and go to state 121
-    '('          shift, and go to state 41
-    '{'          shift, and go to state 61
-    "if"         shift, and go to state 123
-    "while"      shift, and go to state 124
-    "for"        shift, and go to state 125
-    "return"     shift, and go to state 126
-    "break"      shift, and go to state 127
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytsemicolon  shift, and go to state 121
+    ytlbrace     shift, and go to state 61
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
+    ytif         shift, and go to state 123
+    ytfor        shift, and go to state 124
+    ytbreak      shift, and go to state 125
+    ytwhile      shift, and go to state 126
+    ytreturn     shift, and go to state 127
 
     stmt          go to state 156
     expStmt       go to state 129
@@ -2134,63 +2128,63 @@ State 151
 
 State 152
 
-   42 selectStmt: "if" simpleExp "then" stmt •
+   42 selectStmt: ytif simpleExp ytthen stmt •
 
     $default  reduce using rule 42 (selectStmt)
 
 
 State 153
 
-   44 iterStmt: "while" simpleExp "then" stmt •
+   45 iterStmt: ytfor ID ytequals iterRange • ytdo stmt
 
-    $default  reduce using rule 44 (iterStmt)
+    ytdo  shift, and go to state 157
 
 
 State 154
 
-   45 iterStmt: "for" ID '=' iterRange • "do" stmt
+   46 iterRange: simpleExp • ytto simpleExp
+   47          | simpleExp • ytto simpleExp ytby simpleExp
+   60 simpleExp: simpleExp • ytor andExp
 
-    "do"  shift, and go to state 157
+    ytor  shift, and go to state 72
+    ytto  shift, and go to state 158
 
 
 State 155
 
-   46 iterRange: simpleExp • "to" simpleExp
-   47          | simpleExp • "to" simpleExp "by" simpleExp
-   60 simpleExp: simpleExp • "or" andExp
+   44 iterStmt: ytwhile simpleExp ytthen stmt •
 
-    "to"  shift, and go to state 158
-    "or"  shift, and go to state 72
+    $default  reduce using rule 44 (iterStmt)
 
 
 State 156
 
-   43 selectStmt: "if" simpleExp "then" "else" stmt •
+   43 selectStmt: ytif simpleExp ytthen ytelse stmt •
 
     $default  reduce using rule 43 (selectStmt)
 
 
 State 157
 
-   45 iterStmt: "for" ID '=' iterRange "do" • stmt
+   45 iterStmt: ytfor ID ytequals iterRange ytdo • stmt
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    ';'          shift, and go to state 121
-    '('          shift, and go to state 41
-    '{'          shift, and go to state 61
-    "if"         shift, and go to state 123
-    "while"      shift, and go to state 124
-    "for"        shift, and go to state 125
-    "return"     shift, and go to state 126
-    "break"      shift, and go to state 127
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytsemicolon  shift, and go to state 121
+    ytlbrace     shift, and go to state 61
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
+    ytif         shift, and go to state 123
+    ytfor        shift, and go to state 124
+    ytbreak      shift, and go to state 125
+    ytwhile      shift, and go to state 126
+    ytreturn     shift, and go to state 127
 
     stmt          go to state 159
     expStmt       go to state 129
@@ -2217,19 +2211,19 @@ State 157
 
 State 158
 
-   46 iterRange: simpleExp "to" • simpleExp
-   47          | simpleExp "to" • simpleExp "by" simpleExp
+   46 iterRange: simpleExp ytto • simpleExp
+   47          | simpleExp ytto • simpleExp ytby simpleExp
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
 
     simpleExp    go to state 160
     andExp       go to state 47
@@ -2248,37 +2242,37 @@ State 158
 
 State 159
 
-   45 iterStmt: "for" ID '=' iterRange "do" stmt •
+   45 iterStmt: ytfor ID ytequals iterRange ytdo stmt •
 
     $default  reduce using rule 45 (iterStmt)
 
 
 State 160
 
-   46 iterRange: simpleExp "to" simpleExp •
-   47          | simpleExp "to" simpleExp • "by" simpleExp
-   60 simpleExp: simpleExp • "or" andExp
+   46 iterRange: simpleExp ytto simpleExp •
+   47          | simpleExp ytto simpleExp • ytby simpleExp
+   60 simpleExp: simpleExp • ytor andExp
 
-    "by"  shift, and go to state 161
-    "or"  shift, and go to state 72
+    ytor  shift, and go to state 72
+    ytby  shift, and go to state 161
 
     $default  reduce using rule 46 (iterRange)
 
 
 State 161
 
-   47 iterRange: simpleExp "to" simpleExp "by" • simpleExp
+   47 iterRange: simpleExp ytto simpleExp ytby • simpleExp
 
     ID           shift, and go to state 36
     NUMCONST     shift, and go to state 37
     CHARCONST    shift, and go to state 38
     STRINGCONST  shift, and go to state 39
     BOOLCONST    shift, and go to state 40
-    '('          shift, and go to state 41
-    "not"        shift, and go to state 42
-    '-'          shift, and go to state 43
-    '*'          shift, and go to state 44
-    '?'          shift, and go to state 45
+    ytsub        shift, and go to state 41
+    ytmul        shift, and go to state 42
+    ytquestion   shift, and go to state 43
+    ytlparen     shift, and go to state 44
+    ytnot        shift, and go to state 45
 
     simpleExp    go to state 162
     andExp       go to state 47
@@ -2297,9 +2291,9 @@ State 161
 
 State 162
 
-   47 iterRange: simpleExp "to" simpleExp "by" simpleExp •
-   60 simpleExp: simpleExp • "or" andExp
+   47 iterRange: simpleExp ytto simpleExp ytby simpleExp •
+   60 simpleExp: simpleExp • ytor andExp
 
-    "or"  shift, and go to state 72
+    ytor  shift, and go to state 72
 
     $default  reduce using rule 47 (iterRange)

@@ -60,7 +60,7 @@ static int setValue(int linenum, int tokenclass, char *svalue) {
         } else {
             yylval.tokenPtr->cvalue = svalue[1];
         }
-    } else if (tokenclass == OPERAND) {
+    } else {
         yylval.tokenPtr->svalue = svalue;
     }
     return tokenclass;
@@ -73,53 +73,53 @@ static int setValue(int linenum, int tokenclass, char *svalue) {
 \n                      { line++; }
 [ \t]                   { }
 "//".*\n                { line++; }
-"<"                     { return setValue(line, OPERAND, "<"); }
-">"                     { return setValue(line, OPERAND, ">"); }
-"="                     { return setValue(line, OPERAND, "="); }
-"+"                     { return setValue(line, OPERAND, "+"); }
-"-"                     { return setValue(line, OPERAND, "-"); }
-"*"                     { return setValue(line, OPERAND, "*"); }
-"/"                     { return setValue(line, OPERAND, "/"); }
-"["                     { return setValue(line, OPERAND, "["); }
-"]"                     { return setValue(line, OPERAND, "]"); }
-"?"                     { return setValue(line, OPERAND, "?"); }
-","                     { return setValue(line, OPERAND, ","); }
-";"                     { return setValue(line, OPERAND, ";"); }
-":"                     { return setValue(line, OPERAND, ":"); }
-"{"                     { return setValue(line, OPERAND, "{"); }
-"}"                     { return setValue(line, OPERAND, "}"); }
-"("                     { return setValue(line, OPERAND, "("); }
-")"                     { return setValue(line, OPERAND, ")"); }
-"%"                     { return setValue(line, OPERAND, "%"); }
-"and"                   { return setValue(line, OPERAND, "AND"); }
-"or"                    { return setValue(line, OPERAND, "OR"); }
-"=="                    { return setValue(line, OPERAND, "EQ"); }
-"!="                    { return setValue(line, OPERAND, "NEQ"); }
-"<="                    { return setValue(line, OPERAND, "LEQ"); }
-">="                    { return setValue(line, OPERAND, "GEQ"); }
-"+="                    { return setValue(line, OPERAND, "ADDASS"); }
-"-="                    { return setValue(line, OPERAND, "SUBASS"); }
-"*="                    { return setValue(line, OPERAND, "MULASS"); }
-"/="                    { return setValue(line, OPERAND, "DIVASS"); }
-"--"                    { return setValue(line, OPERAND, "DEC"); }
-"++"                    { return setValue(line, OPERAND, "INC"); }
-"not"                   { return setValue(line, OPERAND, "NOT"); }
-"int"                   { return setValue(line, OPERAND, "INT"); }
-"if"                    { return setValue(line, OPERAND, "IF"); }
-"for"                   { return setValue(line, OPERAND, "FOR"); }
-"to"                    { return setValue(line, OPERAND, "TO"); }
-"by"                    { return setValue(line, OPERAND, "BY"); }
-"do"                    { return setValue(line, OPERAND, "DO"); }
-"then"                  { return setValue(line, OPERAND, "THEN"); }
-"break"                 { return setValue(line, OPERAND, "BREAK"); }
-"else"                  { return setValue(line, OPERAND, "ELSE"); }
-"while"                 { return setValue(line, OPERAND, "WHILE"); }
-"return"                { return setValue(line, OPERAND, "RETURN"); }
-"bool"                  { return setValue(line, OPERAND, "BOOL"); }
-"char"                  { return setValue(line, OPERAND, "CHAR"); }
-"static"                { return setValue(line, OPERAND, "STATIC"); }
+"<"                     { return setValue(line, ytlesser, yytext); }
+">"                     { return setValue(line, ytgreater, yytext); }
+"="                     { return setValue(line, ytequals, yytext); }
+"+"                     { return setValue(line, ytadd, yytext); }
+"-"                     { return setValue(line, ytsub, yytext); }
+"*"                     { return setValue(line, ytmul, yytext); }
+"/"                     { return setValue(line, ytdiv, yytext); }
+"["                     { return setValue(line, ytlbracket, yytext); }
+"]"                     { return setValue(line, ytrbracket, yytext); }
+"?"                     { return setValue(line, ytquestion, yytext); }
+","                     { return setValue(line, ytcomma, yytext); }
+";"                     { return setValue(line, ytsemicolon, yytext); }
+":"                     { return setValue(line, ytcolon, yytext); }
+"{"                     { return setValue(line, ytlbrace, yytext); }
+"}"                     { return setValue(line, ytrbrace, yytext); }
+"("                     { return setValue(line, ytlparen, yytext); }
+")"                     { return setValue(line, ytrparen, yytext); }
+"%"                     { return setValue(line, ytmod, yytext); }
+"and"                   { return setValue(line, ytand, yytext); }
+"or"                    { return setValue(line, ytor, yytext); }
+"=="                    { return setValue(line, yteq, yytext); }
+"!="                    { return setValue(line, ytnoteq, yytext); }
+"<="                    { return setValue(line, yteqlesser, yytext); }
+">="                    { return setValue(line, yteqgreater, yytext); }
+"+="                    { return setValue(line, ytassadd, yytext); }
+"-="                    { return setValue(line, ytasssub, yytext); }
+"*="                    { return setValue(line, ytassmul, yytext); }
+"/="                    { return setValue(line, ytassdiv, yytext); }
+"--"                    { return setValue(line, ytinc, yytext); }
+"++"                    { return setValue(line, ytdec, yytext); }
+"not"                   { return setValue(line, ytnot, yytext); }
+"int"                   { return setValue(line, ytint, yytext); }
+"if"                    { return setValue(line, ytif, yytext); }
+"for"                   { return setValue(line, ytfor, yytext); }
+"to"                    { return setValue(line, ytto, yytext); }
+"by"                    { return setValue(line, ytby, yytext); }
+"do"                    { return setValue(line, ytdo, yytext); }
+"then"                  { return setValue(line, ytthen, yytext); }
+"break"                 { return setValue(line, ytbreak, yytext); }
+"else"                  { return setValue(line, ytelse, yytext); }
+"while"                 { return setValue(line, ytwhile, yytext); }
+"return"                { return setValue(line, ytreturn, yytext); }
+"bool"                  { return setValue(line, ytbool, yytext); }
+"char"                  { return setValue(line, ytchar, yytext); }
+"static"                { return setValue(line, ytstatic, yytext); }
 "true"|"false"          { return setValue(line, BOOLCONST, yytext); }
-\"(\\.|[^\n"\\])*\"       { return setValue(line, STRINGCONST, yytext); }
+\"(\\.|[^\n"\\])*\"     { return setValue(line, STRINGCONST, yytext); }
 '[^']'|'\\?.'           { return setValue(line, CHARCONST, yytext); }
 '[^\n^']+'|'\\?.[^\n^']+' { printf("WARNING(%d): character is %d characters long and not a single character: '%s'.  The first char will be used.\n", line, strlen(yytext)-2, yytext); return setValue(line, CHARCONST, yytext); }
 [a-zA-Z][0-9a-zA-Z]*    { return setValue(line, ID, yytext); }
