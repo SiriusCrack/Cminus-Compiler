@@ -22,16 +22,7 @@ ytadd
 ytsub
 ytmul
 ytdiv
-ytlbracket
-ytrbracket
 ytquestion
-ytcomma
-ytsemicolon
-ytcolon
-ytlbrace
-ytrbrace
-ytlparen
-ytrparen
 ytmod
 ytand
 ytor
@@ -70,40 +61,40 @@ declList        : declList decl
 decl            : varDecl
                 | funDecl
                 ;
-varDecl         : typeSpec varDeclList ytsemicolon
+varDecl         : typeSpec varDeclList ';'
                 ;
-scopedVarDecl   : ytstatic typeSpec varDeclList ytsemicolon
-                | typeSpec varDeclList ytsemicolon
+scopedVarDecl   : ytstatic typeSpec varDeclList ';'
+                | typeSpec varDeclList ';'
                 ;
-varDeclList     : varDeclList ytcomma varDeclInit
+varDeclList     : varDeclList ',' varDeclInit
                 | varDeclInit
                 ;
 varDeclInit     : varDeclId
-                | varDeclId ytcolon simpleExp
+                | varDeclId ':' simpleExp
                 ;
 varDeclId       : ID
-                | ID ytlbracket NUMCONST ytrbracket
+                | ID '[' NUMCONST ']'
                 ;
 typeSpec        : ytbool
                 | ytchar
                 | ytint
                 ;
-funDecl         : typeSpec ID ytlparen parms ytrparen compoundStmt
-                | ID ytlparen parms ytrparen compoundStmt
+funDecl         : typeSpec ID '(' parms ')' compoundStmt
+                | ID '(' parms ')' compoundStmt
                 ;
 parms           : parmList
-                |
+                | %empty
                 ;
-parmList        : parmList ytsemicolon parmTypeList
+parmList        : parmList ';' parmTypeList
                 | parmTypeList
                 ;
 parmTypeList    : typeSpec parmIdList
                 ;
-parmIdList      : parmIdList ytcomma parmId
+parmIdList      : parmIdList ',' parmId
                 | parmId
                 ;
 parmId          : ID
-                | ID ytlbracket ytrbracket
+                | ID '[' ']'
                 ;
 stmt            : expStmt
                 | compoundStmt
@@ -112,29 +103,30 @@ stmt            : expStmt
                 | returnStmt
                 | breakStmt
                 ;
-expStmt         : exp ytsemicolon
-                | ytsemicolon
-compoundStmt    : ytlbrace localDecls stmtList ytrbrace
+expStmt         : exp ';'
+                | ';'
+                ;
+compoundStmt    : '{' localDecls stmtList '}'
                 ;
 localDecls      : localDecls scopedVarDecl
-                | 
+                | %empty
                 ;
 stmtList        : stmtList stmt
-                | 
+                | %empty
                 ;
 selectStmt      : ytif simpleExp ytthen stmt
-                | ytif simpleExp ytthen ytelse stmt
+                | ytif simpleExp ytthen stmt ytelse stmt
                 ;
-iterStmt        : ytwhile simpleExp ytthen stmt
+iterStmt        : ytwhile simpleExp ytdo stmt
                 | ytfor ID ytequals iterRange ytdo stmt
                 ;
 iterRange       : simpleExp ytto simpleExp
                 | simpleExp ytto simpleExp ytby simpleExp
                 ;
-returnStmt      : ytreturn ytsemicolon
-                | ytreturn exp ytsemicolon
+returnStmt      : ytreturn ';'
+                | ytreturn exp ';'
                 ;
-breakStmt       : ytbreak ytsemicolon
+breakStmt       : ytbreak ';'
                 ;
 exp             : mutable assignop exp 
                 | mutable ytinc
@@ -172,8 +164,8 @@ sumExp          : sumExp sumop mulExp
 sumop           : ytadd
                 | ytsub
                 ;
-mulExp          : mulExp mulop unaryExp 
-                | unaryExp 
+mulExp          : mulExp mulop unaryExp
+                | unaryExp
                 ;
 mulop           : ytmul
                 | ytdiv
@@ -190,18 +182,18 @@ factor          : mutable
                 | immutable
                 ;
 mutable         : ID
-                | ID ytlbracket exp ytrbracket
+                | ID '[' exp ']'
                 ;
-immutable       : ytlparen exp ytrparen
+immutable       : '(' exp ')'
                 | call
                 | constant
                 ;
-call            : ID ytlparen args ytrparen
+call            : ID '(' args ')'
                 ;
 args            : argList
-                |
+                | %empty
                 ;
-argList         : argList ytcomma exp
+argList         : argList ',' exp
                 | exp
                 ;
 constant        : NUMCONST

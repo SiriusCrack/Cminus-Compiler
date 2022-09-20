@@ -26,7 +26,7 @@ void removeEscape (char *str) {
             length--;
             i--;
         }
-    } 
+    }
 }
 
 static int setValue(int linenum, int tokenclass, char *svalue) {
@@ -61,7 +61,7 @@ static int setValue(int linenum, int tokenclass, char *svalue) {
             yylval.tokenPtr->cvalue = svalue[1];
         }
     } else {
-        yylval.tokenPtr->svalue = svalue;
+        // yylval.tokenPtr->svalue = svalue;
     }
     return tokenclass;
 }
@@ -80,16 +80,7 @@ static int setValue(int linenum, int tokenclass, char *svalue) {
 "-"                     { return setValue(line, ytsub, yytext); }
 "*"                     { return setValue(line, ytmul, yytext); }
 "/"                     { return setValue(line, ytdiv, yytext); }
-"["                     { return setValue(line, ytlbracket, yytext); }
-"]"                     { return setValue(line, ytrbracket, yytext); }
 "?"                     { return setValue(line, ytquestion, yytext); }
-","                     { return setValue(line, ytcomma, yytext); }
-";"                     { return setValue(line, ytsemicolon, yytext); }
-":"                     { return setValue(line, ytcolon, yytext); }
-"{"                     { return setValue(line, ytlbrace, yytext); }
-"}"                     { return setValue(line, ytrbrace, yytext); }
-"("                     { return setValue(line, ytlparen, yytext); }
-")"                     { return setValue(line, ytrparen, yytext); }
 "%"                     { return setValue(line, ytmod, yytext); }
 "and"                   { return setValue(line, ytand, yytext); }
 "or"                    { return setValue(line, ytor, yytext); }
@@ -118,6 +109,7 @@ static int setValue(int linenum, int tokenclass, char *svalue) {
 "bool"                  { return setValue(line, ytbool, yytext); }
 "char"                  { return setValue(line, ytchar, yytext); }
 "static"                { return setValue(line, ytstatic, yytext); }
+[\[\],;:{}\(\)]         { return yytext[0]; }
 "true"|"false"          { return setValue(line, BOOLCONST, yytext); }
 \"(\\.|[^\n"\\])*\"     { return setValue(line, STRINGCONST, yytext); }
 '[^']'|'\\?.'           { return setValue(line, CHARCONST, yytext); }
