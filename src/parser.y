@@ -112,13 +112,21 @@ parmId
     | ID '[' ']'
     ;
 stmt
+    : matched
+    | unmatched
+    ;
+    
+matched
     : expStmt
     | compoundStmt
-    | unmatchedSelectStmt
     | matchedSelectStmt
-    | iterStmt
+    | matchedIterStmt
     | returnStmt
     | breakStmt
+    ;
+unmatched
+    : unmatchedSelectStmt
+    | unmatchedIterStmt
     ;
 expStmt
     : exp ';'
@@ -135,17 +143,20 @@ stmtList
     : stmtList stmt
     | %empty
     ;
-unmatchedSelectStmt
-    : ytif simpleExp ytthen matchedSelectStmt
-    | ytif simpleExp ytthen unmatchedSelectStmt
-    | ytif simpleExp ytthen matchedSelectStmt ytelse unmatchedSelectStmt
-    ;
 matchedSelectStmt
-    : ytif simpleExp ytthen matchedSelectStmt ytelse matchedSelectStmt
+    : ytif simpleExp ytthen matched ytelse matched
     ;
-iterStmt
-    : ytwhile simpleExp ytdo stmt
-    | ytfor ID ytequals iterRange ytdo stmt
+unmatchedSelectStmt
+    : ytif simpleExp ytthen stmt
+    | ytif simpleExp ytthen matched ytelse unmatched
+    ;
+matchedIterStmt
+    : ytwhile simpleExp ytdo matched
+    | ytfor ID ytequals iterRange ytdo matched
+    ;
+unmatchedIterStmt
+    : ytwhile simpleExp ytdo unmatched
+    | ytfor ID ytequals iterRange ytdo unmatched
     ;
 iterRange
     : simpleExp ytto simpleExp
