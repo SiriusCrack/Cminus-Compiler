@@ -5,6 +5,7 @@
 #include <string.h>
 
 int line = 1;
+char * tokenString;
 
 void removeEscape (char *str) {
     int i, j;
@@ -30,45 +31,51 @@ void removeEscape (char *str) {
 }
 
 static int setValue(int linenum, int tokenclass, char *svalue) {
-    struct TokenData * tokenPtr;
-    tokenPtr = malloc(sizeof(struct TokenData));
-    yylval.tokenPtr = tokenPtr;
-    yylval.tokenPtr->linenum = linenum;
-    yylval.tokenPtr->tokenstr = strdup(svalue);
-    if (tokenclass == ID) {
-        yylval.tokenPtr->svalue = svalue;
-    } else if (tokenclass == BOOLCONST) {
-        if(svalue[0] == 't') {
-            yylval.tokenPtr->nvalue = 1;
-        } else if (svalue[0] == 'f') {
-            yylval.tokenPtr->nvalue = 0;
-        }
-    } else if (tokenclass == NUMCONST) {
-        yylval.tokenPtr->nvalue = atoi(svalue);
-    } else if (tokenclass == STRINGCONST) {
-        removeEscape(svalue);
-        yylval.tokenPtr->svalue = svalue;
+    if (tokenclass == NUMCONST) {
+        yylval.numConst.lineNum = linenum;
+        yylval.numConst.tokenStr = strdup(svalue);
+        yylval.numConst.value = atoi(svalue);
+    } else if (tokenclass == ID) {
+        yylval.id.lineNum = linenum;
+        yylval.id.tokenStr = strdup(svalue);
+        yylval.id.value = svalue;
     } else if (tokenclass == CHARCONST) {
+        yylval.charConst.lineNum = linenum;
+        yylval.charConst.tokenStr = strdup(svalue);
         if (svalue[1] == '\\') {
             if(svalue[2] == 'n') {
-                yylval.tokenPtr->cvalue = '\n';
+                yylval.charConst.value = '\n';
             } else if(svalue[2] == '0') {
-                yylval.tokenPtr->cvalue = '\0';
+                yylval.charConst.value = '\0';
             } else {
-                yylval.tokenPtr->cvalue = svalue[2];
+                yylval.charConst.value = svalue[2];
             }
         } else {
-            yylval.tokenPtr->cvalue = svalue[1];
+            yylval.charConst.value = svalue[1];
+        }
+    } else if (tokenclass == STRINGCONST) {
+        yylval.stringConst.lineNum = linenum;
+        yylval.stringConst.tokenStr = strdup(svalue);
+        removeEscape(svalue);
+        yylval.stringConst.value = svalue;
+    } else if (tokenclass == BOOLCONST) {
+        yylval.boolConst.lineNum = linenum;
+        yylval.boolConst.tokenStr = strdup(svalue);
+        if(svalue[0] == 't') {
+            yylval.boolConst.value = 1;
+        } else if (svalue[0] == 'f') {
+            yylval.boolConst.value = 0;
         }
     } else if (tokenclass == OPERAND) {
-        yylval.tokenPtr->svalue = svalue;
+        yylval.operand.lineNum = linenum;
+        yylval.operand.tokenStr = strdup(svalue);
+        yylval.operand.value = svalue;
     }
     return tokenclass;
 }
 %}
 
 %option noyywrap
-
 %%
 \n                      { line++; }
 [ \t]                   { }
@@ -119,7 +126,7 @@ static int setValue(int linenum, int tokenclass, char *svalue) {
 "char"                  { return setValue(line, OPERAND, "CHAR"); }
 "static"                { return setValue(line, OPERAND, "STATIC"); }
 "true"|"false"          { return setValue(line, BOOLCONST, yytext); }
-\"(\\.|[^\n"\\])*\"       { return setValue(line, STRINGCONST, yytext); }
+\"(\\.|[^\n"\\])*\"     { return setValue(line, STRINGCONST, yytext); }
 '[^']'|'\\?.'           { return setValue(line, CHARCONST, yytext); }
 '[^\n^']+'|'\\?.[^\n^']+' { printf("WARNING(%d): character is %d characters long and not a single character: '%s'.  The first char will be used.\n", line, strlen(yytext)-2, yytext); return setValue(line, CHARCONST, yytext); }
 [a-zA-Z][0-9a-zA-Z]*    { return setValue(line, ID, yytext); }
