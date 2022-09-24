@@ -3,7 +3,7 @@ CODE = parser
 CC = gcc
 
 SRCS = $(CODE).y $(CODE).l
-HDRS = scanType.h
+HDRS = ASTNode.h
 OBJS = lex.yy.o $(CODE).tab.o
 
 $(BIN) : $(OBJS)
