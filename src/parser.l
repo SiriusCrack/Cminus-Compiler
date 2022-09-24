@@ -21,27 +21,29 @@ char checkSpecialChars (char * str) {
     }
 }
 
-void removeEscapedChars (char * str) {
+char * removeEscapedChars (char * str) {
+    char * newStr = strdup(str);
     int i, j;
-    int length = strlen(str);
+    int length = strlen(newStr);
     for(i = 0; i < length; i++) {
-        if(str[i] == '\\') {
-            if (str[i+1] == 'n') {
-                str[i+1] = '\n';
+        if(newStr[i] == '\\') {
+            if (newStr[i+1] == 'n') {
+                newStr[i+1] = '\n';
             }
-            if (str[i+1] == '0') {
-                str[i+1] = '\0';
+            if (newStr[i+1] == '0') {
+                newStr[i+1] = '\0';
             }
-            if (str[i+1] == '\\') {
+            if (newStr[i+1] == '\\') {
                 i++;
             }
             for(j = i; j < length; j++) {
-                str[j] = str[j+1];
+                newStr[j] = newStr[j+1];
             }
             length--;
             i--;
         }
-    } 
+    }
+    return newStr;
 }
 
 int checkBool (char * str) {
@@ -52,41 +54,31 @@ int checkBool (char * str) {
     }
 }
 
-static int setToken (int lineNum, int token, char *valueStr) {
-    switch (token) {
+static int setToken (int lineNum, int tokenClass, char * literal) {
+    yylval.token.tokenClass = tokenClass;
+    yylval.token.lineNum = lineNum;
+    yylval.token.literal = literal;
+    switch (tokenClass) {
         case NUMCONST:
-            yylval.numConst.lineNum = lineNum;
-            yylval.numConst.tokenStr = strdup(valueStr);
-            yylval.numConst.value = atoi(valueStr);
+            yylval.token.value.integer = atoi(literal);
             break;
         case ID:
-            yylval.id.lineNum = lineNum;
-            yylval.id.tokenStr = strdup(valueStr);
-            yylval.id.value = valueStr;
+            yylval.token.value.str = literal;
             break;
         case CHARCONST:
-            yylval.charConst.lineNum = lineNum;
-            yylval.charConst.tokenStr = strdup(valueStr);
-            yylval.charConst.value = checkSpecialChars(valueStr);
+            yylval.token.value.character = checkSpecialChars(literal);
             break;
         case STRINGCONST:
-            yylval.stringConst.lineNum = lineNum;
-            yylval.stringConst.tokenStr = strdup(valueStr);
-            removeEscapedChars(valueStr);
-            yylval.stringConst.value = valueStr;
+            yylval.token.value.str = removeEscapedChars(literal);
             break;
         case BOOLCONST:
-            yylval.boolConst.lineNum = lineNum;
-            yylval.boolConst.tokenStr = strdup(valueStr);
-            yylval.boolConst.value = checkBool(valueStr);
+            yylval.token.value.integer = checkBool(literal);
             break;
         case OPERAND:
-            yylval.operand.lineNum = lineNum;
-            yylval.operand.tokenStr = strdup(valueStr);
-            yylval.operand.value = valueStr;
+            yylval.token.value.str = literal;
             break;
     }
-    return token;
+    return tokenClass;
 }
 %}
 

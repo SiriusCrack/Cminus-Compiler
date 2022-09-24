@@ -7,19 +7,9 @@ extern int line;
 %}
 
 %union {
-    struct NumConst numConst;
-    struct ID id;
-    struct CharConst charConst;
-    struct StringConst stringConst;
-    struct Operand operand;
-    struct BoolConst boolConst;
+    struct Token token;
 }
-%token <numConst> NUMCONST
-%token <id> ID
-%token <charConst> CHARCONST
-%token <stringConst> STRINGCONST
-%token <boolConst> BOOLCONST
-%token <operand> OPERAND
+%token <token> NUMCONST ID CHARCONST STRINGCONST BOOLCONST OPERAND
 
 %%
 input:
@@ -28,28 +18,22 @@ input:
     '\n' {
     }|
     input NUMCONST  {
-        printf("Line %d Token: NUMCONST Value: %d  Input: %s\n", $2.lineNum, $2.value, $2.tokenStr);
-        free($2.tokenStr);
+        printf("Line %d Token: NUMCONST Value: %d  Input: %s\n", $2.lineNum, $2.value.integer, $2.literal);
     }|
     input ID  {
-        printf("Line %d Token: ID Value: %s\n", $2.lineNum, $2.value);
-        free($2.tokenStr);
+        printf("Line %d Token: ID Value: %s\n", $2.lineNum, $2.value.str);
     }|
     input CHARCONST  {
-        printf("Line %d Token: CHARCONST Value: '%c'  Input: %s\n", $2.lineNum, $2.value, $2.tokenStr);
-        free($2.tokenStr);
+        printf("Line %d Token: CHARCONST Value: '%c'  Input: %s\n", $2.lineNum, $2.value.character, $2.literal);
     }|
     input STRINGCONST  {
-        printf("Line %d Token: STRINGCONST Value: %s  Len: %d  Input: %s\n", $2.lineNum, $2.value, strlen($2.value)-2, $2.tokenStr);
-        free($2.tokenStr);
+        printf("Line %d Token: STRINGCONST Value: %s  Len: %d  Input: %s\n", $2.lineNum, $2.value.str, strlen($2.value.str)-2, $2.literal);
     }|
     input BOOLCONST  {
-        printf("Line %d Token: BOOLCONST Value: %d  Input: %s\n", $2.lineNum, $2.value, $2.tokenStr);
-        free($2.tokenStr);
+        printf("Line %d Token: BOOLCONST Value: %d  Input: %s\n", $2.lineNum, $2.value.integer, $2.literal);
     }|
     input OPERAND  {
-        printf("Line %d Token: %s\n", $2.lineNum, $2.value);
-        free($2.tokenStr);
+        printf("Line %d Token: %s\n", $2.lineNum, $2.value.str);
     };
 %%
 int main (int argc, char *argv[]) {
