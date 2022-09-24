@@ -28,27 +28,27 @@ input:
     '\n' {
     }|
     input NUMCONST  {
-        printf("Line %d Token: NUMCONST Value: %d  Input: %s\n", line, $2.value, $2.tokenStr);
+        printf("Line %d Token: NUMCONST Value: %d  Input: %s\n", $2.lineNum, $2.value, $2.tokenStr);
         free($2.tokenStr);
     }|
     input ID  {
-        printf("Line %d Token: ID Value: %s\n", line, $2.value);
+        printf("Line %d Token: ID Value: %s\n", $2.lineNum, $2.value);
         free($2.tokenStr);
     }|
     input CHARCONST  {
-        printf("Line %d Token: CHARCONST Value: '%c'  Input: %s\n", line, $2.value, $2.tokenStr);
+        printf("Line %d Token: CHARCONST Value: '%c'  Input: %s\n", $2.lineNum, $2.value, $2.tokenStr);
         free($2.tokenStr);
     }|
     input STRINGCONST  {
-        printf("Line %d Token: STRINGCONST Value: %s  Len: %d  Input: %s\n", line, $2.value, strlen($2.value)-2, $2.tokenStr);
+        printf("Line %d Token: STRINGCONST Value: %s  Len: %d  Input: %s\n", $2.lineNum, $2.value, strlen($2.value)-2, $2.tokenStr);
         free($2.tokenStr);
     }|
     input BOOLCONST  {
-        printf("Line %d Token: BOOLCONST Value: %d  Input: %s\n", line, $2.value, $2.tokenStr);
+        printf("Line %d Token: BOOLCONST Value: %d  Input: %s\n", $2.lineNum, $2.value, $2.tokenStr);
         free($2.tokenStr);
     }|
     input OPERAND  {
-        printf("Line %d Token: %s\n", line, $2.value);
+        printf("Line %d Token: %s\n", $2.lineNum, $2.value);
         free($2.tokenStr);
     };
 %%
