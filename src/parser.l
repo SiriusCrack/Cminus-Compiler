@@ -6,64 +6,77 @@
 
 int line = 1;
 
-void removeEscape (char *str) {
+char checkSpecialChars (char * str) {
+    if (str[1] == '\\') {
+        if(str[2] == 'n') {
+            return '\n';
+        } else if(str[2] == '0') {
+            return '\0';
+        } else {
+            return str[2];
+        }
+    } else {
+        return str[1];
+    }
+}
+
+char * removeEscapedChars (char * str) {
+    char * newStr = strdup(str);
     int i, j;
-    int length = strlen(str);
+    int length = strlen(newStr);
     for(i = 0; i < length; i++) {
-        if(str[i] == '\\') {
-            if (str[i+1] == 'n') {
-                str[i+1] = '\n';
+        if(newStr[i] == '\\') {
+            if (newStr[i+1] == 'n') {
+                newStr[i+1] = '\n';
             }
-            if (str[i+1] == '0') {
-                str[i+1] = '\0';
+            if (newStr[i+1] == '0') {
+                newStr[i+1] = '\0';
             }
-            if (str[i+1] == '\\') {
+            if (newStr[i+1] == '\\') {
                 i++;
             }
             for(j = i; j < length; j++) {
-                str[j] = str[j+1];
+                newStr[j] = newStr[j+1];
             }
             length--;
             i--;
         }
     }
+    return newStr;
 }
 
-static int setValue(int linenum, int tokenclass, char *svalue) {
-    struct TokenData * tokenPtr;
-    tokenPtr = malloc(sizeof(struct TokenData));
-    yylval.tokenPtr = tokenPtr;
-    yylval.tokenPtr->linenum = linenum;
-    yylval.tokenPtr->tokenstr = strdup(svalue);
-    if (tokenclass == ID) {
-        yylval.tokenPtr->value.svalue = svalue;
-    } else if (tokenclass == BOOLCONST) {
-        if(svalue[0] == 't') {
-            yylval.tokenPtr->value.nvalue = 1;
-        } else if (svalue[0] == 'f') {
-            yylval.tokenPtr->value.nvalue = 0;
-        }
-    } else if (tokenclass == NUMCONST) {
-        yylval.tokenPtr->value.nvalue = atoi(svalue);
-    } else if (tokenclass == STRINGCONST) {
-        removeEscape(svalue);
-        yylval.tokenPtr->value.svalue = svalue;
-    } else if (tokenclass == CHARCONST) {
-        if (svalue[1] == '\\') {
-            if(svalue[2] == 'n') {
-                yylval.tokenPtr->value.cvalue = '\n';
-            } else if(svalue[2] == '0') {
-                yylval.tokenPtr->value.cvalue = '\0';
-            } else {
-                yylval.tokenPtr->value.cvalue = svalue[2];
-            }
-        } else {
-            yylval.tokenPtr->value.cvalue = svalue[1];
-        }
-    } else {
-        yylval.tokenPtr->value.svalue = svalue;
+int checkBool (char * str) {
+    if(str[0] == 't') {
+        return 1;
+    } else if (str[0] == 'f') {
+        return 0;
     }
-    return tokenclass;
+}
+
+static int setToken (int lineNum, int tokenClass, char * literal) {
+    yylval.token.tokenClass = tokenClass;
+    yylval.token.lineNum = lineNum;
+    yylval.token.literal = literal;
+    switch (tokenClass) {
+        case NUMCONST:
+            yylval.token.value.integer = atoi(literal);
+            break;
+        case ID:
+            yylval.token.value.str = literal;
+            break;
+        case CHARCONST:
+            yylval.token.value.character = checkSpecialChars(literal);
+            break;
+        case STRINGCONST:
+            yylval.token.value.str = removeEscapedChars(literal);
+            break;
+        case BOOLCONST:
+            yylval.token.value.integer = checkBool(literal);
+            break;
+        default:
+            yylval.token.value.str = literal;
+    }
+    return tokenClass;
 }
 %}
 
@@ -76,92 +89,92 @@ static int setValue(int linenum, int tokenclass, char *svalue) {
 "//".*\n { 
     line++; }
 "<" { 
-    return setValue(line, ytlesser, yytext); }
+    return setToken (line, ytlesser, yytext); }
 ">" { 
-    return setValue(line, ytgreater, yytext); }
+    return setToken (line, ytgreater, yytext); }
 "=" { 
-    return setValue(line, ytequals, yytext); }
+    return setToken (line, ytequals, yytext); }
 "+" { 
-    return setValue(line, ytadd, yytext); }
+    return setToken (line, ytadd, yytext); }
 "-" { 
-    return setValue(line, ytsub, yytext); }
+    return setToken (line, ytsub, yytext); }
 "*" { 
-    return setValue(line, ytmul, yytext); }
+    return setToken (line, ytmul, yytext); }
 "/" { 
-    return setValue(line, ytdiv, yytext); }
+    return setToken (line, ytdiv, yytext); }
 "?" { 
-    return setValue(line, ytquestion, yytext); }
+    return setToken (line, ytquestion, yytext); }
 "%" { 
-    return setValue(line, ytmod, yytext); }
+    return setToken (line, ytmod, yytext); }
 "and" { 
-    return setValue(line, ytand, yytext); }
+    return setToken (line, ytand, yytext); }
 "or" { 
-    return setValue(line, ytor, yytext); }
+    return setToken (line, ytor, yytext); }
 "==" { 
-    return setValue(line, yteq, yytext); }
+    return setToken (line, yteq, yytext); }
 "!=" { 
-    return setValue(line, ytnoteq, yytext); }
+    return setToken (line, ytnoteq, yytext); }
 "<=" { 
-    return setValue(line, yteqlesser, yytext); }
+    return setToken (line, yteqlesser, yytext); }
 ">=" { 
-    return setValue(line, yteqgreater, yytext); }
+    return setToken (line, yteqgreater, yytext); }
 "+=" { 
-    return setValue(line, ytassadd, yytext); }
+    return setToken (line, ytassadd, yytext); }
 "-=" { 
-    return setValue(line, ytasssub, yytext); }
+    return setToken (line, ytasssub, yytext); }
 "*=" { 
-    return setValue(line, ytassmul, yytext); }
+    return setToken (line, ytassmul, yytext); }
 "/=" { 
-    return setValue(line, ytassdiv, yytext); }
+    return setToken (line, ytassdiv, yytext); }
 "--" { 
-    return setValue(line, ytinc, yytext); }
+    return setToken (line, ytinc, yytext); }
 "++" { 
-    return setValue(line, ytdec, yytext); }
+    return setToken (line, ytdec, yytext); }
 "not" { 
-    return setValue(line, ytnot, yytext); }
+    return setToken (line, ytnot, yytext); }
 "int" { 
-    return setValue(line, ytint, yytext); }
+    return setToken (line, ytint, yytext); }
 "if" { 
-    return setValue(line, ytif, yytext); }
+    return setToken (line, ytif, yytext); }
 "for" { 
-    return setValue(line, ytfor, yytext); }
+    return setToken (line, ytfor, yytext); }
 "to" { 
-    return setValue(line, ytto, yytext); }
+    return setToken (line, ytto, yytext); }
 "by" { 
-    return setValue(line, ytby, yytext); }
+    return setToken (line, ytby, yytext); }
 "do" { 
-    return setValue(line, ytdo, yytext); }
+    return setToken (line, ytdo, yytext); }
 "then" { 
-    return setValue(line, ytthen, yytext); }
+    return setToken (line, ytthen, yytext); }
 "break" { 
-    return setValue(line, ytbreak, yytext); }
+    return setToken (line, ytbreak, yytext); }
 "else" { 
-    return setValue(line, ytelse, yytext); }
+    return setToken (line, ytelse, yytext); }
 "while" { 
-    return setValue(line, ytwhile, yytext); }
+    return setToken (line, ytwhile, yytext); }
 "return" { 
-    return setValue(line, ytreturn, yytext); }
+    return setToken (line, ytreturn, yytext); }
 "bool" { 
-    return setValue(line, ytbool, yytext); }
+    return setToken (line, ytbool, yytext); }
 "char" { 
-    return setValue(line, ytchar, yytext); }
+    return setToken (line, ytchar, yytext); }
 "static" { 
-    return setValue(line, ytstatic, yytext); }
+    return setToken (line, ytstatic, yytext); }
 [\[\],;:{}\(\)] { 
     return yytext[0]; }
 "true"|"false" { 
-    return setValue(line, BOOLCONST, yytext); }
+    return setToken (line, BOOLCONST, yytext); }
 \"(\\.|[^\n"\\])*\" { 
-    return setValue(line, STRINGCONST, yytext); }
+    return setToken (line, STRINGCONST, yytext); }
 '[^']'|'\\?.' { 
-    return setValue(line, CHARCONST, yytext); }
+    return setToken (line, CHARCONST, yytext); }
 '[^\n^']+'|'\\?.[^\n^']+' { 
     printf("WARNING(%d): character is %d characters long and not a single character: '%s'.  The first char will be used.\n", line, strlen(yytext)-2, yytext); 
-    return setValue(line, CHARCONST, yytext); }
+    return setToken (line, CHARCONST, yytext); }
 [a-zA-Z][0-9a-zA-Z]* { 
-    return setValue(line, ID, yytext); }
+    return setToken (line, ID, yytext); }
 [0-9]+ { 
-    return setValue(line, NUMCONST, yytext); }
+    return setToken (line, NUMCONST, yytext); }
 . { 
     printf("ERROR(%d): Invalid or misplaced input character: '%s'. Character Ignored.\n", line, yytext); }
 %%
