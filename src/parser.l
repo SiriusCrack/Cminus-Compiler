@@ -36,32 +36,32 @@ static int setValue(int linenum, int tokenclass, char *svalue) {
     yylval.tokenPtr->linenum = linenum;
     yylval.tokenPtr->tokenstr = strdup(svalue);
     if (tokenclass == ID) {
-        yylval.tokenPtr->svalue = svalue;
+        yylval.tokenPtr->value.svalue = svalue;
     } else if (tokenclass == BOOLCONST) {
         if(svalue[0] == 't') {
-            yylval.tokenPtr->nvalue = 1;
+            yylval.tokenPtr->value.nvalue = 1;
         } else if (svalue[0] == 'f') {
-            yylval.tokenPtr->nvalue = 0;
+            yylval.tokenPtr->value.nvalue = 0;
         }
     } else if (tokenclass == NUMCONST) {
-        yylval.tokenPtr->nvalue = atoi(svalue);
+        yylval.tokenPtr->value.nvalue = atoi(svalue);
     } else if (tokenclass == STRINGCONST) {
         removeEscape(svalue);
-        yylval.tokenPtr->svalue = svalue;
+        yylval.tokenPtr->value.svalue = svalue;
     } else if (tokenclass == CHARCONST) {
         if (svalue[1] == '\\') {
             if(svalue[2] == 'n') {
-                yylval.tokenPtr->cvalue = '\n';
+                yylval.tokenPtr->value.cvalue = '\n';
             } else if(svalue[2] == '0') {
-                yylval.tokenPtr->cvalue = '\0';
+                yylval.tokenPtr->value.cvalue = '\0';
             } else {
-                yylval.tokenPtr->cvalue = svalue[2];
+                yylval.tokenPtr->value.cvalue = svalue[2];
             }
         } else {
-            yylval.tokenPtr->cvalue = svalue[1];
+            yylval.tokenPtr->value.cvalue = svalue[1];
         }
     } else {
-        yylval.tokenPtr->svalue = svalue;
+        yylval.tokenPtr->value.svalue = svalue;
     }
     return tokenclass;
 }

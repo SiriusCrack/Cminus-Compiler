@@ -2,7 +2,9 @@ typedef struct TokenData {
     int tokenClass;
     int linenum;
     char *tokenstr;
-    char cvalue;
-    int nvalue;
-    char *svalue;
+    union {
+        char cvalue;
+        int nvalue;
+        char *svalue;
+    } value;
 } *tokenPtr;
