@@ -1,13 +1,17 @@
 %{
 #include "scanType.h"
+#include "ASTNode.h"
 #include <stdio.h>
 #include <string.h>
-extern FILE *yyin;
-extern int line;
-%}
 
+extern FILE *yyin;
+
+Node * AST;
+
+%}
 %union {
-    struct Token token;
+    Token token;
+    Node * nodePtr;
 }
 %token <token> ytint ytbool ytchar ytstatic
 %token <token> ID NUMCONST CHARCONST STRINGCONST BOOLCONST
@@ -15,6 +19,7 @@ extern int line;
 %token <token> ytlesser ytgreater yteq ytnoteq yteqlesser yteqgreater
 %token <token> ytif ytelse ytwhile ytdo ytthen ytnot ytand ytor ytfor ytto ytby ytbreak ytreturn
 
+%type <nodePtr> varDeclId
 %%
 program:
     declList {
@@ -44,11 +49,18 @@ varDeclList:
     };
 varDeclInit:
     varDeclId {
+        printf("adding sibling\n");
+        $1->nodeType = "Var";
+        AST = AddSibling(AST, $1);
+        printf("added sibling\n");
     }|
     varDeclId ':' simpleExp {
     };
 varDeclId:
     ID {
+        printf("parsed: %s\n", $1.value.str);
+        $$ = NewNode($1);
+        printf("made node\n");
     }|
     ID '[' NUMCONST ']' {
     };
@@ -295,11 +307,12 @@ int main (int argc, char *argv[]) {
         }
     }
     yyparse();
-    printf("nice\n");
+    printf("nice\n\n");
+    PrintAST(AST);
     return 0;
 }
 
 yyerror (char *s) {
-    printf("%s\n", line, s);
+    printf("%s\n", s);
     return 0;
 }

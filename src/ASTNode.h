@@ -1,17 +1,32 @@
-typedef struct TokenData {
+#include "scanType.h"
+
+#define MAX_CHILDREN 3
+
+#ifndef NODE_GUARD
+#define NODE_GUARD
+
+struct Node {
     // Connections
-    struct TokenData * child[3];
-    struct TokenData * sibling;
+    struct Node * child[MAX_CHILDREN];
+    struct Node * sibling;
 
     // Info
     int tokenClass;
     int lineNum;
-    char *tokenStr;
+    int siblingCount;
+    char * nodeType;
     
     // Data
     union {
-        char cvalue;
-        int nvalue;
-        char *svalue;
+        int integer;
+        char character;
+        char * str;
     } value;
 };
+
+typedef struct Node Node;
+#endif
+
+Node * NewNode (Token);
+Node * AddSibling (Node *, Node *);
+void PrintAST (Node *);

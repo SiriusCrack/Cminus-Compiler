@@ -1,5 +1,6 @@
 %{
 #include "scanType.h"
+#include "ASTNode.h"
 #include "parser.tab.h"
 #include <stdio.h>
 #include <string.h>
@@ -62,7 +63,7 @@ static int setToken (int lineNum, int tokenClass, char * literal) {
             yylval.token.value.integer = atoi(literal);
             break;
         case ID:
-            yylval.token.value.str = literal;
+            yylval.token.value.str = removeEscapedChars(literal);
             break;
         case CHARCONST:
             yylval.token.value.character = checkSpecialChars(literal);
@@ -92,7 +93,7 @@ static int setToken (int lineNum, int tokenClass, char * literal) {
     return setToken (line, ytlesser, yytext); }
 ">" { 
     return setToken (line, ytgreater, yytext); }
-"=" { 
+"=" {
     return setToken (line, ytequals, yytext); }
 "+" { 
     return setToken (line, ytadd, yytext); }
