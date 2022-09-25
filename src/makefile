@@ -1,22 +1,30 @@
 BIN = c-
-CODE = parser
 CC = gcc
 
-SRCS = $(CODE).y $(CODE).l
-HDRS = ASTNode.h scanType.h NodeVector.h
-OBJS = lex.yy.o $(CODE).tab.o
+lexsourcefiles = parser.l
+yaccsourcefiles = parser.y
+headers = scanType.h ASTNode.h NodeVector.h
+headersourcefiles = ASTNode.c NodeVector.c
 
-$(BIN) : $(OBJS)
-	$(CC) $(OBJS) ASTNode.c NodeVector.c -o $(BIN)
+lexgens = lex.yy.c
+yaccgens = parser.tab.h parser.tab.c parser.output
+headerobjs = ASTNode.o NodeVector.o
+lexyaccobjs = lex.yy.o parser.tab.o
 
-lex.yy.c : $(CODE).l $(CODE).tab.h $(HDR)
-	flex $(CODE).l
+$(BIN) : $(lexyaccobjs) $(headerobjs)
+	gcc $(lexyaccobjs) $(headerobjs) -o $(BIN)
 
-$(CODE).tab.h $(CODE).tab.c : $(CODE).y
-	bison -v -t -d $(CODE).y
+$(headerobjs) : $(headers) $(headersourcefiles)
+	gcc $(headersourcefiles) -c
+
+$(lexgens) : $(lexsourcefiles) $(yaccgens) $(headers)
+	flex $(lexsourcefiles)
+
+$(yaccgens) : $(yaccsourcefiles) $(headers)
+	bison -v -t -d $(yaccsourcefiles)
 
 clean :
-	rm -f *~ $(OBJS) $(BIN) lex.yy.c $(CODE).tab.h $(CODE).tab.c $(BIN).txt $(CODE).output
+	rm -f $(BIN) $(lexgens) $(yaccgens) $(headerobjs) $(lexyaccobjs)
 
-tar	: $(HDR) $(SRCS) makefile
-	tar -cvf $(BIN).tar $(HDRS) $(SRCS) makefile
+tar	: $(lexsourcefiles) $(yaccsourcefiles) $(headers) $(headersourcefiles) makefile
+	tar -cvf $(BIN).tar $(lexsourcefiles) $(yaccsourcefiles) $(headers) $(headersourcefiles) makefile
