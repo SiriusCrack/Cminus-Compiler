@@ -76,7 +76,7 @@ static int setToken (int lineNum, int tokenClass, char * literal) {
             yylval.token.value.integer = checkBool(literal);
             break;
         default:
-            yylval.token.value.str = literal;
+            yylval.token.value.str = removeEscapedChars(literal);
     }
     return tokenClass;
 }
@@ -162,7 +162,9 @@ static int setToken (int lineNum, int tokenClass, char * literal) {
     return setToken (line, ytchar, yytext); }
 "static" { 
     return setToken (line, ytstatic, yytext); }
-[\[\],;:{}\(\)] { 
+"{" {
+    return setToken (line, ytcompound, yytext); }
+[\[\],;:}\(\)] { 
     return yytext[0]; }
 "true"|"false" { 
     return setToken (line, BOOLCONST, yytext); }

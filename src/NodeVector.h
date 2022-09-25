@@ -11,6 +11,6 @@ typedef struct NodeVector NodeVector;
 
 NodeVector * NewNodeVector();
 void AddToVector (NodeVector *, Node *);
-void UnpackVector (NodeVector *, char *);
+Node * UnpackVector (NodeVector *, char *);
 
 #endif

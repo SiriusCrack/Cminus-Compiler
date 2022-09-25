@@ -4,16 +4,20 @@
 
 #define MAX_CHILDREN 3
 
+typedef enum {ntVar, ntFunc, ntParm, ntCompound, ntAssign, ntID, ntConst, ntReturn} NodeType;
+
+
+typedef struct Node Node;
 struct Node {
     // Connections
-    struct Node * child[MAX_CHILDREN];
-    struct Node * sibling;
+    Node * child[MAX_CHILDREN];
+    Node * sibling;
 
     // Info
     int tokenClass;
     int lineNum;
     int siblingCount;
-    char * nodeType;
+    NodeType nodeType;
     // Optional
     char * dataType;
     
@@ -25,9 +29,10 @@ struct Node {
     } value;
 };
 
-typedef struct Node Node;
 
 Node * NewNode (Token);
 Node * AddSibling (Node *, Node *);
-void PrintAST (Node *);
+Node * AddChild (Node *, Node *);
+void PrintAST (Node *, int);
+char * NodeTypeToString(NodeType);
 #endif
