@@ -1,5 +1,4 @@
 BIN = c-
-CC = gcc
 
 lexsourcefiles = parser.l
 yaccsourcefiles = parser.y
