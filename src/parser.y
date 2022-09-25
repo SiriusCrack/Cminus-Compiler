@@ -26,7 +26,7 @@ NodeVector * workingNodeVector;
 %token <token> ytlesser ytgreater yteq ytnoteq yteqlesser yteqgreater
 %token <token> ytif ytelse ytwhile ytdo ytthen ytnot ytand ytor ytfor ytto ytby ytbreak ytreturn
 
-%type <nodePtr> varDeclId varDeclInit
+%type <nodePtr> varDeclId varDeclInit parmId
 %type <nodeVectorPtr> varDeclList
 %type <literal> typeSpec
 
@@ -84,6 +84,7 @@ varDeclId:
         printf("made node: %s\n", $$->value.str);
     }|
     ID '[' NUMCONST ']' {
+        printf("vardecl %s %s\n", $1, $3);
     };
 typeSpec:
     ytbool {
@@ -97,8 +98,10 @@ typeSpec:
     };
 funDecl:
     typeSpec ID '(' parms ')' compoundStmt {
+        printf("func %s\n", $2);
     }|
     ID '(' parms ')' compoundStmt {
+        printf("func %s\n", $1);
     };
 parms:
     parmList {
@@ -120,8 +123,13 @@ parmIdList:
     };
 parmId:
     ID {
+        $$ = NewNode($1);
+        printf("made node: %s\n", $$->value.str); //start passing up. guessing the tree gets built in funDecl?
+        // AST = AddSibling(AST, $$);
+        // printf("added sibling: %s\n", $$->value.str);
     }|
     ID '[' ']' {
+        printf("parm %s\n", $1);
     };
 stmt:
     matched {
@@ -177,11 +185,13 @@ matchedIterStmt:
     ytwhile simpleExp ytdo matched {
     }|
     ytfor ID ytequals iterRange ytdo matched {
+        printf("%s\n", $2);
     };
 unmatchedIterStmt:
     ytwhile simpleExp ytdo unmatched {
     }|
     ytfor ID ytequals iterRange ytdo unmatched {
+        printf("%s\n", $2);
     };
 iterRange:
     simpleExp ytto simpleExp {
@@ -290,8 +300,10 @@ factor:
     };
 mutable:
     ID {
+        printf("mut %s\n", $1);
     }|
     ID '[' exp ']' {
+        printf("mut %s\n", $1);
     };
 immutable:
     '(' exp ')' {
@@ -302,6 +314,7 @@ immutable:
     };
 call:
     ID '(' args ')' {
+        printf("call %s\n", $1);
     };
 args:
     argList {
@@ -315,12 +328,16 @@ argList:
     };
 constant:
     NUMCONST {
+        printf("const %s\n", $1);
     }|
     CHARCONST {
+        printf("const %s\n", $1);
     }|
     STRINGCONST {
+        printf("const %s\n", $1);
     }|
     BOOLCONST {
+        printf("const %s\n", $1);
     };
 %%
 int main (int argc, char *argv[]) {

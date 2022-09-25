@@ -52,8 +52,9 @@ Node * AddSibling (Node * AST, Node * newSibling) {
     } else {
         Node * cur = AST;
         while(cur->sibling != NULL) {
-            cur = AST->sibling;
+            cur = cur->sibling;
         }
+        printf("nice\n");
         newSibling->siblingCount = cur->siblingCount + 1;
         cur->sibling = newSibling;
         return AST;
