@@ -1,5 +1,6 @@
 #include "ASTNode.h"
 #include "scanType.h"
+#include "NodeVector.h"
 #include "parser.tab.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,7 +48,6 @@ Node * NewNode (Token token) {
 Node * AddSibling (Node * AST, Node * newSibling) {
     if (AST == NULL) {
         AST = newSibling;
-        printf("added to empty tree\n");
         return AST;
     } else {
         Node * cur = AST;
@@ -71,7 +71,7 @@ void PrintAST (Node * AST) {
                 printf("Sibling: %d ", cur->siblingCount);
             }
             printf("%s: ", cur->nodeType);
-            printf("%s of type {} ", cur->value.str);
+            printf("%s of type %s ", cur->value.str, cur->dataType);
             printf("[line: %d]", cur->lineNum);
             printf("\n");
             cur = cur->sibling;

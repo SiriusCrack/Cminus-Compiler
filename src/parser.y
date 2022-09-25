@@ -1,25 +1,35 @@
 %{
+
 #include "scanType.h"
 #include "ASTNode.h"
+#include "NodeVector.h"
 #include <stdio.h>
 #include <string.h>
 
 extern FILE *yyin;
 
 Node * AST;
+NodeVector * workingNodeVector;
 
 %}
+
 %union {
     Token token;
     Node * nodePtr;
+    NodeVector * nodeVectorPtr;
+    char * literal;
 }
+
 %token <token> ytint ytbool ytchar ytstatic
 %token <token> ID NUMCONST CHARCONST STRINGCONST BOOLCONST
 %token <token> ytequals ytadd ytsub ytmul ytdiv ytmod ytassadd ytasssub ytassmul ytassdiv ytinc ytdec ytquestion
 %token <token> ytlesser ytgreater yteq ytnoteq yteqlesser yteqgreater
 %token <token> ytif ytelse ytwhile ytdo ytthen ytnot ytand ytor ytfor ytto ytby ytbreak ytreturn
 
-%type <nodePtr> varDeclId
+%type <nodePtr> varDeclId varDeclInit
+%type <nodeVectorPtr> varDeclList
+%type <literal> typeSpec
+
 %%
 program:
     declList {
@@ -36,40 +46,54 @@ decl:
     };
 varDecl:
     typeSpec varDeclList ';' {
+        UnpackVector($2, $1);
+        workingNodeVector = NewNodeVector();
     };
 scopedVarDecl:
     ytstatic typeSpec varDeclList ';' {
+        UnpackVector($3, $2);
+        workingNodeVector = NewNodeVector();
     }|
     typeSpec varDeclList ';' {
+        UnpackVector($2, $1);
+        workingNodeVector = NewNodeVector();
     };
 varDeclList:
     varDeclList ',' varDeclInit {
+        AddToVector(workingNodeVector, $3);
+        $$ = workingNodeVector;
+        printf("added to 1vector: %s\n", $3->value.str);
     }|
     varDeclInit {
+        AddToVector(workingNodeVector, $1);
+        $$ = workingNodeVector;
+        printf("added to 2vector: %s\n", $1->value.str);
     };
 varDeclInit:
     varDeclId {
-        printf("adding sibling\n");
+        $$ = $1;
         $1->nodeType = "Var";
         AST = AddSibling(AST, $1);
-        printf("added sibling\n");
+        printf("added sibling: %s\n", $1->value.str);
     }|
     varDeclId ':' simpleExp {
     };
 varDeclId:
     ID {
-        printf("parsed: %s\n", $1.value.str);
         $$ = NewNode($1);
-        printf("made node\n");
+        printf("made node: %s\n", $$->value.str);
     }|
     ID '[' NUMCONST ']' {
     };
 typeSpec:
     ytbool {
+        $$ = "bool";
     }|
     ytchar {
+        $$ = "char";
     }|
     ytint {
+        $$ = "int";
     };
 funDecl:
     typeSpec ID '(' parms ')' compoundStmt {
@@ -306,13 +330,14 @@ int main (int argc, char *argv[]) {
             yyin = fp;
         }
     }
+    workingNodeVector = NewNodeVector();
     yyparse();
     printf("nice\n\n");
     PrintAST(AST);
     return 0;
 }
 
-yyerror (char *s) {
+int yyerror (char *s) {
     printf("%s\n", s);
     return 0;
 }

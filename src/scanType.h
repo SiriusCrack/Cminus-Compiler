@@ -1,5 +1,5 @@
-#ifndef TOKEN_GUARD
-#define TOKEN_GUARD
+#ifndef _TOKEN_GUARD
+#define _TOKEN_GUARD
 struct Token {
     int tokenClass;
     int lineNum;

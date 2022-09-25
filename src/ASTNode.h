@@ -1,9 +1,8 @@
+#ifndef _NODE_GUARD
+#define _NODE_GUARD
 #include "scanType.h"
 
 #define MAX_CHILDREN 3
-
-#ifndef NODE_GUARD
-#define NODE_GUARD
 
 struct Node {
     // Connections
@@ -15,6 +14,8 @@ struct Node {
     int lineNum;
     int siblingCount;
     char * nodeType;
+    // Optional
+    char * dataType;
     
     // Data
     union {
@@ -25,8 +26,8 @@ struct Node {
 };
 
 typedef struct Node Node;
-#endif
 
 Node * NewNode (Token);
 Node * AddSibling (Node *, Node *);
 void PrintAST (Node *);
+#endif

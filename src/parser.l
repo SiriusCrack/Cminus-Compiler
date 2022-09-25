@@ -1,6 +1,7 @@
 %{
 #include "scanType.h"
 #include "ASTNode.h"
+#include "NodeVector.h"
 #include "parser.tab.h"
 #include <stdio.h>
 #include <string.h>
