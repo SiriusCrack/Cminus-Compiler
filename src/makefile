@@ -23,7 +23,7 @@ $(yaccgens) : $(yaccsourcefiles) $(headers)
 	bison -v -t -d $(yaccsourcefiles)
 
 clean :
-	rm -f $(BIN) $(lexgens) $(yaccgens) $(headerobjs) $(lexyaccobjs)
+	rm -f $(BIN) $(BIN).tar $(lexgens) $(yaccgens) $(headerobjs) $(lexyaccobjs)
 
 tar	: $(lexsourcefiles) $(yaccsourcefiles) $(headers) $(headersourcefiles) makefile
 	tar -cvf $(BIN).tar $(lexsourcefiles) $(yaccsourcefiles) $(headers) $(headersourcefiles) makefile
