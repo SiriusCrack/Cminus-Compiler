@@ -29,20 +29,25 @@ NodeVector * workingNodeVector;
 %token <token> ytif ytelse ytwhile ytdo ytthen ytnot ytand ytor ytfor ytto ytby ytbreak ytreturn
 %token <token> ytcompound
 
-%type <nodePtr> varDeclId varDeclInit parmId mutable assignop constant returnStmt funDecl exp simpleExp andExp unaryRelExp relExp sumExp mulExp unaryExp factor expStmt compoundStmt scopedVarDecl localDecls varDecl matched stmt parms parmList parmTypeList decl relop call args sumop mulop matchedSelectStmt immutable unmatchedSelectStmt matchedIterStmt unmatchedIterStmt iterRange
-%type <nodeVectorPtr> varDeclList stmtList parmIdList argList
+%type <nodePtr> varDeclId varDeclInit parmId mutable assignop constant returnStmt funDecl exp simpleExp andExp unaryRelExp relExp sumExp mulExp unaryExp factor expStmt compoundStmt scopedVarDecl localDecls varDecl matched stmt parms parmList parmTypeList decl relop call args sumop mulop matchedSelectStmt immutable unmatchedSelectStmt matchedIterStmt unmatchedIterStmt iterRange argList declList varDeclList stmtList parmIdList
 %type <literal> typeSpec
 
 %%
 program:
     declList {
+        AST = $1;
     };
 declList:
     declList decl {
-        AST = AddSibling(AST, $2);
+        $$ = $1;
+        if($2 != NULL) {
+            $$ = AddSibling($1, $2);
+        }
     }|
     decl {
-        AST = AddSibling(AST, $1);
+        if($1 != NULL) {
+            $$ = $1;
+        }
     };
 decl:
     varDecl {
@@ -57,33 +62,74 @@ decl:
     };
 varDecl:
     typeSpec varDeclList ';' {
-        $$ = UnpackVector($2, $1);
-        workingNodeVector = NewNodeVector();
+        if($2 == NULL) {
+            printf("null varDecl\n");
+        } else {
+            $$ = $2;
+            Node * cur = $2;
+            while(cur != NULL) {
+                cur->dataType = $1;
+                if (cur->sibling != NULL) {
+                    cur = cur->sibling;
+                } else {
+                    cur = NULL;
+                }
+            }
+        }
     };
 scopedVarDecl:
     ytstatic typeSpec varDeclList ';' {
-        UnpackVector($3, $2);
-        workingNodeVector = NewNodeVector();
+        if($3 == NULL) {
+            printf("null varDeclList\n");
+        } else {
+            $$ = $3;
+            Node * cur = $3;
+            while(cur != NULL) {
+                cur->dataType = $2;
+                if (cur->sibling != NULL) {
+                    cur = cur->sibling;
+                } else {
+                    cur = NULL;
+                }
+            }
+        }
     }|
     typeSpec varDeclList ';' {
-        $$ = UnpackVector($2, $1);
-        workingNodeVector = NewNodeVector();
+        if($2 == NULL) {
+            printf("null varDeclList\n");
+        } else {
+            $$ = $2;
+            Node * cur = $2;
+            while(cur != NULL) {
+                cur->dataType = $1;
+                if (cur->sibling != NULL) {
+                    cur = cur->sibling;
+                } else {
+                    cur = NULL;
+                }
+            }
+        }
     };
 varDeclList:
     varDeclList ',' varDeclInit {
-        AddToVector(workingNodeVector, $3);
-        $$ = workingNodeVector;
+        $$ = $1;
+        if($3 != NULL) {
+            $$ = AddSibling($1, $3);
+        }
     }|
     varDeclInit {
-        AddToVector(workingNodeVector, $1);
-        $$ = workingNodeVector;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     };
 varDeclInit:
     varDeclId {
-        $$ = $1;
-        $1->nodeType = ntVar;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     }|
     varDeclId ':' simpleExp {
+        printf("varDeclId ':' simpleExp\n");
     };
 varDeclId:
     ID {
@@ -91,7 +137,7 @@ varDeclId:
         $$->nodeType = ntVar;
     }|
     ID '[' NUMCONST ']' {
-        printf("vardecl %s %s\n", $1, $3);
+        printf("varDeclId %s %s\n", $1, $3);
     };
 typeSpec:
     ytbool {
@@ -108,47 +154,71 @@ funDecl:
         $$ = NewNode($2);
         $$->nodeType = ntFunc;
         $$->dataType = $1;
-        $$ = AddChild($$, $4);
+        $$ = AddChild($$, $4); //might be empty
         $$ = AddChild($$, $6);
     }|
     ID '(' parms ')' compoundStmt {
         $$ = NewNode($1);
         $$->nodeType = ntFunc;
         $$->dataType = "void";
-        $$ = AddChild($$, $3);
+        $$ = AddChild($$, $3); //might be empty
         $$ = AddChild($$, $5);
     };
 parms:
     parmList {
-        $$ = $1;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     }|
     %empty {
         Token emptyToken;
         emptyToken.tokenClass = 100;
         emptyToken.lineNum = 0;
         emptyToken.value.str = strdup("empty");
+        emptyToken.literal = strdup("empty");
         $$ = NewNode(emptyToken);
         $$->nodeType = ntEmpty;
     };
 parmList:
     parmList ';' parmTypeList {
+        $$ = $1;
+        if($3 != NULL) {
+            $$ = AddSibling($1, $3);
+        }
     }|
     parmTypeList {
-        $$ = $1; //placeholder, might want to make a vector
+        if($1 != NULL) {
+            $$ = $1;
+        }
     };
 parmTypeList:
     typeSpec parmIdList {
-        $$ = UnpackVector($2, $1);
-        workingNodeVector = NewNodeVector();
+        if($2 == NULL) {
+            printf("null parmIdList\n");
+        } else {
+            $$ = $2;
+            Node * cur = $2;
+            while(cur != NULL) {
+                cur->dataType = $1;
+                if (cur->sibling != NULL) {
+                    cur = cur->sibling;
+                } else {
+                    cur = NULL;
+                }
+            }
+        }
     };
 parmIdList:
     parmIdList ',' parmId {
-        AddToVector(workingNodeVector, $3);
-        $$ = workingNodeVector;
+        $$ = $1;
+        if($3 != NULL) {
+            $$ = AddSibling($1, $3);
+        }
     }|
     parmId {
-        AddToVector(workingNodeVector, $1);
-        $$ = workingNodeVector;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     };
 parmId:
     ID {
@@ -156,7 +226,9 @@ parmId:
         $$->nodeType = ntParm;
     }|
     ID '[' ']' {
-        printf("parm %s\n", $1);
+        $$ = NewNode($1);
+        $$->nodeType = ntParm;
+        printf("placeholder parm %s\n", $1);
     };
 stmt:
     matched {
@@ -165,6 +237,7 @@ stmt:
         }
     }|
     unmatched {
+        printf("unmatched\n");
     };
     
 matched:
@@ -184,6 +257,7 @@ matched:
         }
     }|
     matchedIterStmt {
+        printf("matchedIterStmt\n");
     }|
     returnStmt {
         if($1 != NULL) {
@@ -191,11 +265,14 @@ matched:
         }
     }|
     breakStmt {
+        printf("breakStmt\n");
     };
 unmatched:
     unmatchedSelectStmt {
+        printf("breakStmt\n");
     }|
     unmatchedIterStmt {
+        printf("breakStmt\n");
     };
 expStmt:
     exp ';' {
@@ -209,29 +286,44 @@ compoundStmt:
     ytcompound localDecls stmtList '}' {
         $$ = NewNode($1);
         $$->nodeType = ntCompound;
-        $$ = AddChild($$, $2);
-        Node * stmtListRoot = UnpackVector($3, "stmt");
-        workingNodeVector = NewNodeVector();
-        $$ = AddChild($$, stmtListRoot);
+        $$ = AddChild($$, $2); //might be empty
+        if($3 != NULL) {
+            $$ = AddChild($$, $3);
+        }
     };
 localDecls:
     localDecls scopedVarDecl {
-        $$ = AddSibling($$, $2);
+        if($2 == NULL) {
+            $$ = $1;
+        } else if ($1->nodeType == ntEmpty){
+            $$ = $2;
+        } else {
+            $$ = $1;
+            $$ = AddSibling($1, $2);
+        } // is this good??? who knows
     }|
     %empty {
         Token emptyToken;
         emptyToken.tokenClass = 100;
         emptyToken.lineNum = 0;
         emptyToken.value.str = strdup("empty");
+        emptyToken.literal = strdup("empty");
         $$ = NewNode(emptyToken);
         $$->nodeType = ntEmpty;
     };
 stmtList:
     stmtList stmt {
-        AddToVector(workingNodeVector, $2);
-        $$ = workingNodeVector;
+        if($1 != NULL) {
+            $$ = $1;
+            if($2 != NULL) {
+                $$ = AddSibling($1, $2);
+            }
+        } else {
+            $$ = $2;
+        }
     }|
     %empty {
+        $$ = NULL;
     };
 matchedSelectStmt:
     ytif simpleExp ytthen matched ytelse matched {
@@ -292,6 +384,9 @@ exp:
     mutable ytdec {
     }|
     simpleExp {
+        if($1 != NULL) {
+            $$ = $1;
+        }
     };
 assignop:
     ytequals {
@@ -377,7 +472,8 @@ sumExp:
     };
 sumop:
     ytadd {
-        $$ = NULL;
+        $$ = NewNode($1);
+        $$->nodeType = ntOp;
     }|
     ytsub {
         $$ = NewNode($1);
@@ -443,7 +539,9 @@ mutable:
     };
 immutable:
     '(' exp ')' {
-        $$ = NULL;
+        if($2 != NULL) {
+            $$ = $2;
+        }
     }|
     call {
         if($1 != NULL) {
@@ -463,25 +561,27 @@ call:
     };
 args:
     argList {
-        $$ = UnpackVector($1, "arg");
-        workingNodeVector = NewNodeVector();
+        if($1 != NULL) {
+            $$ = $1;
+        }
     }|
     %empty {
         Token emptyToken;
         emptyToken.tokenClass = 100;
         emptyToken.lineNum = 0;
         emptyToken.value.str = strdup("empty");
+        emptyToken.literal = strdup("empty");
         $$ = NewNode(emptyToken);
         $$->nodeType = ntEmpty;
     };
 argList:
     argList ',' exp {
-        AddToVector(workingNodeVector, $3);
-        $$ = workingNodeVector;
+        $$ = AddSibling($1, $3);
     }|
     exp {
-        AddToVector(workingNodeVector, $1);
-        $$ = workingNodeVector;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     };
 constant:
     NUMCONST {

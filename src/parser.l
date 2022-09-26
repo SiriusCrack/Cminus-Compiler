@@ -23,28 +23,27 @@ char checkSpecialChars (char * str) {
 }
 
 char * removeEscapedChars (char * str) {
-    char * newStr = strdup(str);
     int i, j;
-    int length = strlen(newStr);
+    int length = strlen(str);
     for(i = 0; i < length; i++) {
-        if(newStr[i] == '\\') {
-            if (newStr[i+1] == 'n') {
-                newStr[i+1] = '\n';
+        if(str[i] == '\\') {
+            if (str[i+1] == 'n') {
+                str[i+1] = '\n';
             }
-            if (newStr[i+1] == '0') {
-                newStr[i+1] = '\0';
+            if (str[i+1] == '0') {
+                str[i+1] = '\0';
             }
-            if (newStr[i+1] == '\\') {
+            if (str[i+1] == '\\') {
                 i++;
             }
             for(j = i; j < length; j++) {
-                newStr[j] = newStr[j+1];
+                str[j] = str[j+1];
             }
             length--;
             i--;
         }
     }
-    return newStr;
+    return str;
 }
 
 int checkBool (char * str) {
@@ -58,25 +57,29 @@ int checkBool (char * str) {
 static int setToken (int lineNum, int tokenClass, char * literal) {
     yylval.token.tokenClass = tokenClass;
     yylval.token.lineNum = lineNum;
-    yylval.token.literal = literal;
+    yylval.token.literal = strdup(removeEscapedChars(literal));
+    // yylval.token.literal = literal;
     switch (tokenClass) {
         case NUMCONST:
             yylval.token.value.integer = atoi(literal);
             break;
         case ID:
-            yylval.token.value.str = removeEscapedChars(literal);
+            yylval.token.value.str = strdup(yylval.token.literal);
+            // yylval.token.value.str = strdup(removeEscapedChars(literal));
             break;
         case CHARCONST:
             yylval.token.value.character = checkSpecialChars(literal);
             break;
         case STRINGCONST:
-            yylval.token.value.str = removeEscapedChars(literal);
+            yylval.token.value.str = strdup(yylval.token.literal);
+            // yylval.token.value.str = strdup(removeEscapedChars(literal));
             break;
         case BOOLCONST:
             yylval.token.value.integer = checkBool(literal);
             break;
         default:
-            yylval.token.value.str = removeEscapedChars(literal);
+            yylval.token.value.str = strdup(yylval.token.literal);
+            // yylval.token.value.str = strdup(removeEscapedChars(literal));
     }
     return tokenClass;
 }

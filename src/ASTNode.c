@@ -18,7 +18,6 @@ Node * NewNode (Token token) {
         }
         newNode->sibling = NULL;
         newNode->literal = token.literal;
-        // free(token.literal);
         newNode->tokenClass = token.tokenClass;
         newNode->lineNum = token.lineNum;
         newNode->siblingCount = 0;
@@ -44,7 +43,7 @@ Node * NewNode (Token token) {
                 newNode->value.str = strdup(token.value.str);
                 free(token.value.str);
         }
-        // printf("made node %s\n", newNode->literal);
+        printf("made node %s\n", newNode->literal);
         return newNode;
     }
 }
@@ -52,7 +51,7 @@ Node * NewNode (Token token) {
 Node * AddSibling (Node * treePtr, Node * newSibling) {
     if (treePtr == NULL) {
         treePtr = newSibling;
-        // printf("started row with %s\n", newSibling->literal);
+        printf("started row with %s\n", newSibling->literal);
         return treePtr;
     } else {
         Node * cur = treePtr;
@@ -61,7 +60,7 @@ Node * AddSibling (Node * treePtr, Node * newSibling) {
         }
         newSibling->siblingCount = cur->siblingCount + 1;
         cur->sibling = newSibling;
-        // printf("added %s as sibling to %s\n", newSibling->literal, cur->literal);
+        printf("added %s as sibling to %s\n", newSibling->literal, cur->literal);
         return treePtr;
     }
 }
@@ -77,7 +76,7 @@ Node * AddChild (Node * treePtr, Node * newChild) {
             i++;
         }
         cur->child[i] = newChild;
-        // printf("added %s as child to %s\n", newChild->literal, cur->literal);
+        printf("added %s as child to %s\n", newChild->literal, cur->literal);
         return treePtr;
     }
 }
