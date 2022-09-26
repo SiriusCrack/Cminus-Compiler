@@ -58,7 +58,7 @@ int checkBool (char * str) {
 static int setToken (int lineNum, int tokenClass, char * literal) {
     yylval.token.tokenClass = tokenClass;
     yylval.token.lineNum = lineNum;
-    yylval.token.literal = removeEscapedChars(literal);
+    yylval.token.literal = literal;
     switch (tokenClass) {
         case NUMCONST:
             yylval.token.value.integer = atoi(literal);
@@ -180,5 +180,5 @@ static int setToken (int lineNum, int tokenClass, char * literal) {
 [0-9]+ { 
     return setToken (line, NUMCONST, yytext); }
 . { 
-    printf("ERROR(%d): Invalid or misplaced input character: '%s'. Character Ignored.\n", line, yytext); }
+    ; }
 %%

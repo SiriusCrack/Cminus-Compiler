@@ -44,7 +44,7 @@ Node * NewNode (Token token) {
                 newNode->value.str = strdup(token.value.str);
                 free(token.value.str);
         }
-        printf("made node %s\n", newNode->literal);
+        // printf("made node %s\n", newNode->literal);
         return newNode;
     }
 }
@@ -52,7 +52,7 @@ Node * NewNode (Token token) {
 Node * AddSibling (Node * treePtr, Node * newSibling) {
     if (treePtr == NULL) {
         treePtr = newSibling;
-        printf("started row with %s\n", newSibling->literal);
+        // printf("started row with %s\n", newSibling->literal);
         return treePtr;
     } else {
         Node * cur = treePtr;
@@ -61,7 +61,7 @@ Node * AddSibling (Node * treePtr, Node * newSibling) {
         }
         newSibling->siblingCount = cur->siblingCount + 1;
         cur->sibling = newSibling;
-        printf("added %s as sibling to %s\n", newSibling->literal, cur->literal);
+        // printf("added %s as sibling to %s\n", newSibling->literal, cur->literal);
         return treePtr;
     }
 }
@@ -77,13 +77,15 @@ Node * AddChild (Node * treePtr, Node * newChild) {
             i++;
         }
         cur->child[i] = newChild;
-        printf("added %s as child to %s\n", newChild->literal, cur->literal);
+        // printf("added %s as child to %s\n", newChild->literal, cur->literal);
         return treePtr;
     }
 }
 
-void PrintAST (Node * AST, int level) {
-    if (AST == NULL) {
+void PrintTree (Node * AST, int level, int flag) {
+    if (flag != 1) {
+        return;
+    } else if (AST == NULL) {
         printf("empty tree\n");
         return;
     } else {
@@ -119,10 +121,16 @@ void PrintAST (Node * AST, int level) {
                     printf("Const %d ", cur->value.integer);
                     break;
                 case ntReturn:
-                    printf("Return ", cur->value.integer);
+                    printf("Return ");
                     break;
-                case ntEmpty:
-                    printf("Return ", cur->value.integer);
+                case ntOp:
+                    printf("Op: %s ", cur->value.str);
+                    break;
+                case ntCall:
+                    printf("Call: %s ", cur->value.str);
+                    break;
+                case ntIf:
+                    printf("If ");
                     break;
                 default:
                     printf("unknown node\n");
@@ -138,7 +146,7 @@ void PrintAST (Node * AST, int level) {
                         printf(".   ");
                     }
                     printf("Child: %d  ", c);
-                    PrintAST(cur->child[c], level+1);
+                    PrintTree(cur->child[c], level+1, flag);
                 }
                 c++;
             }

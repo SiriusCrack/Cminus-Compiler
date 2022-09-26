@@ -7,6 +7,8 @@
 #include <string.h>
 
 extern FILE *yyin;
+extern int yydebug;
+int printTreeFlag;
 
 Node * AST;
 NodeVector * workingNodeVector;
@@ -27,8 +29,8 @@ NodeVector * workingNodeVector;
 %token <token> ytif ytelse ytwhile ytdo ytthen ytnot ytand ytor ytfor ytto ytby ytbreak ytreturn
 %token <token> ytcompound
 
-%type <nodePtr> varDeclId varDeclInit parmId mutable assignop constant returnStmt funDecl exp simpleExp andExp unaryRelExp relExp sumExp mulExp unaryExp factor expStmt compoundStmt scopedVarDecl localDecls varDecl matched stmt parms parmList parmTypeList decl
-%type <nodeVectorPtr> varDeclList stmtList parmIdList
+%type <nodePtr> varDeclId varDeclInit parmId mutable assignop constant returnStmt funDecl exp simpleExp andExp unaryRelExp relExp sumExp mulExp unaryExp factor expStmt compoundStmt scopedVarDecl localDecls varDecl matched stmt parms parmList parmTypeList decl relop call args sumop mulop matchedSelectStmt immutable unmatchedSelectStmt matchedIterStmt unmatchedIterStmt iterRange
+%type <nodeVectorPtr> varDeclList stmtList parmIdList argList
 %type <literal> typeSpec
 
 %%
@@ -44,10 +46,14 @@ declList:
     };
 decl:
     varDecl {
-        $$ = $1;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     }|
     funDecl {
-        $$ = $1;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     };
 varDecl:
     typeSpec varDeclList ';' {
@@ -121,7 +127,6 @@ parms:
         emptyToken.tokenClass = 100;
         emptyToken.lineNum = 0;
         emptyToken.value.str = strdup("empty");
-        emptyToken.literal = strdup("empty");
         $$ = NewNode(emptyToken);
         $$->nodeType = ntEmpty;
     };
@@ -155,24 +160,35 @@ parmId:
     };
 stmt:
     matched {
-        $$ = $1;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     }|
     unmatched {
     };
     
 matched:
     expStmt {
-        $$ = $1;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     }|
     compoundStmt {
-        $$ = $1;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     }|
     matchedSelectStmt {
+        if($1 != NULL) {
+            $$ = $1;
+        }
     }|
     matchedIterStmt {
     }|
     returnStmt {
-        $$ = $1;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     }|
     breakStmt {
     };
@@ -183,7 +199,9 @@ unmatched:
     };
 expStmt:
     exp ';' {
-        $$ = $1;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     }|
     ';' {
     };
@@ -201,6 +219,12 @@ localDecls:
         $$ = AddSibling($$, $2);
     }|
     %empty {
+        Token emptyToken;
+        emptyToken.tokenClass = 100;
+        emptyToken.lineNum = 0;
+        emptyToken.value.str = strdup("empty");
+        $$ = NewNode(emptyToken);
+        $$->nodeType = ntEmpty;
     };
 stmtList:
     stmtList stmt {
@@ -211,28 +235,39 @@ stmtList:
     };
 matchedSelectStmt:
     ytif simpleExp ytthen matched ytelse matched {
+        $$ = NewNode($1);
+        $$->nodeType = ntIf;
+        if ($2 != NULL) {
+            $$ = AddChild($$, $2);
+        }
+        $$ = AddChild($$, $4);
+        $$ = AddChild($$, $6);
     };
 unmatchedSelectStmt:
     ytif simpleExp ytthen stmt {
+        $$ = NULL;
     }|
     ytif simpleExp ytthen matched ytelse unmatched {
+        $$ = NULL;
     };
 matchedIterStmt:
     ytwhile simpleExp ytdo matched {
+        $$ = NULL;
     }|
     ytfor ID ytequals iterRange ytdo matched {
-        printf("%s\n", $2);
     };
 unmatchedIterStmt:
     ytwhile simpleExp ytdo unmatched {
+        $$ = NULL;
     }|
     ytfor ID ytequals iterRange ytdo unmatched {
-        printf("%s\n", $2);
     };
 iterRange:
     simpleExp ytto simpleExp {
+        $$ = NULL;
     }|
     simpleExp ytto simpleExp ytby simpleExp {
+        $$ = NULL;
     };
 returnStmt:
     ytreturn ';' {
@@ -257,7 +292,6 @@ exp:
     mutable ytdec {
     }|
     simpleExp {
-        $$ = $1;
     };
 assignop:
     ytequals {
@@ -274,70 +308,112 @@ assignop:
     };
 simpleExp:
     simpleExp ytor andExp {
+        $$ = NULL;
     }|
     andExp {
-        $$ = $1;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     };
 andExp:
     andExp ytand unaryRelExp {
+        $$ = NULL;
     }|
     unaryRelExp {
-        $$ = $1;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     };
 unaryRelExp:
     ytnot unaryRelExp {
+        $$ = NULL;
     }|
-    relExp  {
-        $$ = $1;
+    relExp {
+        if($1 != NULL) {
+            $$ = $1;
+        }
     };
 relExp:
     sumExp relop sumExp {
+        $2 = AddChild($2, $1);
+        $2 = AddChild($2, $3);
+        $$ = $2;
     }|
     sumExp {
-        $$ = $1;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     };
 relop:
     ytlesser {
+        $$ = NULL;
     }|
     yteqlesser {
+        $$ = NULL;
     }|
     ytgreater {
+        $$ = NULL;
     }|
     yteqgreater {
+        $$ = NULL;
     }|
     yteq {
+        $$ = NewNode($1);
+        $$->nodeType = ntOp;
     }|
     ytnoteq {
+        $$ = NULL;
     };
 sumExp:
     sumExp sumop mulExp {
+        $2 = AddChild($2, $1);
+        $2 = AddChild($2, $3);
+        $$ = $2;
     }|
     mulExp {
-        $$ = $1;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     };
 sumop:
     ytadd {
+        $$ = NULL;
     }|
     ytsub {
+        $$ = NewNode($1);
+        $$->nodeType = ntOp;
     };
 mulExp:
     mulExp mulop unaryExp {
+        $2 = AddChild($2, $1);
+        $2 = AddChild($2, $3);
+        $$ = $2;
     }|
     unaryExp {
-        $$ = $1;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     };
 mulop:
     ytmul {
+        $$ = NewNode($1);
+        $$->nodeType = ntOp;
     }|
     ytdiv {
+        $$ = NewNode($1);
+        $$->nodeType = ntOp;
     }|
     ytmod {
+        $$ = NULL;
     };
 unaryExp:
     unaryop unaryExp {
+        $$ = NULL;
     }|
     factor {
-        $$ = $1;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     };
 unaryop:
     ytsub {
@@ -348,9 +424,14 @@ unaryop:
     };
 factor:
     mutable {
-        $$ = $1;
+        if($1 != NULL) {
+            $$ = $1;
+        }
     }|
     immutable {
+        if($1 != NULL) {
+            $$ = $1;
+        }
     };
 mutable:
     ID {
@@ -358,28 +439,49 @@ mutable:
         $$->nodeType = ntID;
     }|
     ID '[' exp ']' {
-        printf("mut %s\n", $1);
+        $$ = NULL;
     };
 immutable:
     '(' exp ')' {
+        $$ = NULL;
     }|
     call {
+        if($1 != NULL) {
+            $$ = $1;
+        }
     }|
     constant {
+        if($1 != NULL) {
+            $$ = $1;
+        }
     };
 call:
     ID '(' args ')' {
-        printf("call %s\n", $1);
+        $$ = NewNode($1);
+        $$->nodeType = ntCall;
+        $$ = AddChild($$, $3);
     };
 args:
     argList {
+        $$ = UnpackVector($1, "arg");
+        workingNodeVector = NewNodeVector();
     }|
     %empty {
+        Token emptyToken;
+        emptyToken.tokenClass = 100;
+        emptyToken.lineNum = 0;
+        emptyToken.value.str = strdup("empty");
+        $$ = NewNode(emptyToken);
+        $$->nodeType = ntEmpty;
     };
 argList:
     argList ',' exp {
+        AddToVector(workingNodeVector, $3);
+        $$ = workingNodeVector;
     }|
     exp {
+        AddToVector(workingNodeVector, $1);
+        $$ = workingNodeVector;
     };
 constant:
     NUMCONST {
@@ -387,26 +489,55 @@ constant:
         $$->nodeType = ntConst;
     }|
     CHARCONST {
-        printf("const %s\n", $1);
+        printf("constant CHARCONST\n");
     }|
     STRINGCONST {
-        printf("const %s\n", $1);
+        printf("constant STRINGCONST\n");
     }|
     BOOLCONST {
-        printf("const %s\n", $1);
+        printf("constant BOOLCONST\n");
     };
 %%
 int main (int argc, char *argv[]) {
-    if(argc > 1) {
+    printTreeFlag = 0;
+    if(argc == 2) {
         FILE *fp = fopen(argv[1], "r");
+        if(fp) {
+            yyin = fp;
+        }
+    } else if(argc == 3) {
+        if(argv[1][1] == 'p') {
+            printTreeFlag = 1;
+        }
+        if(argv[1][1] == 'd') {
+            yydebug = 1;
+        }
+        FILE *fp = fopen(argv[2], "r");
+        if(fp) {
+            yyin = fp;
+        }
+    } else if(argc == 4) {
+        if(argv[1][1] == 'p') {
+            printTreeFlag = 1;
+        }
+        if(argv[1][1] == 'd') {
+            yydebug = 1;
+        }
+        if(argv[2][1] == 'p') {
+            printTreeFlag = 1;
+        }
+        if(argv[2][1] == 'd') {
+            yydebug = 1;
+        }
+        FILE *fp = fopen(argv[3], "r");
         if(fp) {
             yyin = fp;
         }
     }
     workingNodeVector = NewNodeVector();
     yyparse();
-    printf("nice\n\n");
-    PrintAST(AST, 0);
+    //printf("nice\n\n");
+    PrintTree(AST, 0, printTreeFlag);
     return 0;
 }
 

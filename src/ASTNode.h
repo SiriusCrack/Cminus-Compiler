@@ -4,8 +4,20 @@
 
 #define MAX_CHILDREN 3
 
-typedef enum {ntVar, ntFunc, ntParm, ntCompound, ntAssign, ntID, ntConst, ntReturn, ntEmpty} NodeType;
-
+typedef enum {
+    ntVar, 
+    ntFunc, 
+    ntParm, 
+    ntCompound, 
+    ntAssign, 
+    ntID, 
+    ntConst, 
+    ntReturn, 
+    ntEmpty, 
+    ntOp, 
+    ntCall,
+    ntIf
+} NodeType;
 
 typedef struct Node Node;
 struct Node {
@@ -34,6 +46,6 @@ struct Node {
 Node * NewNode (Token);
 Node * AddSibling (Node *, Node *);
 Node * AddChild (Node *, Node *);
-void PrintAST (Node *, int);
+void PrintTree (Node *, int, int);
 char * NodeTypeToString(NodeType);
 #endif
