@@ -14,6 +14,7 @@ struct Node {
     Node * sibling;
 
     // Info
+    char * literal;
     int tokenClass;
     int lineNum;
     int siblingCount;

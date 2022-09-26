@@ -38,11 +38,9 @@ program:
 declList:
     declList decl {
         AST = AddSibling(AST, $2);
-        printf("added sibling: %s\n", $2->value.str);
     }|
     decl {
         AST = AddSibling(AST, $1);
-        printf("added sibling: %s\n", $1->value.str);
     };
 decl:
     varDecl {
@@ -55,29 +53,24 @@ varDecl:
     typeSpec varDeclList ';' {
         $$ = UnpackVector($2, $1);
         workingNodeVector = NewNodeVector();
-        printf("1nice\n");
     };
 scopedVarDecl:
     ytstatic typeSpec varDeclList ';' {
         UnpackVector($3, $2);
         workingNodeVector = NewNodeVector();
-        printf("2nice\n");
     }|
     typeSpec varDeclList ';' {
         $$ = UnpackVector($2, $1);
         workingNodeVector = NewNodeVector();
-        printf("3nice\n");
     };
 varDeclList:
     varDeclList ',' varDeclInit {
         AddToVector(workingNodeVector, $3);
         $$ = workingNodeVector;
-        printf("added to 1vector: %s\n", $3->value.str);
     }|
     varDeclInit {
         AddToVector(workingNodeVector, $1);
         $$ = workingNodeVector;
-        printf("added to 2vector: %s\n", $1->value.str);
     };
 varDeclInit:
     varDeclId {
@@ -90,7 +83,6 @@ varDeclId:
     ID {
         $$ = NewNode($1);
         $$->nodeType = ntVar;
-        printf("made node: %s\n", $$->value.str);
     }|
     ID '[' NUMCONST ']' {
         printf("vardecl %s %s\n", $1, $3);
@@ -110,21 +102,15 @@ funDecl:
         $$ = NewNode($2);
         $$->nodeType = ntFunc;
         $$->dataType = $1;
-        printf("made node: %s\n", $$->value.str);
         $$ = AddChild($$, $4);
-        printf("added %s child to %s\n", $4->value.str, $$->value.str);
         $$ = AddChild($$, $6);
-        printf("added %s child to %s\n", $6->value.str, $$->value.str);
     }|
     ID '(' parms ')' compoundStmt {
         $$ = NewNode($1);
         $$->nodeType = ntFunc;
         $$->dataType = "void";
-        printf("made node: %s\n", $$->value.str);
         $$ = AddChild($$, $3);
-        printf("added %s child to %s\n", $3->value.str, $$->value.str);
         $$ = AddChild($$, $5);
-        printf("added %s child to %s\n", $5->value.str, $$->value.str);
     };
 parms:
     parmList {
@@ -135,6 +121,7 @@ parms:
         emptyToken.tokenClass = 100;
         emptyToken.lineNum = 0;
         emptyToken.value.str = strdup("empty");
+        emptyToken.literal = strdup("empty");
         $$ = NewNode(emptyToken);
         $$->nodeType = ntEmpty;
     };
@@ -148,24 +135,20 @@ parmTypeList:
     typeSpec parmIdList {
         $$ = UnpackVector($2, $1);
         workingNodeVector = NewNodeVector();
-        printf("parmspecnice\n");
     };
 parmIdList:
     parmIdList ',' parmId {
         AddToVector(workingNodeVector, $3);
         $$ = workingNodeVector;
-        printf("added to parmvector: %s\n", $3->value.str);
     }|
     parmId {
         AddToVector(workingNodeVector, $1);
         $$ = workingNodeVector;
-        printf("added to parmvector: %s\n", $1->value.str);
     };
 parmId:
     ID {
         $$ = NewNode($1);
         $$->nodeType = ntParm;
-        printf("made node: %s\n", $$->value.str);
     }|
     ID '[' ']' {
         printf("parm %s\n", $1);
@@ -208,18 +191,14 @@ compoundStmt:
     ytcompound localDecls stmtList '}' {
         $$ = NewNode($1);
         $$->nodeType = ntCompound;
-        printf("made node: %s\n", $$->value.str);
         $$ = AddChild($$, $2);
-        printf("added %s child to %s\n", $2->value.str, $$->value.str);
         Node * stmtListRoot = UnpackVector($3, "stmt");
         workingNodeVector = NewNodeVector();
         $$ = AddChild($$, stmtListRoot);
-        printf("added %s child to %s\n", stmtListRoot->value.str, $$->value.str);
     };
 localDecls:
     localDecls scopedVarDecl {
         $$ = AddSibling($$, $2);
-        printf("added sibling: %s\n", $2->value.str);
     }|
     %empty {
     };
@@ -261,9 +240,7 @@ returnStmt:
     ytreturn exp ';' {
         $$ = NewNode($1);
         $$->nodeType = ntReturn;
-        printf("made node: %s\n", $$->value.str);
         $$ = AddChild($$, $2);
-        printf("added %s child to %s\n", $2->value.str, $$->value.str);
     };
 breakStmt:
     ytbreak ';' {
@@ -272,9 +249,7 @@ exp:
     mutable assignop exp {
         $$ = $2;
         $$ = AddChild($$, $1);
-        printf("added %s child to %s\n", $1->value.str, $$->value.str);
         $$ = AddChild($$, $3);
-        printf("added %d child to %s\n", $3->value.integer, $$->value.str);
 
     }|
     mutable ytinc {
@@ -288,7 +263,6 @@ assignop:
     ytequals {
         $$ = NewNode($1);
         $$->nodeType = ntAssign;
-        printf("made node: %s\n", $$->value.str);
     }|
     ytassadd {
     }|
@@ -382,7 +356,6 @@ mutable:
     ID {
         $$ = NewNode($1);
         $$->nodeType = ntID;
-        printf("made node: %s\n", $$->value.str);
     }|
     ID '[' exp ']' {
         printf("mut %s\n", $1);
@@ -412,7 +385,6 @@ constant:
     NUMCONST {
         $$ = NewNode($1);
         $$->nodeType = ntConst;
-        printf("made node: %d\n", $$->value.integer);
     }|
     CHARCONST {
         printf("const %s\n", $1);

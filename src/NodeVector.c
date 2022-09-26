@@ -13,10 +13,12 @@ void AddToVector (NodeVector * vector, Node * newNode) {
     NodeVector * prev = NULL;
     if (vector->nodePtr == NULL) {
         vector->nodePtr = newNode;
+        printf("added %s to empty vector\n", newNode->literal);
     } else if (vector->next == NULL) {
         vector->next = NewNodeVector();
         prev = vector;
         vector->next->nodePtr = newNode;
+        printf("added %s to %s vector\n", newNode->literal, vector->nodePtr->literal);
     } else {
         NodeVector * cur = vector;
         while (cur->next != NULL) {
@@ -25,6 +27,7 @@ void AddToVector (NodeVector * vector, Node * newNode) {
         cur->next = NewNodeVector();
         prev = cur;
         cur->next->nodePtr = newNode;
+        printf("added %s to %s vector after %s\n", newNode->literal, vector->nodePtr->literal, cur->nodePtr->literal);
     }
     if (prev != NULL) {
         prev->nodePtr = AddSibling(prev->nodePtr, newNode);

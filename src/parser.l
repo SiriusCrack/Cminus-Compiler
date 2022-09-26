@@ -58,7 +58,7 @@ int checkBool (char * str) {
 static int setToken (int lineNum, int tokenClass, char * literal) {
     yylval.token.tokenClass = tokenClass;
     yylval.token.lineNum = lineNum;
-    yylval.token.literal = literal;
+    yylval.token.literal = removeEscapedChars(literal);
     switch (tokenClass) {
         case NUMCONST:
             yylval.token.value.integer = atoi(literal);
