@@ -115,6 +115,9 @@ void PrintAST (Node * AST, int level) {
                 case ntReturn:
                     printf("Return ", cur->value.integer);
                     break;
+                case ntEmpty:
+                    printf("Return ", cur->value.integer);
+                    break;
                 default:
                     printf("unknown node\n");
                     break;
@@ -123,12 +126,14 @@ void PrintAST (Node * AST, int level) {
             printf("\n");
             int c = 0;
             while(cur->child[c] != NULL) {
-                int i = 0;
-                for(i = 0;i < level+1; i++) {
-                    printf(".   ");
+                if (cur->child[c]->nodeType != ntEmpty) {
+                    int i = 0;
+                    for(i = 0;i < level+1; i++) {
+                        printf(".   ");
+                    }
+                    printf("Child: %d  ", c);
+                    PrintAST(cur->child[c], level+1);
                 }
-                printf("Child: %d  ", c);
-                PrintAST(cur->child[c], level+1);
                 c++;
             }
             cur = cur->sibling;

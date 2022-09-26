@@ -4,7 +4,7 @@
 
 #define MAX_CHILDREN 3
 
-typedef enum {ntVar, ntFunc, ntParm, ntCompound, ntAssign, ntID, ntConst, ntReturn} NodeType;
+typedef enum {ntVar, ntFunc, ntParm, ntCompound, ntAssign, ntID, ntConst, ntReturn, ntEmpty} NodeType;
 
 
 typedef struct Node Node;

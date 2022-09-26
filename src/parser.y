@@ -117,13 +117,26 @@ funDecl:
         printf("added %s child to %s\n", $6->value.str, $$->value.str);
     }|
     ID '(' parms ')' compoundStmt {
-        printf("func %s\n", $1);
+        $$ = NewNode($1);
+        $$->nodeType = ntFunc;
+        $$->dataType = "void";
+        printf("made node: %s\n", $$->value.str);
+        $$ = AddChild($$, $3);
+        printf("added %s child to %s\n", $3->value.str, $$->value.str);
+        $$ = AddChild($$, $5);
+        printf("added %s child to %s\n", $5->value.str, $$->value.str);
     };
 parms:
     parmList {
         $$ = $1;
     }|
     %empty {
+        Token emptyToken;
+        emptyToken.tokenClass = 100;
+        emptyToken.lineNum = 0;
+        emptyToken.value.str = strdup("empty");
+        $$ = NewNode(emptyToken);
+        $$->nodeType = ntEmpty;
     };
 parmList:
     parmList ';' parmTypeList {
@@ -166,6 +179,7 @@ stmt:
     
 matched:
     expStmt {
+        $$ = $1;
     }|
     compoundStmt {
         $$ = $1;
