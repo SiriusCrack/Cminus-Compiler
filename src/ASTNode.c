@@ -69,7 +69,16 @@ Node * AddChild (Node * treePtr, Node * newChild) {
     if (treePtr == NULL) {
         printf("adding child to null, dummy\n");
         return treePtr;
-    } else{
+    } else {
+        if(newChild == NULL) {
+            Token emptyToken;
+            emptyToken.literal = strdup("empty");
+            emptyToken.tokenClass = 100;
+            emptyToken.lineNum = 0;
+            emptyToken.value.str = strdup("empty");
+            newChild = NewNode(emptyToken);
+            newChild->nodeType = ntEmpty;
+        }
         Node * cur = treePtr;
         int i = 0;
         while(cur->child[i] != NULL) {
@@ -111,7 +120,7 @@ void PrintTree (Node * AST, int level, int flag) {
                     printf("Compound ");
                     break;
                 case ntAssign:
-                    printf("Assign: = ");
+                    printf("Assign: %s ", cur->value.str);
                     break;
                 case ntID:
                     printf("Id: %s ", cur->value.str);
@@ -131,6 +140,18 @@ void PrintTree (Node * AST, int level, int flag) {
                 case ntIf:
                     printf("If ");
                     break;
+                case ntVarArray:
+                    printf("Var: %s of array of type %s ", cur->value.str, cur->dataType);
+                    break;
+                case ntParmArray:
+                    printf("Parm: %s of array of type %s ", cur->value.str, cur->dataType);
+                    break;
+                case ntIter:
+                    printf("While ");
+                    break;
+                case ntEmpty:
+                    printf("EMPTY??\n ");
+                    break;
                 default:
                     printf("unknown node\n");
                     break;
@@ -139,13 +160,13 @@ void PrintTree (Node * AST, int level, int flag) {
             printf("\n");
             int c = 0;
             while(cur->child[c] != NULL) {
-                if (cur->child[c]->nodeType != ntEmpty) {
+                if(cur->child[c]->nodeType != ntEmpty) {
                     int i = 0;
                     for(i = 0;i < level+1; i++) {
                         printf(".   ");
                     }
                     printf("Child: %d  ", c);
-                    PrintTree(cur->child[c], level+1, flag);
+                    PrintTree(cur->child[c], level+1, 1);
                 }
                 c++;
             }

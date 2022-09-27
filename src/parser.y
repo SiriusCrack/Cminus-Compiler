@@ -137,7 +137,8 @@ varDeclId:
         $$->nodeType = ntVar;
     }|
     ID '[' NUMCONST ']' {
-        printf("varDeclId %s %s\n", $1, $3);
+        $$ = NewNode($1);
+        $$->nodeType = ntVarArray;
     };
 typeSpec:
     ytbool {
@@ -171,13 +172,7 @@ parms:
         }
     }|
     %empty {
-        Token emptyToken;
-        emptyToken.tokenClass = 100;
-        emptyToken.lineNum = 0;
-        emptyToken.value.str = strdup("empty");
-        emptyToken.literal = strdup("empty");
-        $$ = NewNode(emptyToken);
-        $$->nodeType = ntEmpty;
+        $$ = NULL;
     };
 parmList:
     parmList ';' parmTypeList {
@@ -227,8 +222,7 @@ parmId:
     }|
     ID '[' ']' {
         $$ = NewNode($1);
-        $$->nodeType = ntParm;
-        printf("placeholder parm %s\n", $1);
+        $$->nodeType = ntParmArray;
     };
 stmt:
     matched {
@@ -257,7 +251,9 @@ matched:
         }
     }|
     matchedIterStmt {
-        printf("matchedIterStmt\n");
+        if($1 != NULL) {
+            $$ = $1;
+        }
     }|
     returnStmt {
         if($1 != NULL) {
@@ -293,23 +289,18 @@ compoundStmt:
     };
 localDecls:
     localDecls scopedVarDecl {
-        if($2 == NULL) {
-            $$ = $1;
-        } else if ($1->nodeType == ntEmpty){
-            $$ = $2;
+        if($2 != NULL) {
+            if($1 != NULL) {
+                $1 = AddSibling($1, $2);
+            } else {
+                $$ = $2;
+            }
         } else {
             $$ = $1;
-            $$ = AddSibling($1, $2);
         } // is this good??? who knows
     }|
     %empty {
-        Token emptyToken;
-        emptyToken.tokenClass = 100;
-        emptyToken.lineNum = 0;
-        emptyToken.value.str = strdup("empty");
-        emptyToken.literal = strdup("empty");
-        $$ = NewNode(emptyToken);
-        $$->nodeType = ntEmpty;
+        $$ = NULL;
     };
 stmtList:
     stmtList stmt {
@@ -329,37 +320,40 @@ matchedSelectStmt:
     ytif simpleExp ytthen matched ytelse matched {
         $$ = NewNode($1);
         $$->nodeType = ntIf;
-        if ($2 != NULL) {
-            $$ = AddChild($$, $2);
-        }
+        $$ = AddChild($$, $2);
         $$ = AddChild($$, $4);
         $$ = AddChild($$, $6);
     };
 unmatchedSelectStmt:
     ytif simpleExp ytthen stmt {
-        $$ = NULL;
+        printf("ytif simpleExp ytthen stmt\n");
     }|
     ytif simpleExp ytthen matched ytelse unmatched {
-        $$ = NULL;
+        printf("ytif simpleExp ytthen matched ytelse unmatched\n");
     };
 matchedIterStmt:
     ytwhile simpleExp ytdo matched {
-        $$ = NULL;
+        $$ = NewNode($1);
+        $$->nodeType = ntIter;
+        $$ = AddChild($$, $2);
+        $$ = AddChild($$, $4);
     }|
     ytfor ID ytequals iterRange ytdo matched {
+        printf("ytfor ID ytequals iterRange ytdo matched\n");
     };
 unmatchedIterStmt:
     ytwhile simpleExp ytdo unmatched {
-        $$ = NULL;
+        printf("ytwhile simpleExp ytdo unmatched\n");
     }|
     ytfor ID ytequals iterRange ytdo unmatched {
+        printf("ytfor ID ytequals iterRange ytdo unmatched\n");
     };
 iterRange:
     simpleExp ytto simpleExp {
-        $$ = NULL;
+        printf("simpleExp ytto simpleExp\n");
     }|
     simpleExp ytto simpleExp ytby simpleExp {
-        $$ = NULL;
+        printf("simpleExp ytto simpleExp ytby simpleExp\n");
     };
 returnStmt:
     ytreturn ';' {
@@ -377,11 +371,16 @@ exp:
         $$ = $2;
         $$ = AddChild($$, $1);
         $$ = AddChild($$, $3);
-
     }|
     mutable ytinc {
+        $$ = NewNode($2);
+        $$->nodeType = ntAssign;
+        $$ = AddChild($$, $1);
     }|
     mutable ytdec {
+        $$ = NewNode($2);
+        $$->nodeType = ntAssign;
+        $$ = AddChild($$, $1);
     }|
     simpleExp {
         if($1 != NULL) {
@@ -403,7 +402,7 @@ assignop:
     };
 simpleExp:
     simpleExp ytor andExp {
-        $$ = NULL;
+        printf("simpleExp ytor andExp\n");
     }|
     andExp {
         if($1 != NULL) {
@@ -412,7 +411,7 @@ simpleExp:
     };
 andExp:
     andExp ytand unaryRelExp {
-        $$ = NULL;
+        printf("andExp ytand unaryRelExp\n");
     }|
     unaryRelExp {
         if($1 != NULL) {
@@ -421,7 +420,7 @@ andExp:
     };
 unaryRelExp:
     ytnot unaryRelExp {
-        $$ = NULL;
+        printf("ytnot unaryRelExp\n");
     }|
     relExp {
         if($1 != NULL) {
@@ -441,23 +440,28 @@ relExp:
     };
 relop:
     ytlesser {
-        $$ = NULL;
+        $$ = NewNode($1);
+        $$->nodeType = ntOp;
     }|
     yteqlesser {
-        $$ = NULL;
+        $$ = NewNode($1);
+        $$->nodeType = ntOp;
     }|
     ytgreater {
-        $$ = NULL;
+        $$ = NewNode($1);
+        $$->nodeType = ntOp;
     }|
     yteqgreater {
-        $$ = NULL;
+        $$ = NewNode($1);
+        $$->nodeType = ntOp;
     }|
     yteq {
         $$ = NewNode($1);
         $$->nodeType = ntOp;
     }|
     ytnoteq {
-        $$ = NULL;
+        $$ = NewNode($1);
+        $$->nodeType = ntOp;
     };
 sumExp:
     sumExp sumop mulExp {
@@ -573,6 +577,7 @@ args:
         emptyToken.literal = strdup("empty");
         $$ = NewNode(emptyToken);
         $$->nodeType = ntEmpty;
+        printf("patoto\n");
     };
 argList:
     argList ',' exp {

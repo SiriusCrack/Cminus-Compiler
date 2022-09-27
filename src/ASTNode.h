@@ -16,7 +16,12 @@ typedef enum {
     ntEmpty, 
     ntOp, 
     ntCall,
-    ntIf
+    ntIf,
+    ntVarArray,
+    ntParmArray,
+    ntIter,
+    ntAssignInc,
+    ntAssignDec
 } NodeType;
 
 typedef struct Node Node;

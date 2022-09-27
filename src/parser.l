@@ -131,9 +131,9 @@ static int setToken (int lineNum, int tokenClass, char * literal) {
     return setToken (line, ytassmul, yytext); }
 "/=" { 
     return setToken (line, ytassdiv, yytext); }
-"--" { 
-    return setToken (line, ytinc, yytext); }
 "++" { 
+    return setToken (line, ytinc, yytext); }
+"--" { 
     return setToken (line, ytdec, yytext); }
 "not" { 
     return setToken (line, ytnot, yytext); }
