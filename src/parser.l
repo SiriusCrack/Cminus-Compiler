@@ -9,7 +9,7 @@
 int line = 1;
 
 char checkSpecialChars (char * str) {
-    if (str[1] == '\\') {
+    if(str[1] == '\\') {
         if(str[2] == 'n') {
             return '\n';
         } else if(str[2] == '0') {
@@ -28,13 +28,13 @@ char * removeEscapedChars (char * str) {
     int length = strlen(newStr);
     for(i = 0; i < length; i++) {
         if(newStr[i] == '\\') {
-            if (newStr[i+1] == 'n') {
+            if(newStr[i+1] == 'n') {
                 newStr[i+1] = '\n';
             }
-            if (newStr[i+1] == '0') {
+            if(newStr[i+1] == '0') {
                 newStr[i+1] = '\0';
             }
-            if (newStr[i+1] == '\\') {
+            if(newStr[i+1] == '\\') {
                 i++;
             }
             for(j = i; j < length; j++) {
@@ -50,7 +50,7 @@ char * removeEscapedChars (char * str) {
 int checkBool (char * str) {
     if(str[0] == 't') {
         return 1;
-    } else if (str[0] == 'f') {
+    } else if(str[0] == 'f') {
         return 0;
     }
 }

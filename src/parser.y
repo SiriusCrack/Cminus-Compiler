@@ -40,25 +40,17 @@ program:
 declList:
     declList decl {
         $$ = $1;
-        if($2 != NULL) {
-            $$ = AddSibling($1, $2);
-        }
+        $$ = AddSibling($1, $2);
     }|
     decl {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     };
 decl:
     varDecl {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     }|
     funDecl {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     };
 varDecl:
     typeSpec varDeclList ';' {
@@ -69,7 +61,7 @@ varDecl:
             Node * cur = $2;
             while(cur != NULL) {
                 cur->dataType = $1;
-                if (cur->sibling != NULL) {
+                if(cur->sibling != NULL) {
                     cur = cur->sibling;
                 } else {
                     cur = NULL;
@@ -86,7 +78,7 @@ scopedVarDecl:
             Node * cur = $3;
             while(cur != NULL) {
                 cur->dataType = $2;
-                if (cur->sibling != NULL) {
+                if(cur->sibling != NULL) {
                     cur = cur->sibling;
                 } else {
                     cur = NULL;
@@ -102,7 +94,7 @@ scopedVarDecl:
             Node * cur = $2;
             while(cur != NULL) {
                 cur->dataType = $1;
-                if (cur->sibling != NULL) {
+                if(cur->sibling != NULL) {
                     cur = cur->sibling;
                 } else {
                     cur = NULL;
@@ -164,9 +156,7 @@ funDecl:
     };
 parms:
     parmList {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     }|
     %empty {
         $$ = NULL;
@@ -179,9 +169,7 @@ parmList:
         }
     }|
     parmTypeList {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     };
 parmTypeList:
     typeSpec parmIdList {
@@ -192,7 +180,7 @@ parmTypeList:
             Node * cur = $2;
             while(cur != NULL) {
                 cur->dataType = $1;
-                if (cur->sibling != NULL) {
+                if(cur->sibling != NULL) {
                     cur = cur->sibling;
                 } else {
                     cur = NULL;
@@ -208,9 +196,7 @@ parmIdList:
         }
     }|
     parmId {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     };
 parmId:
     ID {
@@ -223,9 +209,7 @@ parmId:
     };
 stmt:
     matched {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     }|
     unmatched {
         printf("unmatched\n");
@@ -233,29 +217,19 @@ stmt:
     
 matched:
     expStmt {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     }|
     compoundStmt {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     }|
     matchedSelectStmt {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     }|
     matchedIterStmt {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     }|
     returnStmt {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     }|
     breakStmt {
         printf("breakStmt\n");
@@ -269,9 +243,7 @@ unmatched:
     };
 expStmt:
     exp ';' {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     }|
     ';' {
     };
@@ -376,9 +348,7 @@ exp:
         $$ = AddChild($$, $1);
     }|
     simpleExp {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     };
 assignop:
     ytequals {
@@ -398,27 +368,21 @@ simpleExp:
         printf("simpleExp ytor andExp\n");
     }|
     andExp {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     };
 andExp:
     andExp ytand unaryRelExp {
         printf("andExp ytand unaryRelExp\n");
     }|
     unaryRelExp {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     };
 unaryRelExp:
     ytnot unaryRelExp {
         printf("ytnot unaryRelExp\n");
     }|
     relExp {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     };
 relExp:
     sumExp relop sumExp {
@@ -427,9 +391,7 @@ relExp:
         $$ = $2;
     }|
     sumExp {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     };
 relop:
     ytlesser {
@@ -463,9 +425,7 @@ sumExp:
         $$ = $2;
     }|
     mulExp {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     };
 sumop:
     ytadd {
@@ -483,9 +443,7 @@ mulExp:
         $$ = $2;
     }|
     unaryExp {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     };
 mulop:
     ytmul {
@@ -504,9 +462,7 @@ unaryExp:
         $$ = NULL;
     }|
     factor {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     };
 unaryop:
     ytsub {
@@ -517,14 +473,10 @@ unaryop:
     };
 factor:
     mutable {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     }|
     immutable {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     };
 mutable:
     ID {
@@ -536,19 +488,13 @@ mutable:
     };
 immutable:
     '(' exp ')' {
-        if($2 != NULL) {
-            $$ = $2;
-        }
+        $$ = $2;
     }|
     call {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     }|
     constant {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     };
 call:
     ID '(' args ')' {
@@ -558,28 +504,17 @@ call:
     };
 args:
     argList {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     }|
     %empty {
-        Token emptyToken;
-        emptyToken.tokenClass = 100;
-        emptyToken.lineNum = 0;
-        emptyToken.value.str = strdup("empty");
-        emptyToken.literal = strdup("empty");
-        $$ = NewNode(emptyToken);
-        $$->nodeType = ntEmpty;
-        printf("patoto\n");
+        $$ = NULL;
     };
 argList:
     argList ',' exp {
         $$ = AddSibling($1, $3);
     }|
     exp {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     };
 constant:
     NUMCONST {

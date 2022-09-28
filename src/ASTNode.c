@@ -8,7 +8,7 @@
 
 Node * NewNode (Token token) {
     Node * newNode = (Node *) malloc(sizeof(Node));
-    if (newNode == NULL) {
+    if(newNode == NULL) {
         printf("Out of memory error at line %d\n", token.lineNum);
         return NULL;
     } else {
@@ -16,12 +16,13 @@ Node * NewNode (Token token) {
         for (i = 0; i < MAX_CHILDREN; i++) {
             newNode->child[i] = NULL;
         }
+        newNode->childCount = 0;
         newNode->sibling = NULL;
         newNode->literal = strdup(token.literal);
         free(token.literal);
         newNode->tokenClass = token.tokenClass;
         newNode->lineNum = token.lineNum;
-        newNode->siblingCount = 0;
+        newNode->siblingLevel = 0;
         switch (token.tokenClass) {
             case NUMCONST:
                 newNode->value.integer = token.value.integer;
@@ -50,16 +51,15 @@ Node * NewNode (Token token) {
 }
 
 Node * AddSibling (Node * treePtr, Node * newSibling) {
-    if (treePtr == NULL) {
-        treePtr = newSibling;
+    if(treePtr == NULL) {
         printf("started row with %s\n", newSibling->literal);
-        return treePtr;
+        return newSibling;
     } else {
         Node * cur = treePtr;
         while(cur->sibling != NULL) {
             cur = cur->sibling;
         }
-        newSibling->siblingCount = cur->siblingCount + 1;
+        newSibling->siblingLevel = cur->siblingLevel + 1;
         cur->sibling = newSibling;
         printf("added %s as sibling to %s\n", newSibling->literal, cur->literal);
         return treePtr;
@@ -67,45 +67,36 @@ Node * AddSibling (Node * treePtr, Node * newSibling) {
 }
 
 Node * AddChild (Node * treePtr, Node * newChild) {
-    if (treePtr == NULL) {
+    if(treePtr == NULL) {
         printf("adding child to null, dummy\n");
         return treePtr;
     } else {
+        treePtr->child[treePtr->childCount] = newChild;
+        treePtr->childCount = treePtr->childCount+1;
         if(newChild == NULL) {
-            Token emptyToken;
-            emptyToken.literal = strdup("empty");
-            emptyToken.tokenClass = 100;
-            emptyToken.lineNum = 0;
-            emptyToken.value.str = strdup("empty");
-            newChild = NewNode(emptyToken);
-            newChild->nodeType = ntEmpty;
+            printf("added null as child to %s\n", treePtr->literal);
+        } else {
+            printf("added %s as child to %s\n", newChild->literal, treePtr->literal);
         }
-        Node * cur = treePtr;
-        int i = 0;
-        while(cur->child[i] != NULL) {
-            i++;
-        }
-        cur->child[i] = newChild;
-        printf("added %s as child to %s\n", newChild->literal, cur->literal);
         return treePtr;
     }
 }
 
 void PrintTree (Node * AST, int level, int flag) {
-    if (flag != 1) {
+    if(flag != 1) {
         return;
-    } else if (AST == NULL) {
+    } else if(AST == NULL) {
         printf("empty tree\n");
         return;
     } else {
         Node * cur = AST;
         do {
-            if (cur->siblingCount > 0) {
+            if(cur->siblingLevel > 0) {
                 int i = 0;
                 for(i = 0;i < level; i++) {
                     printf(".   ");
                 }
-                printf("Sibling: %d  ", cur->siblingCount);
+                printf("Sibling: %d  ", cur->siblingLevel);
             }
             switch (cur->nodeType) {
                 case ntVar:
@@ -150,18 +141,15 @@ void PrintTree (Node * AST, int level, int flag) {
                 case ntIter:
                     printf("While ");
                     break;
-                case ntEmpty:
-                    printf("EMPTY??\n ");
-                    break;
                 default:
                     printf("unknown node\n");
                     break;
                 }
             printf("[line: %d]", cur->lineNum);
             printf("\n");
-            int c = 0;
-            while(cur->child[c] != NULL) {
-                if(cur->child[c]->nodeType != ntEmpty) {
+            int c;
+            for(c = 0; c < cur->childCount; c++) {
+                if(cur->child[c] != NULL) {
                     int i = 0;
                     for(i = 0;i < level+1; i++) {
                         printf(".   ");
@@ -169,7 +157,6 @@ void PrintTree (Node * AST, int level, int flag) {
                     printf("Child: %d  ", c);
                     PrintTree(cur->child[c], level+1, 1);
                 }
-                c++;
             }
             cur = cur->sibling;
         } while (cur != NULL);

@@ -9,11 +9,10 @@ typedef enum {
     ntFunc, 
     ntParm, 
     ntCompound, 
-    ntAssign, 
-    ntID, 
-    ntConst, 
-    ntReturn, 
-    ntEmpty, 
+    ntAssign,
+    ntID,
+    ntConst,
+    ntReturn,
     ntOp, 
     ntCall,
     ntIf,
@@ -28,13 +27,14 @@ typedef struct Node Node;
 struct Node {
     // Connections
     Node * child[MAX_CHILDREN];
+    int childCount;
     Node * sibling;
 
     // Info
     char * literal;
     int tokenClass;
     int lineNum;
-    int siblingCount;
+    int siblingLevel;
     NodeType nodeType;
     // Optional
     char * dataType;
