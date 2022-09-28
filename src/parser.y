@@ -8,6 +8,7 @@
 
 extern FILE *yyin;
 extern int yydebug;
+int printDebugFlag;
 int printTreeFlag;
 
 Node * AST;
@@ -40,7 +41,7 @@ program:
 declList:
     declList decl {
         $$ = $1;
-        $$ = AddSibling($1, $2);
+        $$ = AddSibling($1, $2, printDebugFlag);
     }|
     decl {
         $$ = $1;
@@ -105,7 +106,7 @@ scopedVarDecl:
 varDeclList:
     varDeclList ',' varDeclInit {
         if($1 != NULL) {
-            $$ = AddSibling($1, $3);
+            $$ = AddSibling($1, $3, printDebugFlag);
         } else {
             $$ = $3;
         }
@@ -122,11 +123,11 @@ varDeclInit:
     };
 varDeclId:
     ID {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntVar;
     }|
     ID '[' NUMCONST ']' {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntVarArray;
     };
 typeSpec:
@@ -141,18 +142,18 @@ typeSpec:
     };
 funDecl:
     typeSpec ID '(' parms ')' compoundStmt {
-        $$ = NewNode($2);
+        $$ = NewNode($2, printDebugFlag);
         $$->nodeType = ntFunc;
         $$->dataType = $1;
-        $$ = AddChild($$, $4); //might be empty
-        $$ = AddChild($$, $6);
+        $$ = AddChild($$, $4, printDebugFlag); //might be empty
+        $$ = AddChild($$, $6, printDebugFlag);
     }|
     ID '(' parms ')' compoundStmt {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntFunc;
         $$->dataType = "void";
-        $$ = AddChild($$, $3); //might be empty
-        $$ = AddChild($$, $5);
+        $$ = AddChild($$, $3, printDebugFlag); //might be empty
+        $$ = AddChild($$, $5, printDebugFlag);
     };
 parms:
     parmList {
@@ -165,7 +166,7 @@ parmList:
     parmList ';' parmTypeList {
         $$ = $1;
         if($3 != NULL) {
-            $$ = AddSibling($1, $3);
+            $$ = AddSibling($1, $3, printDebugFlag);
         }
     }|
     parmTypeList {
@@ -192,7 +193,7 @@ parmIdList:
     parmIdList ',' parmId {
         $$ = $1;
         if($3 != NULL) {
-            $$ = AddSibling($1, $3);
+            $$ = AddSibling($1, $3, printDebugFlag);
         }
     }|
     parmId {
@@ -200,11 +201,11 @@ parmIdList:
     };
 parmId:
     ID {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntParm;
     }|
     ID '[' ']' {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntParmArray;
     };
 stmt:
@@ -249,17 +250,17 @@ expStmt:
     };
 compoundStmt:
     ytcompound localDecls stmtList '}' {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntCompound;
-        $$ = AddChild($$, $2); //might be empty
-        $$ = AddChild($$, $3);
+        $$ = AddChild($$, $2, printDebugFlag); //might be empty
+        $$ = AddChild($$, $3, printDebugFlag);
     };
 localDecls:
     localDecls scopedVarDecl {
         if($2 == NULL) {
             printf("null scopedVarDecl\n");
         } else if($1 != NULL) {
-            $$ = AddSibling($1, $2);
+            $$ = AddSibling($1, $2, printDebugFlag);
         } else {
             $$ = $2;
         }
@@ -272,7 +273,7 @@ stmtList:
         if($1 != NULL) {
             $$ = $1;
             if($2 != NULL) {
-                $$ = AddSibling($1, $2);
+                $$ = AddSibling($1, $2, printDebugFlag);
             }
         } else {
             $$ = $2;
@@ -283,40 +284,40 @@ stmtList:
     };
 matchedSelectStmt:
     ytif simpleExp ytthen matched ytelse matched {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntIf;
-        $$ = AddChild($$, $2);
-        $$ = AddChild($$, $4);
-        $$ = AddChild($$, $6);
+        $$ = AddChild($$, $2, printDebugFlag);
+        $$ = AddChild($$, $4, printDebugFlag);
+        $$ = AddChild($$, $6, printDebugFlag);
     };
 unmatchedSelectStmt:
     ytif simpleExp ytthen stmt {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntIf;
-        $$ = AddChild($$, $2);
-        $$ = AddChild($$, $4);
+        $$ = AddChild($$, $2, printDebugFlag);
+        $$ = AddChild($$, $4, printDebugFlag);
     }|
     ytif simpleExp ytthen matched ytelse unmatched {
         printf("ytif simpleExp ytthen matched ytelse unmatched\n");
     };
 matchedIterStmt:
     ytwhile simpleExp ytdo matched {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntIter;
-        $$ = AddChild($$, $2);
-        $$ = AddChild($$, $4);
+        $$ = AddChild($$, $2, printDebugFlag);
+        $$ = AddChild($$, $4, printDebugFlag);
     }|
     ytfor ID ytequals iterRange ytdo matched {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntTo;
 
-        Node * id = NewNode($2);
+        Node * id = NewNode($2, printDebugFlag);
         id->nodeType = ntVar;
         id->dataType = "int"; //is this fine? assumes always int
 
-        $$ = AddChild($$, id);
-        $$ = AddChild($$, $4);
-        $$ = AddChild($$, $6);
+        $$ = AddChild($$, id, printDebugFlag);
+        $$ = AddChild($$, $4, printDebugFlag);
+        $$ = AddChild($$, $6, printDebugFlag);
     };
 unmatchedIterStmt:
     ytwhile simpleExp ytdo unmatched {
@@ -330,47 +331,47 @@ iterRange:
         printf("simpleExp ytto simpleExp\n");
     }|
     simpleExp ytto simpleExp ytby simpleExp {
-        $$ = NewNode($2);
+        $$ = NewNode($2, printDebugFlag);
         $$->nodeType = ntRange;
-        $$ = AddChild($$, $1);
-        $$ = AddChild($$, $3);
-        $$ = AddChild($$, $5);
+        $$ = AddChild($$, $1, printDebugFlag);
+        $$ = AddChild($$, $3, printDebugFlag);
+        $$ = AddChild($$, $5, printDebugFlag);
     };
 returnStmt:
     ytreturn ';' {
     }|
     ytreturn exp ';' {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntReturn;
-        $$ = AddChild($$, $2);
+        $$ = AddChild($$, $2, printDebugFlag);
     };
 breakStmt:
     ytbreak ';' {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntBreak;
     };
 exp:
     mutable assignop exp {
         $$ = $2;
-        $$ = AddChild($$, $1);
-        $$ = AddChild($$, $3);
+        $$ = AddChild($$, $1, printDebugFlag);
+        $$ = AddChild($$, $3, printDebugFlag);
     }|
     mutable ytinc {
-        $$ = NewNode($2);
+        $$ = NewNode($2, printDebugFlag);
         $$->nodeType = ntAssign;
-        $$ = AddChild($$, $1);
+        $$ = AddChild($$, $1, printDebugFlag);
     }|
     mutable ytdec {
-        $$ = NewNode($2);
+        $$ = NewNode($2, printDebugFlag);
         $$->nodeType = ntAssign;
-        $$ = AddChild($$, $1);
+        $$ = AddChild($$, $1, printDebugFlag);
     }|
     simpleExp {
         $$ = $1;
     };
 assignop:
     ytequals {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntAssign;
     }|
     ytassadd {
@@ -383,7 +384,7 @@ assignop:
         printf("ytassmul\n");
     }|
     ytassdiv {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntAssign;
     };
 simpleExp:
@@ -409,8 +410,8 @@ unaryRelExp:
     };
 relExp:
     sumExp relop sumExp {
-        $2 = AddChild($2, $1);
-        $2 = AddChild($2, $3);
+        $2 = AddChild($2, $1, printDebugFlag);
+        $2 = AddChild($2, $3, printDebugFlag);
         $$ = $2;
     }|
     sumExp {
@@ -418,33 +419,33 @@ relExp:
     };
 relop:
     ytlesser {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntOp;
     }|
     yteqlesser {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntOp;
     }|
     ytgreater {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntOp;
     }|
     yteqgreater {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntOp;
     }|
     yteq {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntOp;
     }|
     ytnoteq {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntOp;
     };
 sumExp:
     sumExp sumop mulExp {
-        $2 = AddChild($2, $1);
-        $2 = AddChild($2, $3);
+        $2 = AddChild($2, $1, printDebugFlag);
+        $2 = AddChild($2, $3, printDebugFlag);
         $$ = $2;
     }|
     mulExp {
@@ -452,17 +453,17 @@ sumExp:
     };
 sumop:
     ytadd {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntOp;
     }|
     ytsub {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntOp;
     };
 mulExp:
     mulExp mulop unaryExp {
-        $2 = AddChild($2, $1);
-        $2 = AddChild($2, $3);
+        $2 = AddChild($2, $1, printDebugFlag);
+        $2 = AddChild($2, $3, printDebugFlag);
         $$ = $2;
     }|
     unaryExp {
@@ -470,15 +471,15 @@ mulExp:
     };
 mulop:
     ytmul {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntOp;
     }|
     ytdiv {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntOp;
     }|
     ytmod {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntOp;
     };
 unaryExp:
@@ -507,7 +508,7 @@ factor:
     };
 mutable:
     ID {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntID;
     }|
     ID '[' exp ']' {
@@ -525,9 +526,9 @@ immutable:
     };
 call:
     ID '(' args ')' {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntCall;
-        $$ = AddChild($$, $3);
+        $$ = AddChild($$, $3, printDebugFlag);
     };
 args:
     argList {
@@ -538,14 +539,14 @@ args:
     };
 argList:
     argList ',' exp {
-        $$ = AddSibling($1, $3);
+        $$ = AddSibling($1, $3, printDebugFlag);
     }|
     exp {
         $$ = $1;
     };
 constant:
     NUMCONST {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntNumConst;
     }|
     CHARCONST {
@@ -555,12 +556,13 @@ constant:
         printf("constant STRINGCONST\n");
     }|
     BOOLCONST {
-        $$ = NewNode($1);
+        $$ = NewNode($1, printDebugFlag);
         $$->nodeType = ntBoolConst;
     };
 %%
 int main (int argc, char *argv[]) {
     printTreeFlag = 0;
+    printDebugFlag = 0;
     if(argc == 2) {
         FILE *fp = fopen(argv[1], "r");
         if(fp) {
@@ -573,6 +575,9 @@ int main (int argc, char *argv[]) {
         if(argv[1][1] == 'd') {
             yydebug = 1;
         }
+        if(argv[1][1] == 'Z') {
+            printDebugFlag = 1;
+        }
         FILE *fp = fopen(argv[2], "r");
         if(fp) {
             yyin = fp;
@@ -584,11 +589,17 @@ int main (int argc, char *argv[]) {
         if(argv[1][1] == 'd') {
             yydebug = 1;
         }
+        if(argv[1][1] == 'Z') {
+            printDebugFlag = 1;
+        }
         if(argv[2][1] == 'p') {
             printTreeFlag = 1;
         }
         if(argv[2][1] == 'd') {
             yydebug = 1;
+        }
+        if(argv[2][1] == 'Z') {
+            printDebugFlag = 1;
         }
         FILE *fp = fopen(argv[3], "r");
         if(fp) {

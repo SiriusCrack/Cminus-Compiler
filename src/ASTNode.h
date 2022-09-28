@@ -51,10 +51,10 @@ struct Node {
     } value;
 };
 
-
-Node * NewNode (Token);
-Node * AddSibling (Node *, Node *);
-Node * AddChild (Node *, Node *);
+void specPrint(char *);
+Node * NewNode (Token, int);
+Node * AddSibling (Node *, Node *, int);
+Node * AddChild (Node *, Node *, int);
 void PrintTree (Node *, int, int);
 char * NodeTypeToString(NodeType);
 #endif

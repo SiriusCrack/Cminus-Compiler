@@ -30,7 +30,7 @@ void AddToVector (NodeVector * vector, Node * newNode) {
         printf("added %s to %s vector after %s\n", newNode->literal, vector->nodePtr->literal, cur->nodePtr->literal);
     }
     if(prev != NULL) {
-        prev->nodePtr = AddSibling(prev->nodePtr, newNode);
+        prev->nodePtr = AddSibling(prev->nodePtr, newNode, 1);
     }
 }
 
