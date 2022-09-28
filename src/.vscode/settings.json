@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "astnode.h": "c"
+        "astnode.h": "c",
+        "nodevector.h": "c",
+        "parser.tab.h": "c"
     }
 }
