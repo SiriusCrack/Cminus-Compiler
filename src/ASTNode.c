@@ -17,7 +17,8 @@ Node * NewNode (Token token) {
             newNode->child[i] = NULL;
         }
         newNode->sibling = NULL;
-        newNode->literal = token.literal;
+        newNode->literal = strdup(token.literal);
+        free(token.literal);
         newNode->tokenClass = token.tokenClass;
         newNode->lineNum = token.lineNum;
         newNode->siblingCount = 0;
