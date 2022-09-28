@@ -29,7 +29,7 @@ NodeVector * workingNodeVector;
 %token <token> ytif ytelse ytwhile ytdo ytthen ytnot ytand ytor ytfor ytto ytby ytbreak ytreturn
 %token <token> ytcompound
 
-%type <nodePtr> varDeclId varDeclInit parmId mutable assignop constant returnStmt funDecl exp simpleExp andExp unaryRelExp relExp sumExp mulExp unaryExp factor expStmt compoundStmt scopedVarDecl localDecls varDecl matched stmt parms parmList parmTypeList decl relop call args sumop mulop matchedSelectStmt immutable unmatchedSelectStmt matchedIterStmt unmatchedIterStmt iterRange argList declList varDeclList stmtList parmIdList
+%type <nodePtr> varDeclId varDeclInit parmId mutable assignop constant returnStmt funDecl exp simpleExp andExp unaryRelExp relExp sumExp mulExp unaryExp factor expStmt compoundStmt scopedVarDecl localDecls varDecl matched stmt parms parmList parmTypeList decl relop call args sumop mulop matchedSelectStmt immutable unmatchedSelectStmt matchedIterStmt unmatchedIterStmt iterRange argList declList varDeclList stmtList parmIdList breakStmt unmatched
 %type <literal> typeSpec
 
 %%
@@ -212,7 +212,7 @@ stmt:
         $$ = $1;
     }|
     unmatched {
-        printf("unmatched\n");
+        $$ = $1;
     };
     
 matched:
@@ -232,14 +232,14 @@ matched:
         $$ = $1;
     }|
     breakStmt {
-        printf("breakStmt\n");
+        $$ = $1;
     };
 unmatched:
     unmatchedSelectStmt {
-        printf("breakStmt\n");
+        $$ = $1;
     }|
     unmatchedIterStmt {
-        printf("breakStmt\n");
+        printf("unmatchedIterStmt\n");
     };
 expStmt:
     exp ';' {
@@ -291,7 +291,10 @@ matchedSelectStmt:
     };
 unmatchedSelectStmt:
     ytif simpleExp ytthen stmt {
-        printf("ytif simpleExp ytthen stmt\n");
+        $$ = NewNode($1);
+        $$->nodeType = ntIf;
+        $$ = AddChild($$, $2);
+        $$ = AddChild($$, $4);
     }|
     ytif simpleExp ytthen matched ytelse unmatched {
         printf("ytif simpleExp ytthen matched ytelse unmatched\n");
@@ -304,7 +307,16 @@ matchedIterStmt:
         $$ = AddChild($$, $4);
     }|
     ytfor ID ytequals iterRange ytdo matched {
-        printf("ytfor ID ytequals iterRange ytdo matched\n");
+        $$ = NewNode($1);
+        $$->nodeType = ntTo;
+
+        Node * id = NewNode($2);
+        id->nodeType = ntVar;
+        id->dataType = "int"; //is this fine? assumes always int
+
+        $$ = AddChild($$, id);
+        $$ = AddChild($$, $4);
+        $$ = AddChild($$, $6);
     };
 unmatchedIterStmt:
     ytwhile simpleExp ytdo unmatched {
@@ -318,7 +330,11 @@ iterRange:
         printf("simpleExp ytto simpleExp\n");
     }|
     simpleExp ytto simpleExp ytby simpleExp {
-        printf("simpleExp ytto simpleExp ytby simpleExp\n");
+        $$ = NewNode($2);
+        $$->nodeType = ntRange;
+        $$ = AddChild($$, $1);
+        $$ = AddChild($$, $3);
+        $$ = AddChild($$, $5);
     };
 returnStmt:
     ytreturn ';' {
@@ -330,6 +346,8 @@ returnStmt:
     };
 breakStmt:
     ytbreak ';' {
+        $$ = NewNode($1);
+        $$->nodeType = ntBreak;
     };
 exp:
     mutable assignop exp {
@@ -356,12 +374,17 @@ assignop:
         $$->nodeType = ntAssign;
     }|
     ytassadd {
+        printf("ytassadd\n");
     }|
     ytasssub {
+        printf("ytasssub\n");
     }|
     ytassmul {
+        printf("ytassmul\n");
     }|
     ytassdiv {
+        $$ = NewNode($1);
+        $$->nodeType = ntAssign;
     };
 simpleExp:
     simpleExp ytor andExp {
@@ -455,21 +478,25 @@ mulop:
         $$->nodeType = ntOp;
     }|
     ytmod {
-        $$ = NULL;
+        $$ = NewNode($1);
+        $$->nodeType = ntOp;
     };
 unaryExp:
     unaryop unaryExp {
-        $$ = NULL;
+        printf("unaryop unaryExp\n");
     }|
     factor {
         $$ = $1;
     };
 unaryop:
     ytsub {
+        printf("ytsub\n");
     }|
     ytmul {
+        printf("ytmul\n");
     }|
     ytquestion {
+        printf("ytquestion\n");
     };
 factor:
     mutable {
@@ -484,7 +511,7 @@ mutable:
         $$->nodeType = ntID;
     }|
     ID '[' exp ']' {
-        $$ = NULL;
+        printf("ID exp\n");
     };
 immutable:
     '(' exp ')' {
@@ -519,7 +546,7 @@ argList:
 constant:
     NUMCONST {
         $$ = NewNode($1);
-        $$->nodeType = ntConst;
+        $$->nodeType = ntNumConst;
     }|
     CHARCONST {
         printf("constant CHARCONST\n");
@@ -528,7 +555,8 @@ constant:
         printf("constant STRINGCONST\n");
     }|
     BOOLCONST {
-        printf("constant BOOLCONST\n");
+        $$ = NewNode($1);
+        $$->nodeType = ntBoolConst;
     };
 %%
 int main (int argc, char *argv[]) {

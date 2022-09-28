@@ -117,8 +117,15 @@ void PrintTree (Node * AST, int level, int flag) {
                 case ntID:
                     printf("Id: %s ", cur->value.str);
                     break;
-                case ntConst:
+                case ntNumConst:
                     printf("Const %d ", cur->value.integer);
+                    break;
+                case ntBoolConst:
+                    if(cur->value.integer == 1) {
+                        printf("Const true ");
+                    } else {
+                        printf("Const false ");
+                    }
                     break;
                 case ntReturn:
                     printf("Return ");
@@ -140,6 +147,15 @@ void PrintTree (Node * AST, int level, int flag) {
                     break;
                 case ntIter:
                     printf("While ");
+                    break;
+                case ntBreak:
+                    printf("Break ");
+                    break;
+                case ntTo:
+                    printf("For ");
+                    break;
+                case ntRange:
+                    printf("Range ");
                     break;
                 default:
                     printf("unknown node\n");

@@ -11,7 +11,8 @@ typedef enum {
     ntCompound, 
     ntAssign,
     ntID,
-    ntConst,
+    ntNumConst,
+    ntBoolConst,
     ntReturn,
     ntOp, 
     ntCall,
@@ -20,7 +21,10 @@ typedef enum {
     ntParmArray,
     ntIter,
     ntAssignInc,
-    ntAssignDec
+    ntAssignDec,
+    ntBreak,
+    ntTo,
+    ntRange
 } NodeType;
 
 typedef struct Node Node;
