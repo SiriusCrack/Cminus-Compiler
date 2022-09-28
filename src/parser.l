@@ -58,25 +58,25 @@ int checkBool (char * str) {
 static int setToken (int lineNum, int tokenClass, char * literal) {
     yylval.token.tokenClass = tokenClass;
     yylval.token.lineNum = lineNum;
-    yylval.token.literal = strdup(removeEscapedChars(literal));
+    yylval.token.literal = strdup(literal);
     switch (tokenClass) {
         case NUMCONST:
             yylval.token.value.integer = atoi(literal);
             break;
         case ID:
-            yylval.token.value.str = strdup(yylval.token.literal);
+            yylval.token.value.str = strdup(removeEscapedChars(yylval.token.literal));
             break;
         case CHARCONST:
             yylval.token.value.character = checkSpecialChars(literal);
             break;
         case STRINGCONST:
-            yylval.token.value.str = strdup(yylval.token.literal);
+            yylval.token.value.str = strdup(removeEscapedChars(yylval.token.literal));
             break;
         case BOOLCONST:
             yylval.token.value.integer = checkBool(literal);
             break;
         default:
-            yylval.token.value.str = strdup(yylval.token.literal);
+            yylval.token.value.str = strdup(removeEscapedChars(yylval.token.literal));
     }
     return tokenClass;
 }
