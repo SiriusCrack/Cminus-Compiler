@@ -112,21 +112,18 @@ scopedVarDecl:
     };
 varDeclList:
     varDeclList ',' varDeclInit {
-        $$ = $1;
-        if($3 != NULL) {
+        if($1 != NULL) {
             $$ = AddSibling($1, $3);
+        } else {
+            $$ = $3;
         }
     }|
     varDeclInit {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     };
 varDeclInit:
     varDeclId {
-        if($1 != NULL) {
-            $$ = $1;
-        }
+        $$ = $1;
     }|
     varDeclId ':' simpleExp {
         printf("varDeclId ':' simpleExp\n");
@@ -283,21 +280,17 @@ compoundStmt:
         $$ = NewNode($1);
         $$->nodeType = ntCompound;
         $$ = AddChild($$, $2); //might be empty
-        if($3 != NULL) {
-            $$ = AddChild($$, $3);
-        }
+        $$ = AddChild($$, $3);
     };
 localDecls:
     localDecls scopedVarDecl {
-        if($2 != NULL) {
-            if($1 != NULL) {
-                $1 = AddSibling($1, $2);
-            } else {
-                $$ = $2;
-            }
+        if($2 == NULL) {
+            printf("null scopedVarDecl\n");
+        } else if($1 != NULL) {
+            $$ = AddSibling($1, $2);
         } else {
-            $$ = $1;
-        } // is this good??? who knows
+            $$ = $2;
+        }
     }|
     %empty {
         $$ = NULL;
