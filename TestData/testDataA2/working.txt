@@ -2,6 +2,7 @@ fact.out
 factor.out
 gcd.out
 if.out
+ifs.out
 precassoc.out
 scope.out
 simple.out

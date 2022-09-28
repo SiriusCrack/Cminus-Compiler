@@ -231,7 +231,7 @@ unmatched:
         $$ = $1;
     }|
     unmatchedIterStmt {
-        printf("unmatchedIterStmt\n");
+        $$ = $1;
     };
 expStmt:
     exp ';' {
@@ -286,7 +286,10 @@ unmatchedSelectStmt:
         $$ = AddChild($$, $4, printDebugFlag);
     }|
     ytif simpleExp ytthen matched ytelse unmatched {
-        printf("ytif simpleExp ytthen matched ytelse unmatched\n");
+        $$ = NewNode($1, ntIf, printDebugFlag);
+        $$ = AddChild($$, $2, printDebugFlag);
+        $$ = AddChild($$, $4, printDebugFlag);
+        $$ = AddChild($$, $6, printDebugFlag);
     };
 matchedIterStmt:
     ytwhile simpleExp ytdo matched {
@@ -304,11 +307,19 @@ matchedIterStmt:
         $$ = AddChild($$, $6, printDebugFlag);
     };
 unmatchedIterStmt:
-    ytwhile simpleExp ytdo unmatched {
-        printf("ytwhile simpleExp ytdo unmatched\n");
+    ytwhile simpleExp ytdo unmatched { //untested
+        $$ = NewNode($1, ntIter, printDebugFlag);
+        $$ = AddChild($$, $2, printDebugFlag);
+        $$ = AddChild($$, $4, printDebugFlag);
     }|
-    ytfor ID ytequals iterRange ytdo unmatched {
-        printf("ytfor ID ytequals iterRange ytdo unmatched\n");
+    ytfor ID ytequals iterRange ytdo unmatched { //untested
+        $$ = NewNode($1, ntTo, printDebugFlag);
+        Node * id;
+        id = NewNode($2, ntVar, printDebugFlag);
+        id->dataType = strdup("int"); //is this fine? assumes always int
+        $$ = AddChild($$, id, printDebugFlag);
+        $$ = AddChild($$, $4, printDebugFlag);
+        $$ = AddChild($$, $6, printDebugFlag);
     };
 iterRange:
     simpleExp ytto simpleExp {
