@@ -1,3 +1,4 @@
+fact.out
 factor.out
 gcd.out
 if.out

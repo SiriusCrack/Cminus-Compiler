@@ -312,7 +312,9 @@ unmatchedIterStmt:
     };
 iterRange:
     simpleExp ytto simpleExp {
-        printf("simpleExp ytto simpleExp\n");
+        $$ = NewNode($2, ntRange, printDebugFlag);
+        $$ = AddChild($$, $1, printDebugFlag);
+        $$ = AddChild($$, $3, printDebugFlag);
     }|
     simpleExp ytto simpleExp ytby simpleExp {
         $$ = NewNode($2, ntRange, printDebugFlag);
@@ -537,7 +539,7 @@ int main (int argc, char *argv[]) {
         if(argv[1][1] == 'd') {
             yydebug = 1;
         }
-        if(argv[1][1] == 'Z') {
+        if(argv[1][1] == 'D') {
             printDebugFlag = 1;
         }
         FILE *fp = fopen(argv[2], "r");
@@ -551,7 +553,7 @@ int main (int argc, char *argv[]) {
         if(argv[1][1] == 'd') {
             yydebug = 1;
         }
-        if(argv[1][1] == 'Z') {
+        if(argv[1][1] == 'D') {
             printDebugFlag = 1;
         }
         if(argv[2][1] == 'p') {
@@ -560,7 +562,7 @@ int main (int argc, char *argv[]) {
         if(argv[2][1] == 'd') {
             yydebug = 1;
         }
-        if(argv[2][1] == 'Z') {
+        if(argv[2][1] == 'D') {
             printDebugFlag = 1;
         }
         FILE *fp = fopen(argv[3], "r");
