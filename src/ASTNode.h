@@ -1,6 +1,6 @@
 #ifndef _NODE_GUARD
 #define _NODE_GUARD
-#include "scanType.h"
+#include "Token.h"
 
 #define MAX_CHILDREN 3
 

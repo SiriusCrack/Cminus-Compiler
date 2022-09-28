@@ -2,7 +2,7 @@ BIN = c-
 
 lexsourcefiles = parser.l
 yaccsourcefiles = parser.y
-headers = scanType.h ASTNode.h NodeVector.h
+headers = Token.h ASTNode.h NodeVector.h
 headersourcefiles = ASTNode.c NodeVector.c
 
 lexgens = lex.yy.c
@@ -23,7 +23,7 @@ $(yaccgens) : $(yaccsourcefiles) $(headers)
 	bison -v -t -d $(yaccsourcefiles)
 
 clean :
-	rm -f $(BIN) $(BIN).tar $(lexgens) $(yaccgens) $(headerobjs) $(lexyaccobjs)
+	rm -f $(BIN) $(BIN).tar $(lexgens) $(yaccgens) $(headerobjs) $(lexyaccobjs) parser.out
 
 tar	: $(lexsourcefiles) $(yaccsourcefiles) $(headers) $(headersourcefiles) makefile
 	tar -cvf $(BIN).tar $(lexsourcefiles) $(yaccsourcefiles) $(headers) $(headersourcefiles) makefile

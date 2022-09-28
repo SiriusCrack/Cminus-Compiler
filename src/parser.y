@@ -1,6 +1,6 @@
 %{
 
-#include "scanType.h"
+#include "Token.h"
 #include "ASTNode.h"
 #include "NodeVector.h"
 #include <stdio.h>

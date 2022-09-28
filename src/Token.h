@@ -1,5 +1,6 @@
 #ifndef _TOKEN_GUARD
 #define _TOKEN_GUARD
+typedef struct Token Token;
 struct Token {
     int tokenClass;
     int lineNum;
@@ -10,6 +11,4 @@ struct Token {
         char * str;
     } value;
 };
-
-typedef struct Token Token;
 #endif
