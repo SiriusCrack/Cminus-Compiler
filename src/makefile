@@ -2,12 +2,12 @@ BIN = c-
 
 lexsourcefiles = parser.l
 yaccsourcefiles = parser.y
-headers = Token.h ASTNode.h NodeVector.h
-headersourcefiles = ASTNode.c NodeVector.c
+headers = Token.h ASTNode.h
+headersourcefiles = ASTNode.c
 
 lexgens = lex.yy.c
 yaccgens = parser.tab.h parser.tab.c parser.output
-headerobjs = ASTNode.o NodeVector.o
+headerobjs = ASTNode.o
 lexyaccobjs = lex.yy.o parser.tab.o
 
 $(BIN) : $(lexyaccobjs) $(headerobjs)

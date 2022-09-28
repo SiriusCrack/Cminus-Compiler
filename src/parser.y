@@ -2,7 +2,6 @@
 
 #include "Token.h"
 #include "ASTNode.h"
-#include "NodeVector.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -12,14 +11,12 @@ int printDebugFlag;
 int printTreeFlag;
 
 Node * AST;
-NodeVector * workingNodeVector;
 
 %}
 
 %union {
     Token token;
     Node * nodePtr;
-    NodeVector * nodeVectorPtr;
     char * literal;
 }
 
@@ -606,7 +603,6 @@ int main (int argc, char *argv[]) {
             yyin = fp;
         }
     }
-    workingNodeVector = NewNodeVector();
     yyparse();
     //printf("nice\n\n");
     PrintTree(AST, 0, printTreeFlag);
