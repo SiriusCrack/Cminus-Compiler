@@ -1,0 +1,8 @@
+factor.out
+gcd.out
+if.out
+precassoc.out
+scope.out
+simple.out
+small.out
+tiny.out
