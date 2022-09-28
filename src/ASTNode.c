@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-Node * NewNode (Token token, int printDebugFlag) {
+Node * NewNode (Token token, NodeType nodeType, int printDebugFlag) {
     Node * newNode = (Node *) malloc(sizeof(Node));
     if(newNode == NULL) {
         printf("Out of memory error at line %d\n", token.lineNum);
@@ -22,6 +22,7 @@ Node * NewNode (Token token, int printDebugFlag) {
         newNode->tokenClass = token.tokenClass;
         newNode->lineNum = token.lineNum;
         newNode->siblingLevel = 0;
+        newNode->nodeType = nodeType;
         switch (token.tokenClass) {
             case NUMCONST:
                 newNode->value.integer = token.value.integer;

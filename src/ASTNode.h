@@ -40,7 +40,7 @@ struct Node {
     int lineNum;
     int siblingLevel;
     NodeType nodeType;
-    // Optional
+    // optional
     char * dataType;
     
     // Data
@@ -52,9 +52,8 @@ struct Node {
 };
 
 void specPrint(char *);
-Node * NewNode (Token, int);
+Node * NewNode (Token, NodeType, int);
 Node * AddSibling (Node *, Node *, int);
 Node * AddChild (Node *, Node *, int);
 void PrintTree (Node *, int, int);
-char * NodeTypeToString(NodeType);
 #endif
