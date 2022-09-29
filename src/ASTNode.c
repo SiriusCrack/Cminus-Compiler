@@ -53,6 +53,7 @@ Node * NewNode (Token token, NodeType nodeType, int printDebugFlag) {
 Node * AddSibling (Node * treePtr, Node * newSibling, int printDebugFlag) {
     if(treePtr == NULL) {
         if(printDebugFlag == 1) printf("started row with %s\n", newSibling->literal);
+        treePtr->siblingLevel = 0;
         return newSibling;
     } else {
         Node * cur = treePtr;
@@ -62,6 +63,13 @@ Node * AddSibling (Node * treePtr, Node * newSibling, int printDebugFlag) {
         newSibling->siblingLevel = cur->siblingLevel + 1;
         cur->sibling = newSibling;
         if(printDebugFlag == 1) printf("added %s as sibling to %s\n", newSibling->literal, cur->literal);
+        cur = newSibling;
+        int i = cur->siblingLevel;
+        while(cur->sibling != NULL) {
+            i = i + 1;
+            cur = cur->sibling;
+            cur->siblingLevel = i;
+        }
         return treePtr;
     }
 }
@@ -156,6 +164,9 @@ void PrintTree (Node * AST, int level, int printTreeFlag) {
                     break;
                 case ntRange:
                     printf("Range ");
+                    break;
+                case ntSignOp:
+                    printf("Op: chsign ");
                     break;
                 default:
                     printf("unknown node\n");

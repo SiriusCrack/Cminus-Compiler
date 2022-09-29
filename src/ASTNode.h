@@ -24,7 +24,8 @@ typedef enum {
     ntAssignDec,
     ntBreak,
     ntTo,
-    ntRange
+    ntRange,
+    ntSignOp
 } NodeType;
 
 typedef struct Node Node;

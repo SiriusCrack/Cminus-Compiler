@@ -3,8 +3,11 @@ factor.out
 gcd.out
 if.out
 ifs.out
+loops.out
+matchunmatch.out
 precassoc.out
 scope.out
 simple.out
 small.out
 tiny.out
+whileif.out

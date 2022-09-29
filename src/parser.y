@@ -27,7 +27,7 @@ Node * AST;
 %token <token> ytif ytelse ytwhile ytdo ytthen ytnot ytand ytor ytfor ytto ytby ytbreak ytreturn
 %token <token> ytcompound
 
-%type <nodePtr> varDeclId varDeclInit parmId mutable assignop constant returnStmt funDecl exp simpleExp andExp unaryRelExp relExp sumExp mulExp unaryExp factor expStmt compoundStmt scopedVarDecl localDecls varDecl matched stmt parms parmList parmTypeList decl relop call args sumop mulop matchedSelectStmt immutable unmatchedSelectStmt matchedIterStmt unmatchedIterStmt iterRange argList declList varDeclList stmtList parmIdList breakStmt unmatched
+%type <nodePtr> varDeclId varDeclInit parmId mutable assignop constant returnStmt funDecl exp simpleExp andExp unaryRelExp relExp sumExp mulExp unaryExp factor expStmt compoundStmt scopedVarDecl localDecls varDecl matched stmt parms parmList parmTypeList decl relop call args sumop mulop matchedSelectStmt immutable unmatchedSelectStmt matchedIterStmt unmatchedIterStmt iterRange argList declList varDeclList stmtList parmIdList breakStmt unmatched unaryop
 %type <literal> typeSpec
 
 %%
@@ -37,8 +37,11 @@ program:
     };
 declList:
     declList decl {
-        $$ = $1;
-        $$ = AddSibling($1, $2, printDebugFlag);
+        if($1 != NULL) {
+            $$ = AddSibling($1, $2, printDebugFlag);
+        } else {
+            $$ = $2;
+        }
     }|
     decl {
         $$ = $1;
@@ -52,53 +55,41 @@ decl:
     };
 varDecl:
     typeSpec varDeclList ';' {
-        if($2 == NULL) {
-            printf("null varDecl\n");
-        } else {
-            $$ = $2;
-            Node * cur = $2;
-            while(cur != NULL) {
-                cur->dataType = $1;
-                if(cur->sibling != NULL) {
-                    cur = cur->sibling;
-                } else {
-                    cur = NULL;
-                }
+        Node * cur = $2;
+        while(cur != NULL) {
+            cur->dataType = $1;
+            if(cur->sibling != NULL) {
+                cur = cur->sibling;
+            } else {
+                cur = NULL;
             }
         }
+        $$ = $2;
     };
 scopedVarDecl:
-    ytstatic typeSpec varDeclList ';' {
-        if($3 == NULL) {
-            printf("null varDeclList\n");
-        } else {
-            $$ = $3;
-            Node * cur = $3;
-            while(cur != NULL) {
-                cur->dataType = $2;
-                if(cur->sibling != NULL) {
-                    cur = cur->sibling;
-                } else {
-                    cur = NULL;
-                }
+    ytstatic typeSpec varDeclList ';' { //probably still need to do something with static
+        Node * cur = $3;
+        while(cur != NULL) {
+            cur->dataType = $2;
+            if(cur->sibling != NULL) {
+                cur = cur->sibling;
+            } else {
+                cur = NULL;
             }
         }
+        $$ = $3;
     }|
     typeSpec varDeclList ';' {
-        if($2 == NULL) {
-            printf("null varDeclList\n");
-        } else {
-            $$ = $2;
-            Node * cur = $2;
-            while(cur != NULL) {
-                cur->dataType = $1;
-                if(cur->sibling != NULL) {
-                    cur = cur->sibling;
-                } else {
-                    cur = NULL;
-                }
+        Node * cur = $2;
+        while(cur != NULL) {
+            cur->dataType = $1;
+            if(cur->sibling != NULL) {
+                cur = cur->sibling;
+            } else {
+                cur = NULL;
             }
         }
+        $$ = $2;
     };
 varDeclList:
     varDeclList ',' varDeclInit {
@@ -116,7 +107,13 @@ varDeclInit:
         $$ = $1;
     }|
     varDeclId ':' simpleExp {
-        printf("varDeclId ':' simpleExp\n");
+        if($1 != NULL) {
+            if($3 != NULL) {
+                $$ = AddChild($1, $3, printDebugFlag);
+            }
+        } else {
+            $$ = $1;
+        }
     };
 varDeclId:
     ID {
@@ -167,26 +164,23 @@ parmList:
     };
 parmTypeList:
     typeSpec parmIdList {
-        if($2 == NULL) {
-            printf("null parmIdList\n");
-        } else {
-            $$ = $2;
-            Node * cur = $2;
-            while(cur != NULL) {
-                cur->dataType = $1;
-                if(cur->sibling != NULL) {
-                    cur = cur->sibling;
-                } else {
-                    cur = NULL;
-                }
+        Node * cur = $2;
+        while(cur != NULL) {
+            cur->dataType = $1;
+            if(cur->sibling != NULL) {
+                cur = cur->sibling;
+            } else {
+                cur = NULL;
             }
         }
+        $$ = $2;
     };
 parmIdList:
     parmIdList ',' parmId {
-        $$ = $1;
-        if($3 != NULL) {
+        if($1 != NULL) {
             $$ = AddSibling($1, $3, printDebugFlag);
+        } else {
+            $$ = $1;
         }
     }|
     parmId {
@@ -238,6 +232,7 @@ expStmt:
         $$ = $1;
     }|
     ';' {
+        $$ = NULL;
     };
 compoundStmt:
     ytcompound localDecls stmtList '}' {
@@ -247,9 +242,7 @@ compoundStmt:
     };
 localDecls:
     localDecls scopedVarDecl {
-        if($2 == NULL) {
-            printf("null scopedVarDecl\n");
-        } else if($1 != NULL) {
+        if($1 != NULL) {
             $$ = AddSibling($1, $2, printDebugFlag);
         } else {
             $$ = $2;
@@ -261,10 +254,7 @@ localDecls:
 stmtList:
     stmtList stmt {
         if($1 != NULL) {
-            $$ = $1;
-            if($2 != NULL) {
-                $$ = AddSibling($1, $2, printDebugFlag);
-            }
+            $$ = AddSibling($1, $2, printDebugFlag);
         } else {
             $$ = $2;
         }
@@ -335,6 +325,7 @@ iterRange:
     };
 returnStmt:
     ytreturn ';' {
+        $$ = NewNode($1, ntReturn, printDebugFlag);
     }|
     ytreturn exp ';' {
         $$ = NewNode($1, ntReturn, printDebugFlag);
@@ -346,9 +337,9 @@ breakStmt:
     };
 exp:
     mutable assignop exp {
+        $2 = AddChild($2, $1, printDebugFlag);
+        $2 = AddChild($2, $3, printDebugFlag);
         $$ = $2;
-        $$ = AddChild($$, $1, printDebugFlag);
-        $$ = AddChild($$, $3, printDebugFlag);
     }|
     mutable ytinc {
         $$ = NewNode($2, ntAssign, printDebugFlag);
@@ -366,13 +357,13 @@ assignop:
         $$ = NewNode($1, ntAssign, printDebugFlag);
     }|
     ytassadd {
-        printf("ytassadd\n");
+        $$ = NewNode($1, ntAssign, printDebugFlag);
     }|
     ytasssub {
-        printf("ytasssub\n");
+        $$ = NewNode($1, ntAssign, printDebugFlag);
     }|
     ytassmul {
-        printf("ytassmul\n");
+        $$ = NewNode($1, ntAssign, printDebugFlag);
     }|
     ytassdiv {
         $$ = NewNode($1, ntAssign, printDebugFlag);
@@ -463,14 +454,14 @@ mulop:
     };
 unaryExp:
     unaryop unaryExp {
-        printf("unaryop unaryExp\n");
+        $$ = AddChild($1, $2, printDebugFlag);
     }|
     factor {
         $$ = $1;
     };
 unaryop:
     ytsub {
-        printf("ytsub\n");
+        $$ = NewNode($1, ntSignOp, printDebugFlag);
     }|
     ytmul {
         printf("ytmul\n");
@@ -505,7 +496,9 @@ immutable:
 call:
     ID '(' args ')' {
         $$ = NewNode($1, ntCall, printDebugFlag);
-        $$ = AddChild($$, $3, printDebugFlag);
+        if($3 != NULL) {
+            $$ = AddChild($$, $3, printDebugFlag);
+        }
     };
 args:
     argList {
@@ -516,7 +509,11 @@ args:
     };
 argList:
     argList ',' exp {
-        $$ = AddSibling($1, $3, printDebugFlag);
+        if($1 != NULL) {
+            $$ = AddSibling($1, $3, printDebugFlag);
+        } else {
+            $$ = $3;
+        }
     }|
     exp {
         $$ = $1;
