@@ -110,6 +110,9 @@ void PrintTree (Node * AST, int level, int printTreeFlag) {
                 case ntVar:
                     printf("Var: %s of type %s ", cur->value.str, cur->dataType);
                     break;
+                case ntStaticVar:
+                    printf("Var: %s of static type %s ", cur->value.str, cur->dataType);
+                    break;
                 case ntFunc:
                     printf("Func: %s returns type %s ", cur->value.str, cur->dataType);
                     break;
@@ -127,6 +130,9 @@ void PrintTree (Node * AST, int level, int printTreeFlag) {
                     break;
                 case ntNumConst:
                     printf("Const %d ", cur->value.integer);
+                    break;
+                case ntCharConst:
+                    printf("Const \'%c\' ", cur->value.character);
                     break;
                 case ntBoolConst:
                     if(cur->value.integer == 1) {
@@ -153,6 +159,9 @@ void PrintTree (Node * AST, int level, int printTreeFlag) {
                 case ntParmArray:
                     printf("Parm: %s of array of type %s ", cur->value.str, cur->dataType);
                     break;
+                case ntArrAd:
+                    printf("Op: [ ");
+                    break;
                 case ntIter:
                     printf("While ");
                     break;
@@ -167,6 +176,15 @@ void PrintTree (Node * AST, int level, int printTreeFlag) {
                     break;
                 case ntSignOp:
                     printf("Op: chsign ");
+                    break;
+                case ntNotOp:
+                    printf("Op: not ");
+                    break;
+                case ntAndOp:
+                    printf("Op: and ");
+                    break;
+                case ntSizeofOp:
+                    printf("Op: sizeof ");
                     break;
                 default:
                     printf("unknown node\n");

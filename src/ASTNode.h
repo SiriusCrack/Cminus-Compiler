@@ -5,13 +5,15 @@
 #define MAX_CHILDREN 3
 
 typedef enum {
-    ntVar, 
+    ntVar,
+    ntStaticVar,
     ntFunc, 
     ntParm, 
     ntCompound, 
     ntAssign,
     ntID,
     ntNumConst,
+    ntCharConst,
     ntBoolConst,
     ntReturn,
     ntOp, 
@@ -25,7 +27,11 @@ typedef enum {
     ntBreak,
     ntTo,
     ntRange,
-    ntSignOp
+    ntSignOp,
+    ntNotOp,
+    ntAndOp,
+    ntArrAd,
+    ntSizeofOp
 } NodeType;
 
 typedef struct Node Node;

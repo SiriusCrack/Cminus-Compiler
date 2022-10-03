@@ -25,7 +25,7 @@ Node * AST;
 %token <token> ytequals ytadd ytsub ytmul ytdiv ytmod ytassadd ytasssub ytassmul ytassdiv ytinc ytdec ytquestion
 %token <token> ytlesser ytgreater yteq ytnoteq yteqlesser yteqgreater
 %token <token> ytif ytelse ytwhile ytdo ytthen ytnot ytand ytor ytfor ytto ytby ytbreak ytreturn
-%token <token> ytcompound
+%token <token> ytcompound ytarr
 
 %type <nodePtr> varDeclId varDeclInit parmId mutable assignop constant returnStmt funDecl exp simpleExp andExp unaryRelExp relExp sumExp mulExp unaryExp factor expStmt compoundStmt scopedVarDecl localDecls varDecl matched stmt parms parmList parmTypeList decl relop call args sumop mulop matchedSelectStmt immutable unmatchedSelectStmt matchedIterStmt unmatchedIterStmt iterRange argList declList varDeclList stmtList parmIdList breakStmt unmatched unaryop
 %type <literal> typeSpec
@@ -67,7 +67,8 @@ varDecl:
         $$ = $2;
     };
 scopedVarDecl:
-    ytstatic typeSpec varDeclList ';' { //probably still need to do something with static
+    ytstatic typeSpec varDeclList ';' {
+        $3->nodeType = ntStaticVar;
         Node * cur = $3;
         while(cur != NULL) {
             cur->dataType = $2;
@@ -119,8 +120,8 @@ varDeclId:
     ID {
         $$ = NewNode($1, ntVar, printDebugFlag);
     }|
-    ID '[' NUMCONST ']' {
-        $$ = NewNode($1, ntVarArray, printDebugFlag);
+    ID ytarr NUMCONST ']' {
+        $$ = NewNode($1, ntVarArray, printDebugFlag); // doesn't clean ytarr
     };
 typeSpec:
     ytbool {
@@ -190,8 +191,8 @@ parmId:
     ID {
         $$ = NewNode($1, ntParm, printDebugFlag);
     }|
-    ID '[' ']' {
-        $$ = NewNode($1, ntParmArray, printDebugFlag);
+    ID ytarr ']' {
+        $$ = NewNode($1, ntParmArray, printDebugFlag); // doesn't clean ytarr
     };
 stmt:
     matched {
@@ -377,14 +378,17 @@ simpleExp:
     };
 andExp:
     andExp ytand unaryRelExp {
-        printf("andExp ytand unaryRelExp\n");
+        $$ = NewNode($2, ntAndOp, printDebugFlag);
+        $$ = AddChild($$, $1, printDebugFlag);
+        $$ = AddChild($$, $3, printDebugFlag);
     }|
     unaryRelExp {
         $$ = $1;
     };
 unaryRelExp:
     ytnot unaryRelExp {
-        printf("ytnot unaryRelExp\n");
+        $$ = NewNode($1, ntNotOp, printDebugFlag);
+        $$ = AddChild($$, $2, printDebugFlag);
     }|
     relExp {
         $$ = $1;
@@ -464,7 +468,7 @@ unaryop:
         $$ = NewNode($1, ntSignOp, printDebugFlag);
     }|
     ytmul {
-        printf("ytmul\n");
+        $$ = NewNode($1, ntSizeofOp, printDebugFlag);
     }|
     ytquestion {
         printf("ytquestion\n");
@@ -480,8 +484,12 @@ mutable:
     ID {
         $$ = NewNode($1, ntID, printDebugFlag);
     }|
-    ID '[' exp ']' {
-        printf("ID exp\n");
+    ID ytarr exp ']' {
+        $$ = NewNode($2, ntArrAd, printDebugFlag);
+        Node * firstChild;
+        firstChild = NewNode($1, ntID, printDebugFlag);
+        $$ = AddChild($$, firstChild, printDebugFlag);
+        $$ = AddChild($$, $3, printDebugFlag);
     };
 immutable:
     '(' exp ')' {
@@ -523,7 +531,7 @@ constant:
         $$ = NewNode($1, ntNumConst, printDebugFlag);
     }|
     CHARCONST {
-        printf("constant CHARCONST\n");
+        $$ = NewNode($1, ntCharConst, printDebugFlag);
     }|
     STRINGCONST {
         printf("constant STRINGCONST\n");

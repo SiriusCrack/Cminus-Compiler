@@ -163,7 +163,9 @@ static int setToken (int lineNum, int tokenClass, char * literal) {
     return setToken (line, ytstatic, yytext); }
 "{" {
     return setToken (line, ytcompound, yytext); }
-[\[\],;:}\(\)] { 
+"[" {
+    return setToken (line, ytarr, yytext); }
+[\],;:}\(\)] { 
     return yytext[0]; }
 "true"|"false" { 
     return setToken (line, BOOLCONST, yytext); }

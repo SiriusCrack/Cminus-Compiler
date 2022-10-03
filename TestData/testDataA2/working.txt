@@ -1,8 +1,11 @@
+array.out
+call.out
 fact.out
 factor.out
 gcd.out
 if.out
 ifs.out
+init.out
 loops.out
 matchunmatch.out
 precassoc.out
