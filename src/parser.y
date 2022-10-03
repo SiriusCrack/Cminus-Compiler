@@ -371,7 +371,9 @@ assignop:
     };
 simpleExp:
     simpleExp ytor andExp {
-        printf("simpleExp ytor andExp\n");
+        $$ = NewNode($2, ntOrOp, printDebugFlag);
+        $$ = AddChild($$, $1, printDebugFlag);
+        $$ = AddChild($$, $3, printDebugFlag);
     }|
     andExp {
         $$ = $1;
@@ -471,7 +473,7 @@ unaryop:
         $$ = NewNode($1, ntSizeofOp, printDebugFlag);
     }|
     ytquestion {
-        printf("ytquestion\n");
+        $$ = NewNode($1, ntQuestOp, printDebugFlag);
     };
 factor:
     mutable {

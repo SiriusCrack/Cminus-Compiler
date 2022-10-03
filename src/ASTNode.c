@@ -180,11 +180,17 @@ void PrintTree (Node * AST, int level, int printTreeFlag) {
                 case ntNotOp:
                     printf("Op: not ");
                     break;
+                case ntOrOp:
+                    printf("Op: or ");
+                    break;
                 case ntAndOp:
                     printf("Op: and ");
                     break;
                 case ntSizeofOp:
                     printf("Op: sizeof ");
+                    break;
+                case ntQuestOp:
+                    printf("Op: ? ");
                     break;
                 default:
                     printf("unknown node\n");

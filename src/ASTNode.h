@@ -29,9 +29,11 @@ typedef enum {
     ntRange,
     ntSignOp,
     ntNotOp,
+    ntOrOp,
     ntAndOp,
     ntArrAd,
-    ntSizeofOp
+    ntSizeofOp,
+    ntQuestOp
 } NodeType;
 
 typedef struct Node Node;
