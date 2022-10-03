@@ -1,5 +1,8 @@
 array.out
 call.out
+cover.out
+fact.out
+exp.out
 fact.out
 factor.out
 gcd.out
@@ -8,9 +11,11 @@ ifs.out
 init.out
 loops.out
 matchunmatch.out
+oware21.out
 precassoc.out
 scope.out
 simple.out
 small.out
+testExample.out
 tiny.out
 whileif.out
