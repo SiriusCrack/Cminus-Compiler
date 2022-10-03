@@ -14,6 +14,7 @@ typedef enum {
     ntID,
     ntNumConst,
     ntCharConst,
+    ntStringConst,
     ntBoolConst,
     ntReturn,
     ntOp, 

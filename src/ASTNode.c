@@ -134,6 +134,9 @@ void PrintTree (Node * AST, int level, int printTreeFlag) {
                 case ntCharConst:
                     printf("Const \'%c\' ", cur->value.character);
                     break;
+                case ntStringConst:
+                    printf("Const \"%s\" ", cur->value.str);
+                    break;
                 case ntBoolConst:
                     if(cur->value.integer == 1) {
                         printf("Const true ");

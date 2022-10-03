@@ -42,6 +42,13 @@ char * removeEscapedChars (char * str) {
             length--;
             i--;
         }
+        if(newStr[i] == '"') {
+            for(j = i; j < length; j++) {
+                newStr[j] = newStr[j+1];
+            }
+            length--;
+            i--;
+        }
     }
     return newStr;
 }

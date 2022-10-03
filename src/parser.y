@@ -536,7 +536,7 @@ constant:
         $$ = NewNode($1, ntCharConst, printDebugFlag);
     }|
     STRINGCONST {
-        printf("constant STRINGCONST\n");
+        $$ = NewNode($1, ntStringConst, printDebugFlag);
     }|
     BOOLCONST {
         $$ = NewNode($1, ntBoolConst, printDebugFlag);
