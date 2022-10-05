@@ -62,8 +62,8 @@ struct Node {
 };
 
 void specPrint(char *);
-Node * NewNode (Token, NodeType, int);
-Node * AddSibling (Node *, Node *, int);
-Node * AddChild (Node *, Node *, int);
-void PrintTree (Node *, int, int);
+Node * NewNode (Token, NodeType);
+Node * AddSibling (Node *, Node *);
+Node * AddChild (Node *, Node *);
+void PrintTree (Node *, int);
 #endif

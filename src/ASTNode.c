@@ -5,7 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-Node * NewNode (Token token, NodeType nodeType, int printDebugFlag) {
+extern int PrintDebugFlag;
+extern int PrintTreeFlag;
+
+Node * NewNode (Token token, NodeType nodeType) {
     Node * newNode = (Node *) malloc(sizeof(Node));
     if(newNode == NULL) {
         printf("Out of memory error at line %d\n", token.lineNum);
@@ -45,14 +48,14 @@ Node * NewNode (Token token, NodeType nodeType, int printDebugFlag) {
                 newNode->value.str = strdup(token.value.str);
                 free(token.value.str);
         }
-        if(printDebugFlag == 1) printf("made node %s\n", newNode->literal);
+        if(PrintDebugFlag == 1) printf("made node %s\n", newNode->literal);
         return newNode;
     }
 }
 
-Node * AddSibling (Node * treePtr, Node * newSibling, int printDebugFlag) {
+Node * AddSibling (Node * treePtr, Node * newSibling) {
     if(treePtr == NULL) {
-        if(printDebugFlag == 1) printf("started row with %s\n", newSibling->literal);
+        if(PrintDebugFlag == 1) printf("started row with %s\n", newSibling->literal);
         treePtr->siblingLevel = 0;
         return newSibling;
     } else {
@@ -62,7 +65,7 @@ Node * AddSibling (Node * treePtr, Node * newSibling, int printDebugFlag) {
         }
         newSibling->siblingLevel = cur->siblingLevel + 1;
         cur->sibling = newSibling;
-        if(printDebugFlag == 1) printf("added %s as sibling to %s\n", newSibling->literal, cur->literal);
+        if(PrintDebugFlag == 1) printf("added %s as sibling to %s\n", newSibling->literal, cur->literal);
         cur = newSibling;
         int i = cur->siblingLevel;
         while(cur->sibling != NULL) {
@@ -74,7 +77,7 @@ Node * AddSibling (Node * treePtr, Node * newSibling, int printDebugFlag) {
     }
 }
 
-Node * AddChild (Node * treePtr, Node * newChild, int printDebugFlag) {
+Node * AddChild (Node * treePtr, Node * newChild) {
     if(treePtr == NULL) {
         printf("adding child to null, dummy\n");
         return treePtr;
@@ -82,16 +85,16 @@ Node * AddChild (Node * treePtr, Node * newChild, int printDebugFlag) {
         treePtr->child[treePtr->childCount] = newChild;
         treePtr->childCount = treePtr->childCount+1;
         if(newChild == NULL) {
-            if(printDebugFlag == 1) printf("added null as child to %s\n", treePtr->literal);
+            if(PrintDebugFlag == 1) printf("added null as child to %s\n", treePtr->literal);
         } else {
-            if(printDebugFlag == 1) printf("added %s as child to %s\n", newChild->literal, treePtr->literal);
+            if(PrintDebugFlag == 1) printf("added %s as child to %s\n", newChild->literal, treePtr->literal);
         }
         return treePtr;
     }
 }
 
-void PrintTree (Node * AST, int level, int printTreeFlag) {
-    if(printTreeFlag != 1) {
+void PrintTree (Node * AST, int level) {
+    if(PrintTreeFlag != 1) {
         return;
     } else if(AST == NULL) {
         printf("empty tree\n");
@@ -209,7 +212,7 @@ void PrintTree (Node * AST, int level, int printTreeFlag) {
                         printf(".   ");
                     }
                     printf("Child: %d  ", c);
-                    PrintTree(cur->child[c], level+1, 1);
+                    PrintTree(cur->child[c], level+1);
                 }
             }
             cur = cur->sibling;

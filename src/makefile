@@ -1,29 +1,29 @@
 BIN = c-
 
-lexsourcefiles = parser.l
-yaccsourcefiles = parser.y
+lexsrc = parser.l
+yaccsrc = parser.y
 headers = Token.h ASTNode.h
-headersourcefiles = ASTNode.c
+src = main.c ASTNode.c
 
 lexgens = lex.yy.c
 yaccgens = parser.tab.h parser.tab.c parser.output
-headerobjs = ASTNode.o
+srcobjs = main.o ASTNode.o
 lexyaccobjs = lex.yy.o parser.tab.o
 
-$(BIN) : $(lexyaccobjs) $(headerobjs)
-	gcc $(lexyaccobjs) $(headerobjs) -o $(BIN)
+$(BIN) : $(lexyaccobjs) $(srcobjs)
+	gcc $(lexyaccobjs) $(srcobjs) -o $(BIN)
 
-$(headerobjs) : $(headers) $(headersourcefiles)
-	gcc $(headersourcefiles) -c
+$(srcobjs) : $(headers) $(src)
+	gcc $(src) -c
 
-$(lexgens) : $(lexsourcefiles) $(yaccgens) $(headers)
-	flex $(lexsourcefiles)
+$(lexgens) : $(lexsrc) $(yaccgens) $(headers)
+	flex $(lexsrc)
 
-$(yaccgens) : $(yaccsourcefiles) $(headers)
-	bison -v -t -d $(yaccsourcefiles)
+$(yaccgens) : $(yaccsrc) $(headers)
+	bison -v -t -d $(yaccsrc)
 
 clean :
-	rm -f $(BIN) $(BIN).tar $(lexgens) $(yaccgens) $(headerobjs) $(lexyaccobjs) parser.out
+	rm -f $(BIN) $(BIN).tar $(lexgens) $(yaccgens) $(srcobjs) $(lexyaccobjs) parser.out
 
-tar	: $(lexsourcefiles) $(yaccsourcefiles) $(headers) $(headersourcefiles) makefile
-	tar -cvf $(BIN).tar $(lexsourcefiles) $(yaccsourcefiles) $(headers) $(headersourcefiles) makefile
+tar	: $(lexsrc) $(yaccsrc) $(headers) $(src) makefile
+	tar -cvf $(BIN).tar $(lexsrc) $(yaccsrc) $(headers) $(src) makefile
