@@ -1,5 +1,5 @@
-#ifndef _TOKEN_GUARD
-#define _TOKEN_GUARD
+#ifndef _TOKEN_H_
+#define _TOKEN_H_
 typedef struct Token Token;
 struct Token {
     int tokenClass;
