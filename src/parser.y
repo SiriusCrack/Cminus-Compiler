@@ -8,7 +8,7 @@ extern int yylex();
 
 Node * AST;
 
-int yyerror (char *s) {
+int yyerror (char *s) { //does nothing?
     printf("%s\n", s);
     return 0;
 }
