@@ -4,7 +4,14 @@
 #include <stdio.h>
 #include <string.h>
 
+extern int yylex();
+
 Node * AST;
+
+int yyerror (char *s) {
+    printf("%s\n", s);
+    return 0;
+}
 
 %}
 
@@ -537,7 +544,3 @@ constant:
     };
 
 %%
-int yyerror (char *s) {
-    printf("%s\n", s);
-    return 0;
-}
