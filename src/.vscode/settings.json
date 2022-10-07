@@ -2,6 +2,8 @@
     "files.associations": {
         "astnode.h": "c",
         "nodevector.h": "c",
-        "parser.tab.h": "c"
+        "parser.tab.h": "c",
+        "stdio.h": "c",
+        "symboltable.h": "c"
     }
 }
