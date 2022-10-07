@@ -2,7 +2,7 @@
 #define _ASTNODE_H_
 #include "Token.h"
 
-#define MAX_CHILDREN 3
+#define AST_MAX_CHILDREN 3
 
 typedef enum {
     ntVar,
@@ -40,7 +40,7 @@ typedef enum {
 typedef struct Node Node;
 struct Node {
     // Connections
-    Node * child[MAX_CHILDREN];
+    Node * child[AST_MAX_CHILDREN];
     int childCount;
     Node * sibling;
 

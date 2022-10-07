@@ -1,6 +1,24 @@
-#include "SymbolTable.h"
 #include "ASTNode.h"
+#include "SymbolTable.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+ScopeTable * NewGlobalScope () {
+    ScopeTable * newScope = (ScopeTable *) malloc(sizeof(ScopeTable));
+    if(newScope == NULL) {
+        printf("New scope out of memory\n");
+        return NULL;
+    } else {
+        int i;
+        for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
+            newScope->child[i] = NULL;
+        }
+        newScope->scopeName = strdup("Global");
+        newScope->symbolTable = NULL;
+        return newScope;
+    }
+}
 
 ScopeTable * NewScope (Node * node) {
     ScopeTable * newScope = (ScopeTable *) malloc(sizeof(ScopeTable));
@@ -9,12 +27,37 @@ ScopeTable * NewScope (Node * node) {
         return NULL;
     } else {
         int i;
-        for(i = 0; i < MAX_CHILDREN; i++) {
+        for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
             newScope->child[i] = NULL;
         }
         newScope->scopeName = node->literal;
         newScope->symbolTable = NULL;
         return newScope;
+    }
+}
+
+void AddChildScope (ScopeTable * parentScopeTable, ScopeTable * newScopeTable) {
+    int i;
+    for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
+        if(parentScopeTable->child[i] != NULL) {
+            continue;
+        } else {
+            parentScopeTable->child[i] = newScopeTable;
+            break;
+        }
+    }
+}
+
+void PrintSymbolTable (ScopeTable * symbolTable) {
+    int i;
+    for(i = 0; i < symbolTable->depth; i++) {
+        printf("\t");
+    }
+    printf("%d: %s\n", symbolTable->depth, symbolTable->scopeName);
+    for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
+        if(symbolTable->child[i] != NULL) {
+            PrintSymbolTable(symbolTable->child[i]);
+        }
     }
 }
 

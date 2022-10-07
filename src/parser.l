@@ -1,6 +1,6 @@
 %{
-#include "Token.h"
 #include "ASTNode.h"
+#include "Token.h"
 #include "parser.tab.h"
 #include <stdio.h>
 #include <string.h>

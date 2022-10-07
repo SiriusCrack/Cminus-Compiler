@@ -1,12 +1,14 @@
 %{
-#include "Token.h"
 #include "ASTNode.h"
+#include "SymbolTable.h"
+#include "Token.h"
 #include <stdio.h>
 #include <string.h>
 
 extern int yylex();
 
-Node * AST;
+extern Node * AST;
+extern ScopeTable * SymbolTable;
 
 int yyerror (char *s) { //does nothing?
     printf("%s\n", s);

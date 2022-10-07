@@ -15,7 +15,7 @@ Node * NewNode (Token token, NodeType nodeType) {
         return NULL;
     } else {
         int i;
-        for (i = 0; i < MAX_CHILDREN; i++) {
+        for (i = 0; i < AST_MAX_CHILDREN; i++) {
             newNode->child[i] = NULL;
         }
         newNode->childCount = 0;

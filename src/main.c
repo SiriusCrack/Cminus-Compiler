@@ -1,10 +1,12 @@
 #include "ASTNode.h"
+#include "SymbolTable.h"
 #include "parser.tab.h"
 #include <stdio.h>
 
 extern FILE * yyin;
 extern int yydebug;
-extern Node * AST;
+Node * AST;
+ScopeTable * SymbolTable;
 
 int PrintDebugFlag;
 int PrintTreeFlag;
@@ -17,8 +19,10 @@ int main (int argc, char * argv[]) {
     if(argc > 1) {
         parseArgs(argc, argv);
     }
+    SymbolTable = NewGlobalScope();
     yyparse();
     PrintTree(AST, 0);
+    PrintSymbolTable(SymbolTable);
     return 0;
 }
 
