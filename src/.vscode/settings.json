@@ -4,6 +4,7 @@
         "nodevector.h": "c",
         "parser.tab.h": "c",
         "stdio.h": "c",
-        "symboltable.h": "c"
+        "symboltable.h": "c",
+        "string.h": "c"
     }
 }
