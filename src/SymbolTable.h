@@ -25,4 +25,7 @@ struct ScopeTable {
     int debugFlag;
 };
 
+ScopeTable * NewScope (Node * node);
+SymbolTableEntry * NewEntry (Node * node);
+
 #endif
