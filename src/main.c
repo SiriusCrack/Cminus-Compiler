@@ -25,7 +25,7 @@ int main (int argc, char * argv[]) {
     SymbolTable = NewGlobalScope();
     yyparse();
     PrintTree(AST, 0);
-    WriteScopes (AST, SymbolTable);
+    WriteScopes(AST, SymbolTable);
     PrintSymbolTable(SymbolTable);
     return 0;
 }
