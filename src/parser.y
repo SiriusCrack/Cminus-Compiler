@@ -122,9 +122,11 @@ varDeclInit:
 varDeclId:
     ID {
         $$ = NewNode($1, ntVar);
+        $$->isDecl = 1;
     }|
     ID ytarr NUMCONST ']' {
         $$ = NewNode($1, ntVarArray); // doesn't clean ytarr
+        $$->isDecl = 1;
     };
 typeSpec:
     ytbool {
@@ -139,6 +141,7 @@ typeSpec:
 funDecl:
     typeSpec ID '(' parms ')' compoundStmt {
         $$ = NewNode($2, ntFunc);
+        $$->isDecl = 1;
         $$->dataType = $1;
         $$ = AddChild($$, $4); //might be empty
         $$ = AddChild($$, $6);
@@ -146,6 +149,7 @@ funDecl:
     }|
     ID '(' parms ')' compoundStmt {
         $$ = NewNode($1, ntFunc);
+        $$->isDecl = 1;
         $$->dataType = strdup("void");
         $$ = AddChild($$, $3); //might be empty
         $$ = AddChild($$, $5);
@@ -195,9 +199,11 @@ parmIdList:
 parmId:
     ID {
         $$ = NewNode($1, ntParm);
+        $$->isDecl = 1;
     }|
     ID ytarr ']' {
         $$ = NewNode($1, ntParmArray); // doesn't clean ytarr
+        $$->isDecl = 1;
     };
 stmt:
     matched {
@@ -291,23 +297,16 @@ matchedIterStmt:
         $$ = NewNode($1, ntIter);
         $$ = AddChild($$, $2);
         $$ = AddChild($$, $4);
-        if($4->nodeType == ntCompound) {
-            $4->nodeType = ntCompoundwFunc;
-            $$->nodeType = ntIterwComp;
-        }
     }|
     ytfor ID ytequals iterRange ytdo matched {
         $$ = NewNode($1, ntTo);
         Node * id;
         id = NewNode($2, ntVar);
+        id->isDecl = 1;
         id->dataType = strdup("int"); //is this fine? assumes always int
         $$ = AddChild($$, id);
         $$ = AddChild($$, $4);
         $$ = AddChild($$, $6);
-        if($6->nodeType == ntCompound) {
-            $6->nodeType = ntCompoundwFunc;
-            $$->nodeType = ntTowComp;
-        }
     };
 unmatchedIterStmt:
     ytwhile simpleExp ytdo unmatched {
@@ -319,6 +318,7 @@ unmatchedIterStmt:
         $$ = NewNode($1, ntTo);
         Node * id;
         id = NewNode($2, ntVar);
+        id->isDecl = 1;
         id->dataType = strdup("int"); //is this fine? assumes always int
         $$ = AddChild($$, id);
         $$ = AddChild($$, $4);

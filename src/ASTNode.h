@@ -53,6 +53,7 @@ struct Node {
     int lineNum;
     int siblingLevel;
     NodeType nodeType;
+    int isDecl;
     // optional
     char * dataType;
     

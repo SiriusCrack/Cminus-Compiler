@@ -6,12 +6,7 @@ extern ScopeTable * SymbolTable;
 
 void WriteScopes (Node * tree, ScopeTable * table) {
     ScopeTable * newScope = table;
-    if(
-        tree->nodeType == ntCompound
-        || tree->nodeType == ntFunc
-        || tree->nodeType == ntIterwComp
-        || tree->nodeType == ntTowComp
-    ) {
+    if(IsScope(tree)) {
         newScope = NewScope(tree);
         AddChildScope(table, newScope);
     }
@@ -23,5 +18,18 @@ void WriteScopes (Node * tree, ScopeTable * table) {
     }
     if(tree->sibling != NULL) {
         WriteScopes(tree->sibling, table);
+    }
+}
+
+int IsScope (Node * node) {
+    if(
+        node->nodeType == ntCompound
+        || node->nodeType == ntFunc
+        || node->nodeType == ntIterwComp
+        || node->nodeType == ntTowComp
+    ) {
+        return 1;
+    } else {
+        return 0;
     }
 }

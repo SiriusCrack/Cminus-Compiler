@@ -25,6 +25,7 @@ Node * NewNode (Token token, NodeType nodeType) {
         newNode->lineNum = token.lineNum;
         newNode->siblingLevel = 0;
         newNode->nodeType = nodeType;
+        newNode->isDecl = 0;
         newNode->dataType = NULL;
         switch (token.tokenClass) {
             case NUMCONST:
