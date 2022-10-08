@@ -104,7 +104,7 @@ void AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
         scope->symbolTable = entry;
     } else {
         SymbolTableEntry * cur = scope->symbolTable;
-        while(cur->node->lineNum != entry->node->lineNum) {
+        while(1) { // removed duplicate check. should probably rework
             if(cur->next != NULL) {
                 cur = cur->next;
             } else {
