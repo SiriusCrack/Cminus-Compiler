@@ -5,6 +5,7 @@
         "parser.tab.h": "c",
         "stdio.h": "c",
         "symboltable.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "semanticanalysis.h": "c"
     }
 }
