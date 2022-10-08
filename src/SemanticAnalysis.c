@@ -9,6 +9,9 @@ void WriteScopes (Node * tree, ScopeTable * table) {
     if(IsScope(tree)) {
         newScope = NewScope(tree);
         AddChildScope(table, newScope);
+    } else if(tree->isDecl) {
+        SymbolTableEntry * newEntry = NewEntry(tree);
+        AddEntryToScope(newEntry, newScope);
     }
     int i;
     for(i = 0; i < AST_MAX_CHILDREN; i++) {

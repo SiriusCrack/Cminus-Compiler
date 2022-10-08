@@ -10,11 +10,11 @@ struct SymbolTableEntry {
     SymbolTableEntry * next; // pointer to the next entry in this vector
 
     // Data
-    char * nodeName; // node literal for this declaration
-    Node * node; // pointer to the declaration node on the tree
+    char * nodeName; // node literal for this entry
+    Node * node; // pointer to the entry's node on the tree
+    int isDecl;
 };
 
-SymbolTableEntry * NewEntry (Node * node);
 
 typedef struct ScopeTable ScopeTable;
 struct ScopeTable {
@@ -32,5 +32,8 @@ ScopeTable * NewGlobalScope ();
 ScopeTable * NewScope (Node * node);
 void AddChildScope (ScopeTable * parentScopeTable, ScopeTable * newScopeTable);
 void PrintSymbolTable (ScopeTable * symbolTable);
+
+SymbolTableEntry * NewEntry (Node * node);
+void AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope);
 
 #endif

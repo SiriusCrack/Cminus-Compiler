@@ -55,6 +55,15 @@ void PrintSymbolTable (ScopeTable * symbolTable) {
         printf(".\t");
     }
     printf("%d: %s\n", symbolTable->depth, symbolTable->scopeName);
+    SymbolTableEntry * cur = symbolTable->symbolTable;
+    while(cur != NULL) {
+        for(i = 0; i < symbolTable->depth; i++) {
+            printf(".\t");
+        }
+        printf(" ");
+        printf("entry %d: %s\n", cur->isDecl, cur->nodeName);
+        cur = cur->next;
+    }
     for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
         if(symbolTable->child[i] != NULL) {
             PrintSymbolTable(symbolTable->child[i]);
@@ -71,6 +80,19 @@ SymbolTableEntry * NewEntry (Node * node) {
         newEntry->next = NULL;
         newEntry->nodeName = node->literal;
         newEntry->node = node;
+        newEntry->isDecl = node->isDecl;
         return newEntry;
+    }
+}
+
+void AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
+    if(scope->symbolTable == NULL) {
+        scope->symbolTable = entry;
+    } else {
+        SymbolTableEntry * cur = scope->symbolTable;
+        while(cur->next != NULL) {
+            cur = cur->next;
+        }
+        cur->next = entry;
     }
 }

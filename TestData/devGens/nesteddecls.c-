@@ -1,0 +1,8 @@
+main() {
+    int hello;
+    int world;
+    world = 0;
+    {
+        int place;
+    }
+}
