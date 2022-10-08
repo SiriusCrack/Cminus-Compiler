@@ -15,7 +15,6 @@ struct SymbolTableEntry {
     int isDecl;
 };
 
-
 typedef struct ScopeTable ScopeTable;
 struct ScopeTable {
     // Connections

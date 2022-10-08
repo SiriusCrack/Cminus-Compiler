@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern int PrintSymTblFlag;
+
 ScopeTable * NewGlobalScope () {
     ScopeTable * newScope = (ScopeTable *) malloc(sizeof(ScopeTable));
     if(newScope == NULL) {
@@ -50,6 +52,7 @@ void AddChildScope (ScopeTable * parentScopeTable, ScopeTable * newScopeTable) {
 }
 
 void PrintSymbolTable (ScopeTable * symbolTable) {
+    if(PrintSymTblFlag == 0) return;
     int i;
     for(i = 0; i < symbolTable->depth; i++) {
         printf(".\t");

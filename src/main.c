@@ -11,12 +11,14 @@ ScopeTable * SymbolTable;
 
 int PrintDebugFlag;
 int PrintTreeFlag;
+int PrintSymTblFlag;
 
 void parseArgs (int, char * []);
 
 int main (int argc, char * argv[]) {
     PrintDebugFlag = 0;
     PrintTreeFlag = 0;
+    PrintSymTblFlag = 0;
     if(argc > 1) {
         parseArgs(argc, argv);
     }
@@ -44,7 +46,7 @@ void parseArgs (int argc, char * argv[]) {
             case 'D':
                 break;
             case 'h':
-                printf("usage: -c [options] [sourcefile]\n");
+                printf("usage: c- [options] [sourcefile]\n");
                 printf("options:\n");
                 printf("-d \t- turn on parser debugging\n");
                 printf("-D \t- turn on symbol table debugging\n");
@@ -56,6 +58,9 @@ void parseArgs (int argc, char * argv[]) {
                 PrintTreeFlag = 1;
                 break;
             case 'P':
+                break;
+            case 'T':
+                PrintSymTblFlag = 1;
                 break;
             case 'Z':
                 PrintDebugFlag = 1;
