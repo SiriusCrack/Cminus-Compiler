@@ -174,11 +174,17 @@ void PrintTree (Node * AST, int level) {
                 case ntIter:
                     printf("While ");
                     break;
-                case ntBreak:
-                    printf("Break ");
+                case ntIterwComp:
+                    printf("While ");
                     break;
                 case ntTo:
                     printf("For ");
+                    break;
+                case ntTowComp:
+                    printf("For ");
+                    break;
+                case ntBreak:
+                    printf("Break ");
                     break;
                 case ntRange:
                     printf("Range ");

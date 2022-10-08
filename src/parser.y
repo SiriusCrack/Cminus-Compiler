@@ -212,6 +212,7 @@ matched:
         $$ = $1;
     }|
     compoundStmt {
+        $1->nodeType = ntCompoundwFunc;
         $$ = $1;
     }|
     matchedSelectStmt {
@@ -292,6 +293,7 @@ matchedIterStmt:
         $$ = NewNode($1, ntIter);
         $$ = AddChild($$, $2);
         $$ = AddChild($$, $4);
+        if($4->nodeType == ntCompoundwFunc) $$->nodeType = ntIterwComp;
     }|
     ytfor ID ytequals iterRange ytdo matched {
         $$ = NewNode($1, ntTo);
@@ -301,6 +303,7 @@ matchedIterStmt:
         $$ = AddChild($$, id);
         $$ = AddChild($$, $4);
         $$ = AddChild($$, $6);
+        if($6->nodeType == ntCompoundwFunc) $$->nodeType = ntTowComp;
     };
 unmatchedIterStmt:
     ytwhile simpleExp ytdo unmatched { //untested
