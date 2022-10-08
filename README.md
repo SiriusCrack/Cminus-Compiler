@@ -1,10 +1,11 @@
 # C-_Compiler
 
 ## TODO
-* AddEntryToScope currently checks lineNum for duplicates. this doesnt work, esp bc declLists.
+### AddEntryToScope currently checks lineNum for duplicates. this doesnt work, esp bc declLists.
 
 need to find a way to check stuff against table. avoiding string compares would be cool? one option maybe is unique IDs? but how would we translate a referenced var back to the same UID? still strcmps. maybe strcmps to check? but thats like a whole 2nd symtbl. answer might just be to compare each fucking string every time. might be good to just remove duplicate check from AddEntryToScope and just never add a duplicate?
-* Also need to figure out how to deal w vars that are in scope bc theyre in a parent, but not in a particular scope table
+
+### Also need to figure out how to deal w vars that are in scope bc theyre in a parent, but not in a particular scope table
 
 One solution: putting a duplicate decl entry in every child scope. tried to do this and came across some bug with entries ending up in parent scopes somehow, ended up just giving up. if we could get this to work, it could possibly make recursion easier?
 
