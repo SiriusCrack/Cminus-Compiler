@@ -33,20 +33,31 @@ ScopeTable * NewScope (Node * node) {
             newScope->child[i] = NULL;
         }
         newScope->scopeName = node->literal;
+        newScope->lineNum = node->lineNum;
         newScope->symbolTable = NULL;
         return newScope;
     }
 }
 
+ScopeTable * GetMatchingChildScope (ScopeTable * scopeTable, int lineNum) {
+    int i;
+    for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
+        if(scopeTable->child[i]->lineNum == lineNum) {
+            printf("enter child with ln%d\n", lineNum);
+            return scopeTable->child[i];
+        }
+    }
+    printf("child with ln%d not found\n", lineNum);
+    return NULL;
+}
+
 void AddChildScope (ScopeTable * parentScopeTable, ScopeTable * newScopeTable) {
     int i;
     for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
-        if(parentScopeTable->child[i] != NULL) {
-            continue;
-        } else {
+        if(parentScopeTable->child[i] == NULL) {
             parentScopeTable->child[i] = newScopeTable;
             newScopeTable->depth = parentScopeTable->depth+1;
-            break;
+            return;
         }
     }
 }
@@ -64,7 +75,7 @@ void PrintSymbolTable (ScopeTable * symbolTable) {
             printf(".\t");
         }
         printf(" ");
-        printf("entry %d: %s\n", cur->isDecl, cur->nodeName);
+        printf("entry %d: %s\n", cur->node->isDecl, cur->node->literal);
         cur = cur->next;
     }
     for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
@@ -93,9 +104,13 @@ void AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
         scope->symbolTable = entry;
     } else {
         SymbolTableEntry * cur = scope->symbolTable;
-        while(cur->next != NULL) {
-            cur = cur->next;
+        while(cur->node->lineNum != entry->node->lineNum) {
+            if(cur->next != NULL) {
+                cur = cur->next;
+            } else {
+                cur->next = entry;
+                break;
+            }
         }
-        cur->next = entry;
     }
 }

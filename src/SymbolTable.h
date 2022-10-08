@@ -22,6 +22,7 @@ struct ScopeTable {
 
     // Info
     char * scopeName; // name of this scope
+    int lineNum;
     int depth;
     SymbolTableEntry * symbolTable; //pointer to the vector of symbols in this scope
     int debugFlag;
@@ -29,6 +30,7 @@ struct ScopeTable {
 
 ScopeTable * NewGlobalScope ();
 ScopeTable * NewScope (Node * node);
+ScopeTable * GetMatchingChildScope (ScopeTable * scopeTable, int lineNum);
 void AddChildScope (ScopeTable * parentScopeTable, ScopeTable * newScopeTable);
 void PrintSymbolTable (ScopeTable * symbolTable);
 
