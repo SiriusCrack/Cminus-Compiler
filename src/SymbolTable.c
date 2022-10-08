@@ -12,6 +12,7 @@ ScopeTable * NewGlobalScope () {
         printf("New scope out of memory\n");
         return NULL;
     } else {
+        newScope->parent = NULL;
         int i;
         for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
             newScope->child[i] = NULL;
@@ -28,6 +29,7 @@ ScopeTable * NewScope (Node * node) {
         printf("New scope out of memory\n");
         return NULL;
     } else {
+        newScope->parent = NULL;
         int i;
         for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
             newScope->child[i] = NULL;
@@ -52,6 +54,7 @@ ScopeTable * GetMatchingChildScope (ScopeTable * scopeTable, int lineNum) {
 }
 
 void AddChildScope (ScopeTable * parentScopeTable, ScopeTable * newScopeTable) {
+    newScopeTable->parent = parentScopeTable;
     int i;
     for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
         if(parentScopeTable->child[i] == NULL) {

@@ -18,6 +18,7 @@ struct SymbolTableEntry {
 typedef struct ScopeTable ScopeTable;
 struct ScopeTable {
     // Connections
+    ScopeTable * parent;
     ScopeTable * child[SCOPE_MAX_CHILDREN]; // pointers to nested scopes
 
     // Info
