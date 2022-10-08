@@ -310,12 +310,12 @@ matchedIterStmt:
         }
     };
 unmatchedIterStmt:
-    ytwhile simpleExp ytdo unmatched { //untested
+    ytwhile simpleExp ytdo unmatched {
         $$ = NewNode($1, ntIter);
         $$ = AddChild($$, $2);
         $$ = AddChild($$, $4);
     }|
-    ytfor ID ytequals iterRange ytdo unmatched { //untested
+    ytfor ID ytequals iterRange ytdo unmatched {
         $$ = NewNode($1, ntTo);
         Node * id;
         id = NewNode($2, ntVar);
