@@ -125,6 +125,9 @@ void PrintTree (Node * AST, int level) {
                 case ntCompound:
                     printf("Compound ");
                     break;
+                case ntCompoundwFunc:
+                    printf("Compound ");
+                    break;
                 case ntAssign:
                     printf("Assign: %s ", cur->value.str);
                     break;

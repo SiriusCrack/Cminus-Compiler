@@ -6,7 +6,7 @@ extern ScopeTable * SymbolTable;
 
 void WriteScopes (Node * tree, ScopeTable * table) {
     ScopeTable * newScope = table;
-    if(tree->nodeType == ntFunc) {
+    if(tree->nodeType == ntFunc || tree->nodeType == ntCompound) {
         newScope = NewScope(tree);
         AddChildScope(table, newScope);
     }

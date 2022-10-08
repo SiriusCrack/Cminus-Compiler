@@ -142,12 +142,14 @@ funDecl:
         $$->dataType = $1;
         $$ = AddChild($$, $4); //might be empty
         $$ = AddChild($$, $6);
+        $6->nodeType = ntCompoundwFunc;
     }|
     ID '(' parms ')' compoundStmt {
         $$ = NewNode($1, ntFunc);
         $$->dataType = strdup("void");
         $$ = AddChild($$, $3); //might be empty
         $$ = AddChild($$, $5);
+        $5->nodeType = ntCompoundwFunc;
     };
 parms:
     parmList {
