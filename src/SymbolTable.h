@@ -2,7 +2,7 @@
 #define _SYMBOLTABLE_H_
 #include "ASTNode.h"
 
-#define SCOPE_MAX_CHILDREN 10
+#define SCOPE_MAX_CHILDREN 24
 
 typedef struct SymbolTableEntry SymbolTableEntry;
 struct SymbolTableEntry {
