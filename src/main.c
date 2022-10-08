@@ -1,5 +1,6 @@
 #include "ASTNode.h"
 #include "SymbolTable.h"
+#include "SemanticAnalysis.h"
 #include "parser.tab.h"
 #include <stdio.h>
 
@@ -22,6 +23,7 @@ int main (int argc, char * argv[]) {
     SymbolTable = NewGlobalScope();
     yyparse();
     PrintTree(AST, 0);
+    WriteScopes (AST, SymbolTable);
     PrintSymbolTable(SymbolTable);
     return 0;
 }

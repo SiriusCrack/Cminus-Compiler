@@ -1,7 +1,7 @@
 %{
+#include "Token.h"
 #include "ASTNode.h"
 #include "SymbolTable.h"
-#include "Token.h"
 #include <stdio.h>
 #include <string.h>
 

@@ -43,6 +43,7 @@ void AddChildScope (ScopeTable * parentScopeTable, ScopeTable * newScopeTable) {
             continue;
         } else {
             parentScopeTable->child[i] = newScopeTable;
+            newScopeTable->depth = parentScopeTable->depth+1;
             break;
         }
     }
@@ -51,7 +52,7 @@ void AddChildScope (ScopeTable * parentScopeTable, ScopeTable * newScopeTable) {
 void PrintSymbolTable (ScopeTable * symbolTable) {
     int i;
     for(i = 0; i < symbolTable->depth; i++) {
-        printf("\t");
+        printf(".\t");
     }
     printf("%d: %s\n", symbolTable->depth, symbolTable->scopeName);
     for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
