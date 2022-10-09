@@ -5,7 +5,11 @@ extern Node * AST;
 extern ScopeTable * SymbolTable;
 
 DataType OpHandler (Node * tree, ScopeTable * table);
+DataType UnaryHandler (Node * tree, ScopeTable * table);
+DataType ArrHandler (Node * tree, ScopeTable * table);
+DataType ConstHandler (Node * tree, ScopeTable * table);
 int IsScope (Node * node);
+int IsUnary (Node * node);
 
 void WriteScopes (Node * tree, ScopeTable * table) {
     // Action
@@ -35,7 +39,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         newScope = GetMatchingChildScope(newScope, tree->UID);
     }
     // Action
-    if(tree->nodeType == ntOp) {
+    if(tree->nodeType == ntOp || tree->nodeType == ntArrAd) {
         OpHandler(tree, newScope);
     } else {
         if(tree->nodeType == ntID) {
@@ -56,33 +60,19 @@ void WriteRefs (Node * tree, ScopeTable * table) {
 }
 
 DataType OpHandler (Node * tree, ScopeTable * table) {
-    DataType dataTypeChildren[2] = { 0, 0 };
+    DataType dataTypeChildren[2] = {unknown, unknown};
     int i;
     for(i = 0; i < 2; i++) {
-        if(tree->child[i]->nodeType == ntOp) {
+        if(tree->child[i]->nodeType == ntOp || tree->child[i]->nodeType == ntArrAd) {
             dataTypeChildren[i] = OpHandler(tree->child[i], table);
+        } else if(IsUnary(tree->child[i])) {
+            return UnaryHandler(tree->child[i], table);
         } else if(tree->child[i]->nodeType == ntID) {
             SymbolTableEntry *newEntry = NewEntry(tree->child[i]);
             AddEntryToScope(newEntry, table);
             dataTypeChildren[i] = newEntry->following->node->dataType;
         } else {
-            switch (tree->child[i]->nodeType) {
-                case ntNumConst:
-                    dataTypeChildren[i] = intData;
-                    break;
-                case ntCharConst:
-                    dataTypeChildren[i] = charData;
-                    break;
-                case ntStringConst:
-                    printf("what do I do with this??\n");
-                    break;
-                case ntBoolConst:
-                    dataTypeChildren[i] = boolData;
-                    break;
-                default:
-                    printf("AAAUUAAUUAAUUGGHHH\n");
-                    break;
-            }
+            dataTypeChildren[i] = ConstHandler(tree->child[i], table);
         }
     }
     if(dataTypeChildren[0] == dataTypeChildren[1]) {
@@ -90,7 +80,45 @@ DataType OpHandler (Node * tree, ScopeTable * table) {
         return dataTypeChildren[0];
     } else {
         printf("%d %s doesnt match %d %s\n", dataTypeChildren[0], tree->child[0]->literal, dataTypeChildren[1], tree->child[1]->literal);
-        return unknown;
+        return dataTypeChildren[0];
+    }
+}
+
+DataType UnaryHandler (Node * tree, ScopeTable * table) {
+    if(tree->child[0]->nodeType == ntOp || tree->child[0]->nodeType == ntArrAd) {
+        return OpHandler(tree->child[0], table);
+    } else if(IsUnary(tree->child[0])) { // is this possible??
+        return UnaryHandler(tree->child[0], table);
+    } else if(tree->child[0]->nodeType == ntID) {
+        SymbolTableEntry *newEntry = NewEntry(tree->child[0]);
+        AddEntryToScope(newEntry, table);
+        return newEntry->following->node->dataType;
+    } else {
+        return ConstHandler(tree->child[0], table);
+    }
+}
+
+DataType ArrHandler (Node * tree, ScopeTable * table) {
+
+}
+
+DataType ConstHandler (Node * tree, ScopeTable * table) {
+    switch (tree->nodeType) {
+        case ntNumConst:
+            return intData;
+            break;
+        case ntCharConst:
+            return charData;
+            break;
+        case ntStringConst:
+            printf("what do I do with this??\n");
+            break;
+        case ntBoolConst:
+            return boolData;
+            break;
+        default:
+            printf("%s\n", tree->literal);
+            break;
     }
 }
 
@@ -100,6 +128,18 @@ int IsScope (Node * node) {
         || node->nodeType == ntFunc
         || node->nodeType == ntIterwComp
         || node->nodeType == ntTowComp
+    ) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int IsUnary (Node * node) {
+    if(
+        node->nodeType == ntSignOp ||
+        node->nodeType == ntSizeofOp ||
+        node->nodeType == ntQuestOp
     ) {
         return 1;
     } else {
