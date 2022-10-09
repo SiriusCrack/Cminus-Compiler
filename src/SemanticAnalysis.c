@@ -74,8 +74,9 @@ DataType CmpHandler (Node * tree, ScopeTable * table) {
             dataTypeChildren[i] = UnaryCmpHandler(tree->child[i], table);
         } else if (tree->child[i]->nodeType == ntID) {
             SymbolTableEntry *newEntry = NewEntry(tree->child[0]);
-            AddEntryToScope(newEntry, table);
-            dataTypeChildren[i] = newEntry->following->node->dataType;
+            if(AddEntryToScope(newEntry, table)) {
+                dataTypeChildren[i] = newEntry->following->node->dataType;
+            }
         } else {
             dataTypeChildren[i] = ConstHandler(tree->child[i], table);
         }
@@ -96,8 +97,9 @@ DataType UnaryCmpHandler (Node * tree, ScopeTable * table) {
         return UnaryHandler(tree->child[0], table);
     } else if(tree->child[0]->nodeType == ntID) {
         SymbolTableEntry *newEntry = NewEntry(tree->child[0]);
-        AddEntryToScope(newEntry, table);
-        return newEntry->following->node->dataType;
+        if(AddEntryToScope(newEntry, table)) {
+            return newEntry->following->node->dataType;
+        }
     } else {
         return ConstHandler(tree->child[0], table);
     }
@@ -110,11 +112,12 @@ DataType OpHandler (Node * tree, ScopeTable * table) {
         if(tree->child[i]->nodeType == ntOp || tree->child[i]->nodeType == ntArrAd) {
             dataTypeChildren[i] = OpHandler(tree->child[i], table);
         } else if(IsUnary(tree->child[i])) {
-            return UnaryHandler(tree->child[i], table);
+            dataTypeChildren[i] = UnaryHandler(tree->child[i], table);
         } else if(tree->child[i]->nodeType == ntID) {
             SymbolTableEntry *newEntry = NewEntry(tree->child[i]);
-            AddEntryToScope(newEntry, table);
-            dataTypeChildren[i] = newEntry->following->node->dataType;
+            if(AddEntryToScope(newEntry, table)) {
+                dataTypeChildren[i] = newEntry->following->node->dataType;
+            }
         } else {
             dataTypeChildren[i] = ConstHandler(tree->child[i], table);
         }
@@ -135,8 +138,9 @@ DataType UnaryHandler (Node * tree, ScopeTable * table) {
         return UnaryHandler(tree->child[0], table);
     } else if(tree->child[0]->nodeType == ntID) {
         SymbolTableEntry *newEntry = NewEntry(tree->child[0]);
-        AddEntryToScope(newEntry, table);
-        return newEntry->following->node->dataType;
+        if(AddEntryToScope(newEntry, table)) {
+            return newEntry->following->node->dataType;
+        }
     } else {
         return ConstHandler(tree->child[0], table);
     }

@@ -108,22 +108,7 @@ SymbolTableEntry * NewEntry (Node * node) {
     }
 }
 
-void AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
-    // Add to scope
-    if(scope->symbolTable == NULL) {
-        scope->symbolTable = entry;
-    } else {
-        // Abomination of a traversal if i ever saw one
-        SymbolTableEntry * cur = scope->symbolTable;
-        while(1) { // removed duplicate check. should probably rework
-            if(cur->next != NULL) {
-                cur = cur->next;
-            } else {
-                cur->next = entry;
-                break;
-            }
-        }
-    }
+int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
     // Connect to decl
     if(!entry->isDecl) {
         SymbolTableEntry * myDecl = FindDecl(entry, scope);
@@ -137,6 +122,23 @@ void AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
             }
         } else {
             printf("%s wasn't declared, dumbo\n", entry->node->literal);
+            free(entry);
+            return 0;
+        }
+    }
+    // Add to scope
+    if(scope->symbolTable == NULL) {
+        scope->symbolTable = entry;
+    } else {
+        // Abomination of a traversal if i ever saw one
+        SymbolTableEntry * cur = scope->symbolTable;
+        while(1) { // removed duplicate check. should probably rework
+            if(cur->next != NULL) {
+                cur = cur->next;
+            } else {
+                cur->next = entry;
+                return 1;
+            }
         }
     }
 }

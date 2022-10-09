@@ -37,7 +37,7 @@ void AddChildScope (ScopeTable * parentScopeTable, ScopeTable * newScopeTable);
 void PrintSymbolTable (ScopeTable * symbolTable);
 
 SymbolTableEntry * NewEntry (Node * node);
-void AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope);
+int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope);
 SymbolTableEntry * FindDecl(SymbolTableEntry * entry, ScopeTable * scope);
 
 #endif
