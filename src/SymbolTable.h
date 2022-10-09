@@ -3,6 +3,7 @@
 #include "ASTNode.h"
 
 #define SCOPE_MAX_CHILDREN 24
+#define ENTRY_MAX_FOLLOWERS 24
 
 typedef struct SymbolTableEntry SymbolTableEntry;
 struct SymbolTableEntry {
@@ -10,8 +11,9 @@ struct SymbolTableEntry {
     SymbolTableEntry * next; // pointer to the next entry in this vector
 
     // Data
-    char * nodeName; // node literal for this entry
     Node * node; // pointer to the entry's node on the tree
+    SymbolTableEntry * following;
+    SymbolTableEntry * followers[ENTRY_MAX_FOLLOWERS];
     int isDecl;
 };
 
@@ -23,19 +25,19 @@ struct ScopeTable {
 
     // Info
     char * scopeName; // name of this scope
-    int lineNum;
+    Node * node;
     int depth;
     SymbolTableEntry * symbolTable; //pointer to the vector of symbols in this scope
-    int debugFlag;
 };
 
 ScopeTable * NewGlobalScope ();
 ScopeTable * NewScope (Node * node);
-ScopeTable * GetMatchingChildScope (ScopeTable * scopeTable, int lineNum);
+ScopeTable * GetMatchingChildScope (ScopeTable * scopeTable, int nodeUID);
 void AddChildScope (ScopeTable * parentScopeTable, ScopeTable * newScopeTable);
 void PrintSymbolTable (ScopeTable * symbolTable);
 
 SymbolTableEntry * NewEntry (Node * node);
 void AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope);
+SymbolTableEntry * FindDecl(SymbolTableEntry * entry, ScopeTable * scope);
 
 #endif

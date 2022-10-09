@@ -29,6 +29,7 @@ int main (int argc, char * argv[]) {
     yyparse();
     PrintTree(AST, 0);
     WriteScopes(AST, SymbolTable);
+    WriteRefs(AST, SymbolTable);
     PrintSymbolTable(SymbolTable);
     return 0;
 }

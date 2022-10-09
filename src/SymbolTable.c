@@ -18,6 +18,8 @@ ScopeTable * NewGlobalScope () {
             newScope->child[i] = NULL;
         }
         newScope->scopeName = strdup("Global");
+        newScope->node = NULL;
+        newScope->depth = 0;
         newScope->symbolTable = NULL;
         return newScope;
     }
@@ -35,21 +37,21 @@ ScopeTable * NewScope (Node * node) {
             newScope->child[i] = NULL;
         }
         newScope->scopeName = node->literal;
-        newScope->lineNum = node->lineNum;
+        newScope->node = node;
+        newScope->depth = 0;
         newScope->symbolTable = NULL;
         return newScope;
     }
 }
 
-ScopeTable * GetMatchingChildScope (ScopeTable * scopeTable, int lineNum) {
+ScopeTable * GetMatchingChildScope (ScopeTable * scopeTable, int nodeUID) {
     int i;
     for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
-        if(scopeTable->child[i]->lineNum == lineNum) {
-            printf("enter child with ln%d\n", lineNum);
+        if(scopeTable->child[i]->node->UID == nodeUID) {
             return scopeTable->child[i];
         }
     }
-    printf("child with ln%d not found\n", lineNum);
+    printf("child with UID%d not found\n", nodeUID);
     return NULL;
 }
 
@@ -95,14 +97,19 @@ SymbolTableEntry * NewEntry (Node * node) {
         return NULL;
     } else {
         newEntry->next = NULL;
-        newEntry->nodeName = node->literal;
         newEntry->node = node;
+        newEntry->following = NULL;
+        int i;
+        for(i = 0; i < ENTRY_MAX_FOLLOWERS; i++) {
+            newEntry->followers[i] = NULL;
+        }
         newEntry->isDecl = node->isDecl;
         return newEntry;
     }
 }
 
 void AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
+    // Add to scope
     if(scope->symbolTable == NULL) {
         scope->symbolTable = entry;
     } else {
@@ -115,5 +122,41 @@ void AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
                 break;
             }
         }
+    }
+    // Connect to decl
+    if(!entry->isDecl) {
+        SymbolTableEntry * myDecl = FindDecl(entry, scope);
+        if(myDecl != NULL) {
+            entry->following = myDecl;
+            int i;
+            for(i = 0; i < ENTRY_MAX_FOLLOWERS; i++) {
+                if(myDecl->followers[i] == NULL) {
+                    myDecl->followers[i] = entry;
+                }
+            }
+        } else {
+            printf("%s wasn't declared, dumbo\n", entry->node->literal);
+        }
+    }
+}
+
+SymbolTableEntry * FindDecl(SymbolTableEntry * entry, ScopeTable * scope) {
+    // Search this scope
+    if(scope->symbolTable != NULL) {
+        SymbolTableEntry * cur = scope->symbolTable;
+        while(cur != NULL) {
+            if(cur->isDecl) {
+                if(strcmp(cur->node->literal, entry->node->literal) == 0) { // found match
+                    return cur;
+                }
+            }
+            cur = cur->next;
+        }
+    }
+    // Scope Traversal
+    if(scope->parent != NULL) { // traverse up
+        return FindDecl(entry, scope->parent);
+    } else { // you've reached the top
+        return NULL;
     }
 }

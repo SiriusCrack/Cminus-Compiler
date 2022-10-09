@@ -4,5 +4,5 @@
 #include "SymbolTable.h"
 
 void WriteScopes (Node * tree, ScopeTable * table);
-int IsScope (Node * node);
+void WriteRefs (Node * tree, ScopeTable * table);
 #endif

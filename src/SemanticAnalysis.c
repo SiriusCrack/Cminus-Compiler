@@ -4,6 +4,8 @@
 extern Node * AST;
 extern ScopeTable * SymbolTable;
 
+int IsScope (Node * node);
+
 void WriteScopes (Node * tree, ScopeTable * table) {
     // Action
     ScopeTable * newScope = table;
@@ -23,6 +25,28 @@ void WriteScopes (Node * tree, ScopeTable * table) {
     }
     if(tree->sibling != NULL) {
         WriteScopes(tree->sibling, table);
+    }
+}
+
+void WriteRefs (Node * tree, ScopeTable * table) {
+    ScopeTable * newScope = table;
+    if(IsScope(tree)) {
+        newScope = GetMatchingChildScope(newScope, tree->UID);
+    }
+    // Action
+    if(tree->nodeType == ntAssign) {
+        SymbolTableEntry * newEntry = NewEntry(tree->child[0]);
+        AddEntryToScope(newEntry, newScope);
+    }
+    // Traversal
+    int i;
+    for(i = 0; i < AST_MAX_CHILDREN; i++) {
+        if(tree->child[i] != NULL) {
+            WriteRefs(tree->child[i], newScope);
+        }
+    }
+    if(tree->sibling != NULL) {
+        WriteRefs(tree->sibling, table);
     }
 }
 
