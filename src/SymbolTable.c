@@ -113,6 +113,7 @@ void AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
     if(scope->symbolTable == NULL) {
         scope->symbolTable = entry;
     } else {
+        // Abomination of a traversal if i ever saw one
         SymbolTableEntry * cur = scope->symbolTable;
         while(1) { // removed duplicate check. should probably rework
             if(cur->next != NULL) {
