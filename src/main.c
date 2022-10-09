@@ -6,6 +6,8 @@
 
 extern FILE * yyin;
 extern int yydebug;
+
+int NodeUID;
 Node * AST;
 ScopeTable * SymbolTable;
 
@@ -16,6 +18,7 @@ int PrintSymTblFlag;
 void parseArgs (int, char * []);
 
 int main (int argc, char * argv[]) {
+    NodeUID = 0;
     PrintDebugFlag = 0;
     PrintTreeFlag = 0;
     PrintSymTblFlag = 0;

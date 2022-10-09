@@ -48,6 +48,7 @@ struct Node {
     Node * sibling;
 
     // Info
+    int UID;
     char * literal;
     int tokenClass;
     int lineNum;
