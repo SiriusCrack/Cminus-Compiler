@@ -43,8 +43,10 @@ typedef enum {
 typedef struct Node Node;
 struct Node {
     // Connections
+    Node * parent;
     Node * child[AST_MAX_CHILDREN];
     int childCount;
+    Node * prevSibling;
     Node * sibling;
 
     // Info

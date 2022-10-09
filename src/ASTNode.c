@@ -14,11 +14,13 @@ Node * NewNode (Token token, NodeType nodeType) {
         printf("Out of memory error at line %d\n", token.lineNum);
         return NULL;
     } else {
+        newNode->parent = NULL;
         int i;
         for (i = 0; i < AST_MAX_CHILDREN; i++) {
             newNode->child[i] = NULL;
         }
         newNode->childCount = 0;
+        newNode->prevSibling = NULL;
         newNode->sibling = NULL;
         newNode->UID = NodeUID;
         NodeUID = NodeUID+1;
@@ -69,10 +71,11 @@ Node * AddSibling (Node * treePtr, Node * newSibling) {
         }
         newSibling->siblingLevel = cur->siblingLevel + 1;
         cur->sibling = newSibling;
+        newSibling->prevSibling = cur;
         if(PrintDebugFlag == 1) printf("added %s as sibling to %s\n", newSibling->literal, cur->literal);
         cur = newSibling;
         int i = cur->siblingLevel;
-        while(cur->sibling != NULL) {
+        while(cur->sibling != NULL) { // walks to the end of siblingList, even though we should've just added the last sibling? seems redundant. oh well, it's worked so far...
             i = i + 1;
             cur = cur->sibling;
             cur->siblingLevel = i;
@@ -86,13 +89,14 @@ Node * AddChild (Node * treePtr, Node * newChild) {
         printf("adding child to null, dummy\n");
         return treePtr;
     } else {
-        treePtr->child[treePtr->childCount] = newChild;
-        treePtr->childCount = treePtr->childCount+1;
-        if(newChild == NULL) {
-            if(PrintDebugFlag == 1) printf("added null as child to %s\n", treePtr->literal);
-        } else {
+        if(newChild != NULL) {
+            treePtr->child[treePtr->childCount] = newChild;
+            newChild->parent = treePtr;
             if(PrintDebugFlag == 1) printf("added %s as child to %s\n", newChild->literal, treePtr->literal);
+        } else {
+            if(PrintDebugFlag == 1) printf("added null as child to %s\n", treePtr->literal);
         }
+        treePtr->childCount = treePtr->childCount+1;
         return treePtr;
     }
 }
