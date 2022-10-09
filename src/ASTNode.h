@@ -40,6 +40,14 @@ typedef enum {
     ntQuestOp
 } NodeType;
 
+typedef enum {
+    unknown,
+    voidData,
+    boolData,
+    charData,
+    intData
+} DataType;
+
 typedef struct Node Node;
 struct Node {
     // Connections
@@ -57,8 +65,8 @@ struct Node {
     int siblingLevel;
     NodeType nodeType;
     int isDecl;
-    // optional
-    char * dataType;
+    DataType dataType;
+    char *dataTypeLiteral; // should probably get rid of this, but would reworking PrintTree()
     
     // Data
     union {
@@ -68,9 +76,9 @@ struct Node {
     } value;
 };
 
-void specPrint(char *);
 Node * NewNode (Token, NodeType);
 Node * AddSibling (Node *, Node *);
 Node * AddChild (Node *, Node *);
+void SetDataType (char *dataType, Node *node);
 void PrintTree (Node *, int);
 #endif

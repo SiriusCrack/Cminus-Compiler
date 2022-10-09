@@ -60,7 +60,7 @@ varDecl:
     typeSpec varDeclList ';' {
         Node * cur = $2;
         while(cur != NULL) {
-            cur->dataType = $1;
+            SetDataType($1, cur);
             if(cur->sibling != NULL) {
                 cur = cur->sibling;
             } else {
@@ -74,7 +74,7 @@ scopedVarDecl:
         $3->nodeType = ntStaticVar;
         Node * cur = $3;
         while(cur != NULL) {
-            cur->dataType = $2;
+            SetDataType($2, cur);
             if(cur->sibling != NULL) {
                 cur = cur->sibling;
             } else {
@@ -86,7 +86,7 @@ scopedVarDecl:
     typeSpec varDeclList ';' {
         Node * cur = $2;
         while(cur != NULL) {
-            cur->dataType = $1;
+            SetDataType($1, cur);
             if(cur->sibling != NULL) {
                 cur = cur->sibling;
             } else {
@@ -142,7 +142,7 @@ funDecl:
     typeSpec ID '(' parms ')' compoundStmt {
         $$ = NewNode($2, ntFunc);
         $$->isDecl = 1;
-        $$->dataType = $1;
+        SetDataType($1, $$);
         $$ = AddChild($$, $4); //might be empty
         $$ = AddChild($$, $6);
         $6->nodeType = ntCompoundwFunc;
@@ -150,7 +150,7 @@ funDecl:
     ID '(' parms ')' compoundStmt {
         $$ = NewNode($1, ntFunc);
         $$->isDecl = 1;
-        $$->dataType = strdup("void");
+        SetDataType(strdup("void"), $$);
         $$ = AddChild($$, $3); //might be empty
         $$ = AddChild($$, $5);
         $5->nodeType = ntCompoundwFunc;
@@ -176,7 +176,7 @@ parmTypeList:
     typeSpec parmIdList {
         Node * cur = $2;
         while(cur != NULL) {
-            cur->dataType = $1;
+            SetDataType($1, cur);
             if(cur->sibling != NULL) {
                 cur = cur->sibling;
             } else {
@@ -303,7 +303,7 @@ matchedIterStmt:
         Node * id;
         id = NewNode($2, ntVar);
         id->isDecl = 1;
-        id->dataType = strdup("int"); //is this fine? assumes always int
+        SetDataType(strdup("int"), id); //is this fine? assumes always int
         $$ = AddChild($$, id);
         $$ = AddChild($$, $4);
         $$ = AddChild($$, $6);
@@ -319,7 +319,7 @@ unmatchedIterStmt:
         Node * id;
         id = NewNode($2, ntVar);
         id->isDecl = 1;
-        id->dataType = strdup("int"); //is this fine? assumes always int
+        SetDataType(strdup("int"), id); //is this fine? assumes always int
         $$ = AddChild($$, id);
         $$ = AddChild($$, $4);
         $$ = AddChild($$, $6);

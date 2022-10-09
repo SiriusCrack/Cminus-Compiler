@@ -31,7 +31,7 @@ Node * NewNode (Token token, NodeType nodeType) {
         newNode->siblingLevel = 0;
         newNode->nodeType = nodeType;
         newNode->isDecl = 0;
-        newNode->dataType = NULL;
+        newNode->dataType = unknown;
         switch (token.tokenClass) {
             case NUMCONST:
                 newNode->value.integer = token.value.integer;
@@ -101,6 +101,22 @@ Node * AddChild (Node * treePtr, Node * newChild) {
     }
 }
 
+void SetDataType (char *dataType, Node *node) {
+    if(strcmp(dataType, "void") == 0) {
+        node->dataType = voidData;
+    } else if(strcmp(dataType, "bool") == 0) {
+        node->dataType = boolData;
+    } else if(strcmp(dataType, "char") == 0) {
+        node->dataType = charData;
+    } else if(strcmp(dataType, "int") == 0) {
+        node->dataType = intData;
+    } else {
+        printf("Attempted to set invalid datatype\n");
+        return;
+    }
+    node->dataTypeLiteral = dataType;
+}
+
 void PrintTree (Node * AST, int level) {
     if(PrintTreeFlag != 1) {
         return;
@@ -119,16 +135,16 @@ void PrintTree (Node * AST, int level) {
             }
             switch (cur->nodeType) {
                 case ntVar:
-                    printf("Var: %s of type %s ", cur->value.str, cur->dataType);
+                    printf("Var: %s of type %s ", cur->value.str, cur->dataTypeLiteral);
                     break;
                 case ntStaticVar:
-                    printf("Var: %s of static type %s ", cur->value.str, cur->dataType);
+                    printf("Var: %s of static type %s ", cur->value.str, cur->dataTypeLiteral);
                     break;
                 case ntFunc:
-                    printf("Func: %s returns type %s ", cur->value.str, cur->dataType);
+                    printf("Func: %s returns type %s ", cur->value.str, cur->dataTypeLiteral);
                     break;
                 case ntParm:
-                    printf("Parm: %s of type %s ", cur->value.str, cur->dataType);
+                    printf("Parm: %s of type %s ", cur->value.str, cur->dataTypeLiteral);
                     break;
                 case ntCompound:
                     printf("Compound ");
@@ -171,10 +187,10 @@ void PrintTree (Node * AST, int level) {
                     printf("If ");
                     break;
                 case ntVarArray:
-                    printf("Var: %s of array of type %s ", cur->value.str, cur->dataType);
+                    printf("Var: %s of array of type %s ", cur->value.str, cur->dataTypeLiteral);
                     break;
                 case ntParmArray:
-                    printf("Parm: %s of array of type %s ", cur->value.str, cur->dataType);
+                    printf("Parm: %s of array of type %s ", cur->value.str, cur->dataTypeLiteral);
                     break;
                 case ntArrAd:
                     printf("Op: [ ");
@@ -236,8 +252,4 @@ void PrintTree (Node * AST, int level) {
         } while (cur != NULL);
         return;
     }
-}
-
-void specPrint(char * str) {
-    printf("%s", str);
 }
