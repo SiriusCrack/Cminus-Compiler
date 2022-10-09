@@ -31,6 +31,7 @@ Node * NewNode (Token token, NodeType nodeType) {
         newNode->siblingLevel = 0;
         newNode->nodeType = nodeType;
         newNode->isDecl = 0;
+        newNode->isInitialized = 0;
         newNode->dataType = unknown;
         switch (token.tokenClass) {
             case NUMCONST:

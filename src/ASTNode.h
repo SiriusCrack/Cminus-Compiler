@@ -66,6 +66,7 @@ struct Node {
     int siblingLevel;
     NodeType nodeType;
     int isDecl;
+    int isInitialized;
     DataType dataType;
     char *dataTypeLiteral; // should probably get rid of this, but would reworking PrintTree()
     

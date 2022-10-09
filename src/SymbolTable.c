@@ -120,6 +120,9 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
                     myDecl->followers[i] = entry;
                 }
             }
+            if(!entry->following->node->isInitialized) {
+                printf("%s may not be initialized\n", entry->node->literal);
+            }
         } else {
             printf("%s wasn't declared, dumbo\n", entry->node->literal);
             free(entry);
