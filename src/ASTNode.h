@@ -35,6 +35,7 @@ typedef enum {
     ntNotOp,
     ntOrOp,
     ntAndOp,
+    ntRelOp,
     ntArrAd,
     ntSizeofOp,
     ntQuestOp

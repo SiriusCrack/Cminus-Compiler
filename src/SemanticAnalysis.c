@@ -6,6 +6,7 @@ extern ScopeTable * SymbolTable;
 
 DataType CmpHandler (Node * tree, ScopeTable * table);
 DataType UnaryCmpHandler (Node * tree, ScopeTable * table);
+DataType RelOpHandler (Node * tree, ScopeTable * table);
 DataType OpHandler (Node * tree, ScopeTable * table);
 DataType UnaryHandler (Node * tree, ScopeTable * table);
 DataType ConstHandler (Node * tree, ScopeTable * table);
@@ -42,6 +43,8 @@ void WriteRefs (Node * tree, ScopeTable * table) {
     // Action
     if(tree->nodeType == ntOp || tree->nodeType == ntArrAd) {
         OpHandler(tree, newScope);
+    } else if(tree->nodeType == ntOrOp || tree->nodeType == ntAndOp) {
+        CmpHandler(tree, newScope);
     } else {
         if(tree->nodeType == ntID) {
             SymbolTableEntry * newEntry = NewEntry(tree);
@@ -64,7 +67,9 @@ DataType CmpHandler (Node * tree, ScopeTable * table) {
     DataType dataTypeChildren[2] = {unknown, unknown};
     int i;
     for(i = 0; i < 2; i++) {
-        if(tree->child[i]->nodeType == ntOrOp || tree->child[i]->nodeType == ntAndOp) {
+        if(tree->child[i]->nodeType == ntRelOp) {
+            dataTypeChildren[i] = RelOpHandler(tree->child[i], table);
+        } else if(tree->child[i]->nodeType == ntOrOp || tree->child[i]->nodeType == ntAndOp) {
             dataTypeChildren[i] = CmpHandler(tree->child[i], table);
         } else if(tree->child[i]->nodeType == ntOp || tree->child[i]->nodeType == ntArrAd) {
             dataTypeChildren[i] = OpHandler(tree->child[i], table);
@@ -83,7 +88,7 @@ DataType CmpHandler (Node * tree, ScopeTable * table) {
     }
     if(dataTypeChildren[0] == dataTypeChildren[1]) {
         printf("good beans\n");
-        return dataTypeChildren[0];
+        return boolData;
     } else {
         printf("%d %s doesnt match %d %s\n", dataTypeChildren[0], tree->child[0]->literal, dataTypeChildren[1], tree->child[1]->literal);
         return dataTypeChildren[0];
@@ -101,7 +106,33 @@ DataType UnaryCmpHandler (Node * tree, ScopeTable * table) {
             return newEntry->following->node->dataType;
         }
     } else {
-        return ConstHandler(tree->child[0], table);
+        return boolData;
+    }
+}
+
+DataType RelOpHandler (Node * tree, ScopeTable * table) {
+    DataType dataTypeChildren[2] = {unknown, unknown};
+    int i;
+    for(i = 0; i < 2; i++) {
+        if(tree->child[i]->nodeType == ntOp || tree->child[i]->nodeType == ntArrAd) {
+            dataTypeChildren[i] = OpHandler(tree->child[i], table);
+        } else if(IsUnary(tree->child[i])) {
+            dataTypeChildren[i] = UnaryHandler(tree->child[i], table);
+        } else if(tree->child[i]->nodeType == ntID) {
+            SymbolTableEntry *newEntry = NewEntry(tree->child[i]);
+            if(AddEntryToScope(newEntry, table)) {
+                dataTypeChildren[i] = newEntry->following->node->dataType;
+            }
+        } else {
+            dataTypeChildren[i] = ConstHandler(tree->child[i], table);
+        }
+    }
+    if(dataTypeChildren[0] == dataTypeChildren[1]) {
+        printf("good beans\n");
+        return boolData;
+    } else {
+        printf("%d %s doesnt match %d %s\n", dataTypeChildren[0], tree->child[0]->literal, dataTypeChildren[1], tree->child[1]->literal);
+        return dataTypeChildren[0];
     }
 }
 
