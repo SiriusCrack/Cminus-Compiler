@@ -180,6 +180,9 @@ void PrintTree (Node * AST, int level) {
                 case ntOp:
                     printf("Op: %s ", cur->value.str);
                     break;
+                case ntRelOp:
+                    printf("Op: %s ", cur->value.str);
+                    break;
                 case ntCall:
                     printf("Call: %s ", cur->value.str);
                     break;
