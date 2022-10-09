@@ -6,7 +6,6 @@ extern ScopeTable * SymbolTable;
 
 DataType OpHandler (Node * tree, ScopeTable * table);
 DataType UnaryHandler (Node * tree, ScopeTable * table);
-DataType ArrHandler (Node * tree, ScopeTable * table);
 DataType ConstHandler (Node * tree, ScopeTable * table);
 int IsScope (Node * node);
 int IsUnary (Node * node);
@@ -96,10 +95,6 @@ DataType UnaryHandler (Node * tree, ScopeTable * table) {
     } else {
         return ConstHandler(tree->child[0], table);
     }
-}
-
-DataType ArrHandler (Node * tree, ScopeTable * table) {
-
 }
 
 DataType ConstHandler (Node * tree, ScopeTable * table) {
