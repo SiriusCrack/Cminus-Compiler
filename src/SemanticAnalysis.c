@@ -34,8 +34,8 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         newScope = GetMatchingChildScope(newScope, tree->UID);
     }
     // Action
-    if(tree->nodeType == ntAssign) {
-        SymbolTableEntry * newEntry = NewEntry(tree->child[0]);
+    if(tree->nodeType == ntID) {
+        SymbolTableEntry * newEntry = NewEntry(tree);
         AddEntryToScope(newEntry, newScope);
     }
     // Traversal
