@@ -418,22 +418,22 @@ relExp:
     };
 relop:
     ytlesser {
-        $$ = NewNode($1, ntOp);
+        $$ = NewNode($1, ntRelOp);
     }|
     yteqlesser {
-        $$ = NewNode($1, ntOp);
+        $$ = NewNode($1, ntRelOp);
     }|
     ytgreater {
-        $$ = NewNode($1, ntOp);
+        $$ = NewNode($1, ntRelOp);
     }|
     yteqgreater {
-        $$ = NewNode($1, ntOp);
+        $$ = NewNode($1, ntRelOp);
     }|
     yteq {
-        $$ = NewNode($1, ntOp);
+        $$ = NewNode($1, ntRelOp);
     }|
     ytnoteq {
-        $$ = NewNode($1, ntOp);
+        $$ = NewNode($1, ntRelOp);
     };
 sumExp:
     sumExp sumop mulExp {
