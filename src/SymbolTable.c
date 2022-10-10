@@ -130,6 +130,11 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
                     myDecl->followers[i] = entry;
                 }
             }
+            if(entry->node->parent != NULL) { // hamfisted af ArrAd ID init implementation
+                if(entry->node->parent->nodeType == ntArrAd && entry->node->parent->isInitialized) {
+                    entry->node->isInitialized = 1;
+                }
+            }
             if(entry->node->isInitialized) {
                 entry->following->node->isInitialized = 1;
             }
