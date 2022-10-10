@@ -20,7 +20,6 @@ ScopeTable * NewGlobalScope () {
             newScope->child[i] = NULL;
         }
         newScope->scopeName = strdup("Global");
-        newScope->node = NULL;
         newScope->depth = 0;
         newScope->self = NULL;
         newScope->symbolTable = NULL;
@@ -40,7 +39,6 @@ ScopeTable * NewScope (Node * node) {
             newScope->child[i] = NULL;
         }
         newScope->scopeName = node->literal;
-        newScope->node = node;
         newScope->depth = 0;
         newScope->self = NewEntry(node);
         newScope->symbolTable = NULL;
@@ -51,7 +49,7 @@ ScopeTable * NewScope (Node * node) {
 ScopeTable * GetMatchingChildScope (ScopeTable * scopeTable, int nodeUID) {
     int i;
     for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
-        if(scopeTable->child[i]->node->UID == nodeUID) {
+        if(scopeTable->child[i]->self->node->UID == nodeUID) {
             return scopeTable->child[i];
         }
     }
