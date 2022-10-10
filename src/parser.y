@@ -180,6 +180,7 @@ parmTypeList:
         Node * cur = $2;
         while(cur != NULL) {
             SetDataType($1, cur);
+            cur->isInitialized = 1;
             if(cur->sibling != NULL) {
                 cur = cur->sibling;
             } else {
