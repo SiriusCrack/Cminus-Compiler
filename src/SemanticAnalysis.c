@@ -66,6 +66,31 @@ void WriteRefs (Node * tree, ScopeTable * table) {
     }
 }
 
+void CheckUse (ScopeTable *table) {
+    int i = 0;
+    SymbolTableEntry *cur = table->symbolTable;
+    while(cur != NULL) {
+        if(cur->isDecl) {
+            if(cur->followers[0] == NULL) {
+                printf(
+                    "WARNING(%d): The variable '%s' seems not to be used.\n",
+                    cur->node->lineNum,
+                    cur->node->literal
+                );
+            }
+        }
+        i = i + 1;
+        cur = cur->next;
+    }
+    for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
+        if(table->child[i] != NULL) {
+            CheckUse(table->child[i]);
+        } else {
+            break;
+        }
+    }
+}
+
 DataType CmpHandler (Node * tree, ScopeTable * table) {
     DataType dataTypeChildren[2] = {unknown, unknown};
     int i;
@@ -188,6 +213,7 @@ DataType UnaryHandler (Node * tree, ScopeTable * table) {
 }
 
 DataType ConstHandler (Node * tree, ScopeTable * table) {
+    SymbolTableEntry *newEntry = NULL;
     switch (tree->nodeType) {
         case ntNumConst:
             return intData;
@@ -202,7 +228,7 @@ DataType ConstHandler (Node * tree, ScopeTable * table) {
             return boolData;
             break;
         case ntArrAd: // a little haphazard no?
-            SymbolTableEntry *newEntry = NewEntry(tree->child[0]);
+            newEntry = NewEntry(tree->child[0]);
             AddEntryToScope(newEntry, table);
             return newEntry->following->node->dataType;
             break;
