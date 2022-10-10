@@ -10,6 +10,7 @@ DataType RelOpHandler (Node * tree, ScopeTable * table);
 DataType OpHandler (Node * tree, ScopeTable * table);
 DataType UnaryHandler (Node * tree, ScopeTable * table);
 DataType ConstHandler (Node * tree, ScopeTable * table);
+char * DataTypeToString (DataType dataType);
 int IsScope (Node * node);
 int IsUnary (Node * node);
 
@@ -156,7 +157,6 @@ DataType OpHandler (Node * tree, ScopeTable * table) {
     if(dataTypeChildren[0] == unknown || dataTypeChildren[1] == unknown) {
         return unknown;
     } else if(dataTypeChildren[0] == dataTypeChildren[1]) {
-        printf("good beans\n");
         return dataTypeChildren[0];
     } else {
         printf("%d %s doesnt match %d %s\n", dataTypeChildren[0], tree->child[0]->literal, dataTypeChildren[1], tree->child[1]->literal);
@@ -196,6 +196,19 @@ DataType ConstHandler (Node * tree, ScopeTable * table) {
         default:
             printf("%s\n", tree->literal);
             break;
+    }
+}
+
+char * DataTypeToString (DataType dataType) {
+    switch(dataType) {
+        case voidData:
+            return "void";
+        case boolData:
+            return "bool";
+        case charData:
+            return "char";
+        case intData:
+            return "int";
     }
 }
 
