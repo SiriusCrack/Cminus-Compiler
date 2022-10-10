@@ -352,7 +352,7 @@ exp:
     mutable assignop exp {
         $2 = AddChild($2, $1);
         $2 = AddChild($2, $3);
-        $3->isInitialized = 1;
+        $1->isInitialized = 1;
         $$ = $2;
     }|
     mutable ytinc {

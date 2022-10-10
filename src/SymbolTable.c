@@ -80,7 +80,7 @@ void PrintSymbolTable (ScopeTable * symbolTable) {
             printf(".\t");
         }
         printf(" ");
-        printf("entry %d: %s\n", cur->node->isDecl, cur->node->literal);
+        printf("entry %d: %s %d\n", cur->node->isDecl, cur->node->literal, cur->node->isInitialized);
         cur = cur->next;
     }
     for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
@@ -119,6 +119,9 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
                 if(myDecl->followers[i] == NULL) {
                     myDecl->followers[i] = entry;
                 }
+            }
+            if(entry->node->isInitialized) {
+                entry->following->node->isInitialized = 1;
             }
             if(!entry->following->node->isInitialized) {
                 printf("%s may not be initialized\n", entry->node->literal);
