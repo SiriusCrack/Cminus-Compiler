@@ -306,6 +306,7 @@ matchedIterStmt:
         Node * id;
         id = NewNode($2, ntVar);
         id->isDecl = 1;
+        id->isInitialized = 1;
         SetDataType(strdup("int"), id); //is this fine? assumes always int
         $$ = AddChild($$, id);
         $$ = AddChild($$, $4);
@@ -322,6 +323,7 @@ unmatchedIterStmt:
         Node * id;
         id = NewNode($2, ntVar);
         id->isDecl = 1;
+        id->isInitialized = 1;
         SetDataType(strdup("int"), id); //is this fine? assumes always int
         $$ = AddChild($$, id);
         $$ = AddChild($$, $4);

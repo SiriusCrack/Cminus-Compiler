@@ -134,7 +134,7 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
                 entry->following->node->isInitialized = 1;
             }
             if(!entry->following->node->isInitialized) {
-                printf("%s may not be initialized\n", entry->node->literal);
+                printf("%d %s may not be initialized\n", entry->node->lineNum, entry->node->literal);
             }
         } else {
             printf("%s wasn't declared, dumbo\n", entry->node->literal);
