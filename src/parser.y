@@ -374,19 +374,19 @@ exp:
     };
 assignop:
     ytequals {
-        $$ = NewNode($1, ntAssign);
+        $$ = NewNode($1, ntTrueAssign);
     }|
     ytassadd {
-        $$ = NewNode($1, ntAssign);
+        $$ = NewNode($1, ntTrueAssign);
     }|
     ytasssub {
-        $$ = NewNode($1, ntAssign);
+        $$ = NewNode($1, ntTrueAssign);
     }|
     ytassmul {
-        $$ = NewNode($1, ntAssign);
+        $$ = NewNode($1, ntTrueAssign);
     }|
     ytassdiv {
-        $$ = NewNode($1, ntAssign);
+        $$ = NewNode($1, ntTrueAssign);
     };
 simpleExp:
     simpleExp ytor andExp {

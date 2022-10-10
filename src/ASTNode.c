@@ -156,6 +156,9 @@ void PrintTree (Node * AST, int level) {
                 case ntAssign:
                     printf("Assign: %s ", cur->value.str);
                     break;
+                case ntTrueAssign:
+                    printf("Assign: %s ", cur->value.str);
+                    break;
                 case ntID:
                     printf("Id: %s ", cur->value.str);
                     break;

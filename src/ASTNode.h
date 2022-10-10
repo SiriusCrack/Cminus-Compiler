@@ -12,6 +12,7 @@ typedef enum {
     ntCompound,
     ntCompoundwFunc,
     ntAssign,
+    ntTrueAssign,
     ntID,
     ntNumConst,
     ntCharConst,

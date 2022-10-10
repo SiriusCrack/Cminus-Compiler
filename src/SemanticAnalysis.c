@@ -42,7 +42,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         newScope = GetMatchingChildScope(newScope, tree->UID);
     }
     // Action
-    if(tree->nodeType == ntOp || tree->nodeType == ntArrAd) {
+    if(tree->nodeType == ntOp || tree->nodeType == ntArrAd || tree->nodeType == ntTrueAssign) {
         OpHandler(tree, newScope);
     } else if(tree->nodeType == ntOrOp || tree->nodeType == ntAndOp) {
         CmpHandler(tree, newScope);
@@ -72,7 +72,7 @@ DataType CmpHandler (Node * tree, ScopeTable * table) {
             dataTypeChildren[i] = RelOpHandler(tree->child[i], table);
         } else if(tree->child[i]->nodeType == ntOrOp || tree->child[i]->nodeType == ntAndOp) {
             dataTypeChildren[i] = CmpHandler(tree->child[i], table);
-        } else if(tree->child[i]->nodeType == ntOp || tree->child[i]->nodeType == ntArrAd) {
+        } else if(tree->child[i]->nodeType == ntOp || tree->child[i]->nodeType == ntArrAd || tree->child[i]->nodeType == ntTrueAssign) {
             dataTypeChildren[i] = OpHandler(tree->child[i], table);
         } else if(IsUnary(tree->child[i])) {
             dataTypeChildren[i] = UnaryHandler(tree->child[i], table);
@@ -97,7 +97,7 @@ DataType CmpHandler (Node * tree, ScopeTable * table) {
 }
 
 DataType UnaryCmpHandler (Node * tree, ScopeTable * table) {
-    if(tree->child[0]->nodeType == ntOp || tree->child[0]->nodeType == ntArrAd) {
+    if(tree->child[0]->nodeType == ntOp || tree->child[0]->nodeType == ntArrAd || tree->child[0]->nodeType == ntTrueAssign) {
         return OpHandler(tree->child[0], table);
     } else if(IsUnary(tree->child[0])) { // is this possible??
         return UnaryHandler(tree->child[0], table);
@@ -115,7 +115,7 @@ DataType RelOpHandler (Node * tree, ScopeTable * table) {
     DataType dataTypeChildren[2] = {unknown, unknown};
     int i;
     for(i = 0; i < 2; i++) {
-        if(tree->child[i]->nodeType == ntOp || tree->child[i]->nodeType == ntArrAd) {
+        if(tree->child[i]->nodeType == ntOp || tree->child[i]->nodeType == ntArrAd || tree->child[i]->nodeType == ntTrueAssign) {
             dataTypeChildren[i] = OpHandler(tree->child[i], table);
         } else if(IsUnary(tree->child[i])) {
             dataTypeChildren[i] = UnaryHandler(tree->child[i], table);
@@ -141,7 +141,7 @@ DataType OpHandler (Node * tree, ScopeTable * table) {
     DataType dataTypeChildren[2] = {unknown, unknown};
     int i;
     for(i = 0; i < 2; i++) {
-        if(tree->child[i]->nodeType == ntOp || tree->child[i]->nodeType == ntArrAd) {
+        if(tree->child[i]->nodeType == ntOp || tree->child[i]->nodeType == ntArrAd || tree->child[i]->nodeType == ntTrueAssign) {
             dataTypeChildren[i] = OpHandler(tree->child[i], table);
         } else if(IsUnary(tree->child[i])) {
             dataTypeChildren[i] = UnaryHandler(tree->child[i], table);
@@ -159,13 +159,20 @@ DataType OpHandler (Node * tree, ScopeTable * table) {
     } else if(dataTypeChildren[0] == dataTypeChildren[1]) {
         return dataTypeChildren[0];
     } else {
-        printf("%d %s doesnt match %d %s\n", dataTypeChildren[0], tree->child[0]->literal, dataTypeChildren[1], tree->child[1]->literal);
+        printf(
+            "ERROR(%d): '%s' requires operands of the same type but lhs is %s and rhs is %s.\n",
+            tree->lineNum,
+            tree->literal,
+            DataTypeToString(dataTypeChildren[0]),
+            DataTypeToString(dataTypeChildren[1])
+        );
+        // printf("%d %s doesnt match %d %s\n", dataTypeChildren[0], tree->child[0]->literal, dataTypeChildren[1], tree->child[1]->literal);
         return dataTypeChildren[0];
     }
 }
 
 DataType UnaryHandler (Node * tree, ScopeTable * table) {
-    if(tree->child[0]->nodeType == ntOp || tree->child[0]->nodeType == ntArrAd) {
+    if(tree->child[0]->nodeType == ntOp || tree->child[0]->nodeType == ntArrAd || tree->child[0]->nodeType == ntTrueAssign) {
         return OpHandler(tree->child[0], table);
     } else if(IsUnary(tree->child[0])) {
         return UnaryHandler(tree->child[0], table);
