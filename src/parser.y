@@ -114,6 +114,7 @@ varDeclInit:
         if($1 != NULL) {
             if($3 != NULL) {
                 $$ = AddChild($1, $3);
+                $1->isInitialized = 1;
             }
         } else {
             $$ = $1;
