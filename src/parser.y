@@ -128,7 +128,6 @@ varDeclId:
     ID ytarr NUMCONST ']' {
         $$ = NewNode($1, ntVarArray); // doesn't clean ytarr
         $$->isDecl = 1;
-        $$->isInitialized = 1;
     };
 typeSpec:
     ytbool {
