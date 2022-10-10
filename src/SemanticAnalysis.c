@@ -166,7 +166,9 @@ DataType OpHandler (Node * tree, ScopeTable * table) {
     DataType dataTypeChildren[2] = {unknown, unknown};
     int i;
     for(i = 0; i < 2; i++) {
-        if(tree->child[i]->nodeType == ntOp || tree->child[i]->nodeType == ntTrueAssign) {
+        if(tree->child[i]->nodeType == ntRelOp) {
+            dataTypeChildren[i] = RelOpHandler(tree->child[i], table);
+        } else if(tree->child[i]->nodeType == ntOp || tree->child[i]->nodeType == ntTrueAssign) {
             dataTypeChildren[i] = OpHandler(tree->child[i], table);
         } else if(IsUnary(tree->child[i])) {
             dataTypeChildren[i] = UnaryHandler(tree->child[i], table);
@@ -192,7 +194,6 @@ DataType OpHandler (Node * tree, ScopeTable * table) {
             DataTypeToString(dataTypeChildren[0]),
             DataTypeToString(dataTypeChildren[1])
         );
-        // printf("%d %s doesnt match %d %s\n", dataTypeChildren[0], tree->child[0]->literal, dataTypeChildren[1], tree->child[1]->literal);
         return dataTypeChildren[0];
     }
 }
