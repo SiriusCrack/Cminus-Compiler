@@ -132,10 +132,10 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
                 entry->following->node->isInitialized = 1;
             }
             if(!entry->following->node->isInitialized) {
-                printf("%d %s may not be initialized\n", entry->node->lineNum, entry->node->literal);
+                printf("WARNING(%d): Variable '%s' may be uninitialized when used here.\n", entry->node->lineNum, entry->node->literal);
             }
         } else {
-            printf("%s wasn't declared, dumbo\n", entry->node->literal);
+            printf("ERROR(%d): Symbol '%s' is not declared.\n", entry->node->lineNum, entry->node->literal);
             free(entry);
             return 0;
         }
