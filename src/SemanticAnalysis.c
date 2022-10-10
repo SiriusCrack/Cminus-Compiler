@@ -46,7 +46,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
     } else if(tree->nodeType == ntOrOp || tree->nodeType == ntAndOp) {
         CmpHandler(tree, newScope);
     } else {
-        if(tree->nodeType == ntID) {
+        if(tree->nodeType == ntID || tree->nodeType == ntCall) {
             SymbolTableEntry * newEntry = NewEntry(tree);
             AddEntryToScope(newEntry, newScope);
         }
@@ -77,7 +77,7 @@ DataType CmpHandler (Node * tree, ScopeTable * table) {
             dataTypeChildren[i] = UnaryHandler(tree->child[i], table);
         } else if(tree->child[i]->nodeType == ntNotOp) {
             dataTypeChildren[i] = UnaryCmpHandler(tree->child[i], table);
-        } else if (tree->child[i]->nodeType == ntID) {
+        } else if (tree->child[i]->nodeType == ntID || tree->child[i]->nodeType == ntCall) {
             SymbolTableEntry *newEntry = NewEntry(tree->child[0]);
             if(AddEntryToScope(newEntry, table)) {
                 dataTypeChildren[i] = newEntry->following->node->dataType;
@@ -100,7 +100,7 @@ DataType UnaryCmpHandler (Node * tree, ScopeTable * table) {
         return OpHandler(tree->child[0], table);
     } else if(IsUnary(tree->child[0])) { // is this possible??
         return UnaryHandler(tree->child[0], table);
-    } else if(tree->child[0]->nodeType == ntID) {
+    } else if(tree->child[0]->nodeType == ntID || tree->child[0]->nodeType == ntCall) {
         SymbolTableEntry *newEntry = NewEntry(tree->child[0]);
         if(AddEntryToScope(newEntry, table)) {
             return newEntry->following->node->dataType;
@@ -118,7 +118,7 @@ DataType RelOpHandler (Node * tree, ScopeTable * table) {
             dataTypeChildren[i] = OpHandler(tree->child[i], table);
         } else if(IsUnary(tree->child[i])) {
             dataTypeChildren[i] = UnaryHandler(tree->child[i], table);
-        } else if(tree->child[i]->nodeType == ntID) {
+        } else if(tree->child[i]->nodeType == ntID || tree->child[i]->nodeType == ntCall) {
             SymbolTableEntry *newEntry = NewEntry(tree->child[i]);
             if(AddEntryToScope(newEntry, table)) {
                 dataTypeChildren[i] = newEntry->following->node->dataType;
@@ -144,7 +144,7 @@ DataType OpHandler (Node * tree, ScopeTable * table) {
             dataTypeChildren[i] = OpHandler(tree->child[i], table);
         } else if(IsUnary(tree->child[i])) {
             dataTypeChildren[i] = UnaryHandler(tree->child[i], table);
-        } else if(tree->child[i]->nodeType == ntID) {
+        } else if(tree->child[i]->nodeType == ntID || tree->child[i]->nodeType == ntCall) {
             SymbolTableEntry *newEntry = NewEntry(tree->child[i]);
             if(AddEntryToScope(newEntry, table)) {
                 dataTypeChildren[i] = newEntry->following->node->dataType;
@@ -153,7 +153,9 @@ DataType OpHandler (Node * tree, ScopeTable * table) {
             dataTypeChildren[i] = ConstHandler(tree->child[i], table);
         }
     }
-    if(dataTypeChildren[0] == dataTypeChildren[1]) {
+    if(dataTypeChildren[0] == unknown || dataTypeChildren[1] == unknown) {
+        return unknown;
+    } else if(dataTypeChildren[0] == dataTypeChildren[1]) {
         printf("good beans\n");
         return dataTypeChildren[0];
     } else {
@@ -167,7 +169,7 @@ DataType UnaryHandler (Node * tree, ScopeTable * table) {
         return OpHandler(tree->child[0], table);
     } else if(IsUnary(tree->child[0])) {
         return UnaryHandler(tree->child[0], table);
-    } else if(tree->child[0]->nodeType == ntID) {
+    } else if(tree->child[0]->nodeType == ntID || tree->child[0]->nodeType == ntCall) {
         SymbolTableEntry *newEntry = NewEntry(tree->child[0]);
         if(AddEntryToScope(newEntry, table)) {
             return newEntry->following->node->dataType;

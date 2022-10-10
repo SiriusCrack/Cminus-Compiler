@@ -143,6 +143,7 @@ funDecl:
     typeSpec ID '(' parms ')' compoundStmt {
         $$ = NewNode($2, ntFunc);
         $$->isDecl = 1;
+        $$->isInitialized = 1;
         SetDataType($1, $$);
         $$ = AddChild($$, $4); //might be empty
         $$ = AddChild($$, $6);
@@ -151,6 +152,7 @@ funDecl:
     ID '(' parms ')' compoundStmt {
         $$ = NewNode($1, ntFunc);
         $$->isDecl = 1;
+        $$->isInitialized = 1;
         SetDataType(strdup("void"), $$);
         $$ = AddChild($$, $3); //might be empty
         $$ = AddChild($$, $5);

@@ -6,6 +6,8 @@
 
 extern int PrintSymTblFlag;
 
+SymbolTableEntry * FindFuncDecl (SymbolTableEntry *entry, ScopeTable *scope);
+
 ScopeTable * NewGlobalScope () {
     ScopeTable * newScope = (ScopeTable *) malloc(sizeof(ScopeTable));
     if(newScope == NULL) {
@@ -20,6 +22,7 @@ ScopeTable * NewGlobalScope () {
         newScope->scopeName = strdup("Global");
         newScope->node = NULL;
         newScope->depth = 0;
+        newScope->self = NULL;
         newScope->symbolTable = NULL;
         return newScope;
     }
@@ -39,6 +42,7 @@ ScopeTable * NewScope (Node * node) {
         newScope->scopeName = node->literal;
         newScope->node = node;
         newScope->depth = 0;
+        newScope->self = NewEntry(node);
         newScope->symbolTable = NULL;
         return newScope;
     }
@@ -66,6 +70,7 @@ void AddChildScope (ScopeTable * parentScopeTable, ScopeTable * newScopeTable) {
         }
     }
 }
+
 
 void PrintSymbolTable (ScopeTable * symbolTable) {
     if(PrintSymTblFlag == 0) return;
@@ -111,7 +116,12 @@ SymbolTableEntry * NewEntry (Node * node) {
 int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
     // Connect to decl
     if(!entry->isDecl) {
-        SymbolTableEntry * myDecl = FindDecl(entry, scope);
+        SymbolTableEntry * myDecl = NULL;
+        if(entry->node->nodeType == ntCall) {
+            myDecl = FindFuncDecl(entry, scope);
+        } else {
+            myDecl = FindDecl(entry, scope);
+        }
         if(myDecl != NULL) {
             entry->following = myDecl;
             int i;
@@ -166,6 +176,29 @@ SymbolTableEntry * FindDecl(SymbolTableEntry * entry, ScopeTable * scope) {
     if(scope->parent != NULL) { // traverse up
         return FindDecl(entry, scope->parent);
     } else { // you've reached the top
+        return NULL;
+    }
+}
+
+SymbolTableEntry * FindFuncDecl (SymbolTableEntry *entry, ScopeTable *scope) {
+    if(scope->parent == NULL) {
+        printf("stop, you're in global lol\n");
+        return NULL;
+    }
+    ScopeTable *parentScope = scope->parent;
+    int i;
+    for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
+        if(parentScope->child[i] != NULL) {
+            if(strcmp(entry->node->literal, parentScope->child[i]->self->node->literal) == 0) { // found match
+                return parentScope->child[i]->self;
+            }
+        } else {
+            break;
+        }
+    }
+    if(parentScope->parent != NULL) {
+        return FindFuncDecl(entry, parentScope);
+    } else {
         return NULL;
     }
 }
