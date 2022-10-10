@@ -37,6 +37,7 @@ int main (int argc, char * argv[]) {
     WriteScopes(AST, SymbolTable);
     WriteRefs(AST, SymbolTable);
     PrintSymbolTable(SymbolTable);
+    if(errs < 1) PrintAnnotatedTree(AST, 0);
     printf("Number of warnings: %d\n", warns);
     printf("Number of errors: %d\n", errs);
     return 0;
