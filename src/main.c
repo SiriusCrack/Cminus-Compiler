@@ -31,14 +31,17 @@ int main (int argc, char * argv[]) {
     if(argc > 1) {
         parseArgs(argc, argv);
     }
-    SymbolTable = NewGlobalScope();
-    yyparse();
-    PrintTree(AST, 0);
-    WriteScopes(AST, SymbolTable);
-    WriteRefs(AST, SymbolTable);
-    PrintSymbolTable(SymbolTable);
-    CheckUse (SymbolTable);
-    if(errs < 1) PrintAnnotatedTree(AST, 0);
+    if(yyin != NULL) {
+        SymbolTable = NewGlobalScope();
+        yyparse();
+        PrintTree(AST, 0);
+        WriteScopes(AST, SymbolTable);
+        CheckMain(SymbolTable);
+        WriteRefs(AST, SymbolTable);
+        PrintSymbolTable(SymbolTable);
+        CheckUse(SymbolTable);
+        if(errs < 1) PrintAnnotatedTree(AST, 0);
+    }
     printf("Number of warnings: %d\n", warns);
     printf("Number of errors: %d\n", errs);
     return 0;
@@ -49,7 +52,8 @@ void parseArgs (int argc, char * argv[]) {
     if(fp) {
         yyin = fp;
     } else {
-        printf("Need file to parse.\n");
+        errs = errs + 1;
+        printf("ERROR(ARGLIST): source file \"%s\" could not be opened.\n", argv[argc-1]);
     }
     int i;
     for(i = 1; i < argc-1; i++) {

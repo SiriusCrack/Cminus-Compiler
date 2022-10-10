@@ -1,5 +1,6 @@
 #include "SemanticAnalysis.h"
 #include <stdio.h>
+#include <string.h>
 
 extern Node * AST;
 extern ScopeTable * SymbolTable;
@@ -64,6 +65,20 @@ void WriteRefs (Node * tree, ScopeTable * table) {
     if(tree->sibling != NULL) {
         WriteRefs(tree->sibling, table);
     }
+}
+
+void CheckMain (ScopeTable *table) {
+    int i = 0;
+    for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
+        if(table->child[i] != NULL) {
+            if(strcmp("main", table->child[i]->scopeName) == 0) {
+                return;
+            }
+        } else {
+            break;
+        }
+    }
+    printf("ERROR(LINKER): A function named 'main()' must be defined.\n");
 }
 
 void CheckUse (ScopeTable *table) {
@@ -188,7 +203,7 @@ DataType OpHandler (Node * tree, ScopeTable * table) {
     } else {
         errs = errs + 1;
         printf(
-            "ERROR(%d): '%s' requires operands of the same type but lhs is %s and rhs is %s.\n",
+            "ERROR(%d): '%s' requires operands of the same type but lhs is type %s and rhs is type %s.\n",
             tree->lineNum,
             tree->literal,
             DataTypeToString(dataTypeChildren[0]),
