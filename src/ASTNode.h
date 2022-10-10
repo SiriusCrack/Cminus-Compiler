@@ -84,4 +84,5 @@ Node * AddSibling (Node *, Node *);
 Node * AddChild (Node *, Node *);
 void SetDataType (char *dataType, Node *node);
 void PrintTree (Node *, int);
+void PrintAnnotatedTree (Node *, int);
 #endif

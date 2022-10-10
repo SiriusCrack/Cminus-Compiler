@@ -13,6 +13,7 @@ ScopeTable * SymbolTable;
 
 int PrintDebugFlag;
 int PrintTreeFlag;
+int PrintAnnotatedTreeFlag;
 int PrintSymTblFlag;
 int warns;
 int errs;
@@ -23,6 +24,7 @@ int main (int argc, char * argv[]) {
     NodeUID = 0;
     PrintDebugFlag = 0;
     PrintTreeFlag = 0;
+    PrintAnnotatedTreeFlag = 0;
     PrintSymTblFlag = 0;
     warns = 0;
     errs = 0;
@@ -68,6 +70,7 @@ void parseArgs (int argc, char * argv[]) {
                 PrintTreeFlag = 1;
                 break;
             case 'P':
+                PrintAnnotatedTreeFlag = 1;
                 break;
             case 'T':
                 PrintSymTblFlag = 1;
