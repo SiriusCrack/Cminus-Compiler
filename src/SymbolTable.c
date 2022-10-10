@@ -5,6 +5,8 @@
 #include <string.h>
 
 extern int PrintSymTblFlag;
+extern int warns;
+extern int errs;
 
 SymbolTableEntry * FindFuncDecl (SymbolTableEntry *entry, ScopeTable *scope);
 
@@ -132,9 +134,11 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
                 entry->following->node->isInitialized = 1;
             }
             if(!entry->following->node->isInitialized) {
+                warns = warns + 1;
                 printf("WARNING(%d): Variable '%s' may be uninitialized when used here.\n", entry->node->lineNum, entry->node->literal);
             }
         } else {
+            errs = errs + 1;
             printf("ERROR(%d): Symbol '%s' is not declared.\n", entry->node->lineNum, entry->node->literal);
             free(entry);
             return 0;

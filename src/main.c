@@ -14,6 +14,8 @@ ScopeTable * SymbolTable;
 int PrintDebugFlag;
 int PrintTreeFlag;
 int PrintSymTblFlag;
+int warns;
+int errs;
 
 void parseArgs (int, char * []);
 
@@ -22,6 +24,8 @@ int main (int argc, char * argv[]) {
     PrintDebugFlag = 0;
     PrintTreeFlag = 0;
     PrintSymTblFlag = 0;
+    warns = 0;
+    errs = 0;
     if(argc > 1) {
         parseArgs(argc, argv);
     }
@@ -31,6 +35,8 @@ int main (int argc, char * argv[]) {
     WriteScopes(AST, SymbolTable);
     WriteRefs(AST, SymbolTable);
     PrintSymbolTable(SymbolTable);
+    printf("Number of warnings: %d\n", warns);
+    printf("Number of errors: %d\n", errs);
     return 0;
 }
 
