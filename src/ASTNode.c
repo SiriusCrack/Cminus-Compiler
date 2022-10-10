@@ -103,6 +103,19 @@ Node * AddChild (Node * treePtr, Node * newChild) {
     }
 }
 
+char * DataTypeToString (DataType dataType) {
+    switch(dataType) {
+        case voidData:
+            return "void";
+        case boolData:
+            return "bool";
+        case charData:
+            return "char";
+        case intData:
+            return "int";
+    }
+}
+
 void SetDataType (char *dataType, Node *node) {
     if(strcmp(dataType, "void") == 0) {
         node->dataType = voidData;

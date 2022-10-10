@@ -238,19 +238,6 @@ DataType ConstHandler (Node * tree, ScopeTable * table) {
     }
 }
 
-char * DataTypeToString (DataType dataType) {
-    switch(dataType) {
-        case voidData:
-            return "void";
-        case boolData:
-            return "bool";
-        case charData:
-            return "char";
-        case intData:
-            return "int";
-    }
-}
-
 int IsScope (Node * node) {
     if(
         node->nodeType == ntCompound

@@ -82,6 +82,7 @@ struct Node {
 Node * NewNode (Token, NodeType);
 Node * AddSibling (Node *, Node *);
 Node * AddChild (Node *, Node *);
+char * DataTypeToString (DataType dataType);
 void SetDataType (char *dataType, Node *node);
 void PrintTree (Node *, int);
 void PrintAnnotatedTree (Node *, int);
