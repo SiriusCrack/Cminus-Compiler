@@ -33,12 +33,12 @@ int main (int argc, char * argv[]) {
     }
     SymbolTable = NewGlobalScope();
     yyparse();
-    if(PrintTreeFlag) PrintTree(AST, 0);
+    PrintTree(AST, 0);
     WriteScopes(AST, SymbolTable);
     WriteRefs(AST, SymbolTable);
     PrintSymbolTable(SymbolTable);
     CheckUse (SymbolTable);
-    if(errs < 1) if(PrintAnnotatedTreeFlag) PrintTree(AST, 0);
+    if(errs < 1) PrintAnnotatedTree(AST, 0);
     printf("Number of warnings: %d\n", warns);
     printf("Number of errors: %d\n", errs);
     return 0;
