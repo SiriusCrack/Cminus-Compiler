@@ -3,7 +3,7 @@
 #include "ASTNode.h"
 #include "SymbolTable.h"
 
-void WriteScopes (Node * tree, ScopeTable * table);
+void WriteScopes (Node * node, ScopeTable * table);
 void WriteRefs (Node * tree, ScopeTable * table);
 void CheckMain (ScopeTable *table);
 void CheckUse (ScopeTable *table);

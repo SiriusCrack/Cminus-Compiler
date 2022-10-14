@@ -17,25 +17,25 @@ char * DataTypeToString (DataType dataType);
 int IsScope (Node * node);
 int IsUnary (Node * node);
 
-void WriteScopes (Node * tree, ScopeTable * table) {
+void WriteScopes (Node * node, ScopeTable * table) {
     // Action
     ScopeTable * newScope = table;
-    if(IsScope(tree)) {
-        newScope = NewScope(tree);
+    if(IsScope(node)) { // add scope table
+        newScope = NewScope(node);
         AddChildScope(table, newScope);
-    } else if(tree->isDecl) {
-        SymbolTableEntry * newEntry = NewEntry(tree);
+    } else if(node->isDecl) { // add declaration to this scope table
+        SymbolTableEntry * newEntry = NewEntry(node);
         AddEntryToScope(newEntry, newScope);
     }
     // Traversal
     int i;
     for(i = 0; i < AST_MAX_CHILDREN; i++) {
-        if(tree->child[i] != NULL) {
-            WriteScopes(tree->child[i], newScope);
+        if(node->child[i] != NULL) {
+            WriteScopes(node->child[i], newScope);
         }
     }
-    if(tree->sibling != NULL) {
-        WriteScopes(tree->sibling, table);
+    if(node->sibling != NULL) {
+        WriteScopes(node->sibling, table);
     }
 }
 
