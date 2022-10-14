@@ -128,6 +128,7 @@ DataType WriteRefs (Node * tree, ScopeTable * table) {
             SymbolTableEntry * newEntry = NewEntry(tree);
             if(AddEntryToScope(newEntry, newScope)) {
                 dataType = newEntry->following->node->dataType;
+                tree->dataType = dataType;
             }
         }
         int i;
