@@ -113,6 +113,8 @@ char * DataTypeToString (DataType dataType) {
             return "char";
         case intData:
             return "int";
+        default:
+            return "unknown";
     }
 }
 
