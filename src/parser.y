@@ -128,6 +128,8 @@ varDeclId:
     ID ytarr NUMCONST ']' {
         $$ = NewNode($1, ntVarArray); // doesn't clean ytarr
         $$->isDecl = 1;
+        $$->isArray = 1;
+        $$->isInitialized = 1; // remove if we don't want to treat array decls as init
     };
 typeSpec:
     ytbool {
@@ -358,7 +360,7 @@ exp:
     mutable assignop exp {
         $2 = AddChild($2, $1);
         $2 = AddChild($2, $3);
-        $1->isInitialized = 1;
+        // $1->isInitialized = 1;
         $$ = $2;
     }|
     mutable ytinc {
@@ -550,15 +552,19 @@ argList:
 constant:
     NUMCONST {
         $$ = NewNode($1, ntNumConst);
+        $$->isInitialized = 1;
     }|
     CHARCONST {
         $$ = NewNode($1, ntCharConst);
+        $$->isInitialized = 1;
     }|
     STRINGCONST {
         $$ = NewNode($1, ntStringConst);
+        $$->isInitialized = 1;
     }|
     BOOLCONST {
         $$ = NewNode($1, ntBoolConst);
+        $$->isInitialized = 1;
     };
 
 %%
