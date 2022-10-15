@@ -33,6 +33,7 @@ Node * NewNode (Token token, NodeType nodeType) {
         newNode->nodeType = nodeType;
         newNode->isDecl = 0;
         newNode->isInitialized = 0;
+        newNode->isArray = 0;
         newNode->dataType = unknown;
         switch (token.tokenClass) {
             case NUMCONST:
