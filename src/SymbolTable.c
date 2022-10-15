@@ -44,6 +44,7 @@ ScopeTable * NewScope (Node * node) {
         newScope->depth = 0;
         newScope->self = NewEntry(node);
         newScope->symbolTable = NULL;
+        node->entry = newScope->self;
         return newScope;
     }
 }
@@ -109,6 +110,7 @@ SymbolTableEntry * NewEntry (Node * node) {
             newEntry->followers[i] = NULL;
         }
         newEntry->isDecl = node->isDecl;
+        node->entry = newEntry;
         return newEntry;
     }
 }

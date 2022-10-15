@@ -1,6 +1,7 @@
 #ifndef _ASTNODE_H_
 #define _ASTNODE_H_
 #include "Token.h"
+#include "SymbolTable.h"
 
 #define AST_MAX_CHILDREN 3
 
@@ -58,6 +59,7 @@ struct Node {
     int childCount;
     Node * prevSibling;
     Node * sibling;
+    SymbolTableEntry * entry;
 
     // Info
     int UID;

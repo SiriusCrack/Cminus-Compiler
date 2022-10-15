@@ -23,6 +23,7 @@ Node * NewNode (Token token, NodeType nodeType) {
         newNode->childCount = 0;
         newNode->prevSibling = NULL;
         newNode->sibling = NULL;
+        newNode->entry = NULL;
         newNode->UID = NodeUID;
         NodeUID = NodeUID+1;
         newNode->literal = strdup(token.literal);
