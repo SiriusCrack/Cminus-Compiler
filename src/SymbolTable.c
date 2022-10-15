@@ -85,7 +85,7 @@ void PrintSymbolTable (ScopeTable * symbolTable) {
             printf(".\t");
         }
         printf(" ");
-        printf("entry %d: %s %d\n", cur->node->isDecl, cur->node->literal, cur->node->isInitialized);
+        printf("entry [%d]: %d%s i=%d\n", cur->node->lineNum, cur->node->isDecl, cur->node->literal, cur->node->isInitialized);
         cur = cur->next;
     }
     for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
@@ -128,11 +128,6 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
             for(i = 0; i < ENTRY_MAX_FOLLOWERS; i++) {
                 if(myDecl->followers[i] == NULL) {
                     myDecl->followers[i] = entry;
-                }
-            }
-            if(entry->node->parent != NULL) { // hamfisted af ArrAd ID init implementation
-                if(entry->node->parent->nodeType == ntArrAd && entry->node->parent->isInitialized) {
-                    entry->node->isInitialized = 1;
                 }
             }
             if(entry->node->isInitialized) {
