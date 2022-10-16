@@ -1,5 +1,6 @@
 #include "SemanticAnalysis.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 extern Node * AST;
@@ -43,73 +44,79 @@ void WriteScopes (Node * node, ScopeTable * table) {
     }
 }
 
-DataType WriteRefs (Node * tree, ScopeTable * table) {
-    DataType dataType = unknown;
+void WriteRefs (Node * tree, ScopeTable * table) {
     ScopeTable * newScope = table;
     if(IsScope(tree)) {
         newScope = GetMatchingChildScope(newScope, tree->UID);
     }
     if(IsOp(tree)) {
-        DataType dataTypeChildren[2] = {unknown, unknown};
-        dataTypeChildren[0] = WriteRefs(tree->child[0], newScope);
-        dataTypeChildren[1] = WriteRefs(tree->child[1], newScope);
-        if(dataTypeChildren[0] != unknown && dataTypeChildren[1] != unknown) { // seems wrong?
-            if(IsArray(tree->child[0]) || IsArray(tree->child[1])) {
-                errs = errs + 1;
-                printf(
-                    "ERROR(%d): The operation '%s' does not work with arrays.\n",
-                    tree->lineNum,
-                    tree->literal
-                );
-            } else if(dataTypeChildren[0] != dataTypeChildren[1]) {
-                errs = errs + 1;
-                printf(
-                    "ERROR(%d): '%s' requires operands of the same type but lhs is type %s and rhs is type %s.\n",
-                    tree->lineNum,
-                    tree->literal,
-                    DataTypeToString(dataTypeChildren[0]),
-                    DataTypeToString(dataTypeChildren[1])
-                );
-            }
+        // Setup and Recursion
+        DataType myDataType = unknown;
+        WriteRefs(tree->child[1], newScope);
+        WriteRefs(tree->child[0], newScope);
+        myDataType = tree->child[0]->dataType;
+        // Error Checking
+        if(IsArray(tree->child[0]) || IsArray(tree->child[1])) {
+            errs = errs + 1;
+            printf(
+                "ERROR(%d): The operation '%s' does not work with arrays.\n",
+                tree->lineNum,
+                tree->literal
+            );
+            myDataType = unknown;
+        } else if(tree->child[0]->dataType != tree->child[1]->dataType) {
+            errs = errs + 1;
+            printf(
+                "ERROR(%d): '%s' requires operands of the same type but lhs is type %s and rhs is type %s.\n",
+                tree->lineNum,
+                tree->literal,
+                DataTypeToString(tree->child[0]->dataType),
+                DataTypeToString(tree->child[1]->dataType)
+            );
+            myDataType = unknown;
         }
-        tree->dataType = dataTypeChildren[0];
-        dataType = dataTypeChildren[0];
+        // Self
+        tree->dataType = myDataType;
     } else if(IsAssign(tree)) {
-        DataType dataTypeChildren[2] = {unknown, unknown};
-        dataTypeChildren[1] = WriteRefs(tree->child[1], newScope);
-        tree->isInitialized = tree->child[1]->isInitialized;
-        tree->child[0]->isInitialized = tree->child[1]->isInitialized;
-        // tree->isInitialized = 1;
-        // tree->child[0]->isInitialized = 1;
-        dataTypeChildren[0] = WriteRefs(tree->child[0], newScope);
-        if(dataTypeChildren[0] != unknown && dataTypeChildren[1] != unknown) { // seems wrong?
-            if(IsArray(tree->child[0]) != IsArray(tree->child[1])) {
-                errs = errs + 1;
-                printf(
-                    "ERROR(%d): '%s' requires both operands be arrays or not but lhs is%s an array and rhs is%s an array.\n",
-                    tree->lineNum,
-                    tree->literal,
-                    IsArrayToString(IsArray(tree->child[0])),
-                    IsArrayToString(IsArray(tree->child[1]))
-                );
-                dataTypeChildren[0] = unknown;
-            } else if(dataTypeChildren[0] != dataTypeChildren[1]) {
+        // Setup and Recursion
+        DataType myDataType = unknown;
+        WriteRefs(tree->child[1], newScope);
+        tree->child[0]->isInitialized = 1; // might change this to child[1] init? doesnt seem to in testData
+        if(tree->child[0]->nodeType == ntArrAd) tree->child[0]->child[0]->isInitialized = 1;
+        WriteRefs(tree->child[0], newScope);
+        myDataType = tree->child[0]->dataType;
+        // Error Checking
+        if(IsArray(tree->child[0]) != IsArray(tree->child[1])) {
+            errs = errs + 1;
+            printf(
+                "ERROR(%d): '%s' requires both operands be arrays or not but lhs is%s an array and rhs is%s an array.\n",
+                tree->lineNum,
+                tree->literal,
+                IsArrayToString(IsArray(tree->child[0])),
+                IsArrayToString(IsArray(tree->child[1]))
+            );
+            myDataType = unknown;
+        } else if(tree->child[0]->dataType != tree->child[1]->dataType) {
+            if((tree->child[0]->dataType != unknown) && (tree->child[1]->dataType != unknown)) { //why tho??
                 errs = errs + 1;
                 printf(
                     "ERROR(%d): '%s' requires operands of the same type but lhs is type %s and rhs is type %s.\n",
                     tree->lineNum,
                     tree->literal,
-                    DataTypeToString(dataTypeChildren[0]),
-                    DataTypeToString(dataTypeChildren[1])
+                    DataTypeToString(tree->child[0]->dataType),
+                    DataTypeToString(tree->child[1]->dataType)
                 );
-                dataTypeChildren[0] = unknown;
+                myDataType = unknown;
             }
         }
-        tree->dataType = dataTypeChildren[0];
-        dataType = dataTypeChildren[0];
+        // Self
+        tree->dataType = myDataType;
     } else if(IsIncDec(tree)) {
-        DataType dataTypeChild = unknown;
-        dataTypeChild = WriteRefs(tree->child[0], newScope);
+        // Setup and Recursion
+        DataType myDataType = unknown;
+        WriteRefs(tree->child[0], newScope);
+        myDataType = tree->child[0]->dataType;
+        // Error Checking
         if(tree->child[0]->isArray) {
             errs = errs + 1;
             printf(
@@ -117,58 +124,71 @@ DataType WriteRefs (Node * tree, ScopeTable * table) {
                 tree->lineNum,
                 tree->literal
             );
+            myDataType = unknown;
         }
-        tree->dataType = dataTypeChild;
-        dataType = dataTypeChild;
+        // Self
+        tree->dataType = myDataType;
     } else if(IsCmp(tree)) {
-        DataType dataTypeChildren[2] = {unknown, unknown};
-        dataTypeChildren[0] = WriteRefs(tree->child[0], newScope);
-        dataTypeChildren[1] = WriteRefs(tree->child[1], newScope);
-        if(dataTypeChildren[0] != dataTypeChildren[1]) {
-            errs = errs + 1;
-            printf(
-                "ERROR(%d): '%s' requires operands of the same type but lhs is type %s and rhs is type %s.\n",
-                tree->lineNum,
-                tree->literal,
-                DataTypeToString(dataTypeChildren[0]),
-                DataTypeToString(dataTypeChildren[1])
-            );
-        }
-        if(tree->child[0]->isArray || tree->child[1]->isArray) {
+        // Setup and Recursion
+        DataType myDataType = unknown;
+        WriteRefs(tree->child[1], newScope);
+        WriteRefs(tree->child[0], newScope);
+        myDataType = boolData;
+        // Error Checking
+        if(IsArray(tree->child[0]) || IsArray(tree->child[1])) {
             errs = errs + 1;
             printf(
                 "ERROR(%d): The operation '%s' does not work with arrays.\n",
                 tree->lineNum,
                 tree->literal
             );
+            myDataType = unknown;
+        } else if(tree->child[0]->dataType != tree->child[1]->dataType) {
+            errs = errs + 1;
+            printf(
+                "ERROR(%d): '%s' requires operands of the same type but lhs is type %s and rhs is type %s.\n",
+                tree->lineNum,
+                tree->literal,
+                DataTypeToString(tree->child[0]->dataType),
+                DataTypeToString(tree->child[1]->dataType)
+            );
+            myDataType = unknown;
         }
-        tree->dataType = boolData;
-        dataType = boolData;
+        // Self
+        tree->dataType = myDataType;
     } else if(IsUnaryCmp(tree)) {
-        DataType dataTypeChild = unknown;
-        dataTypeChild = WriteRefs(tree->child[0], newScope);
+        // Setup and Recursion
+        DataType myDataType = unknown;
+        WriteRefs(tree->child[0], newScope);
+        myDataType = boolData;
+        // Error Checking
         if(tree->child[0]->isArray) {
             errs = errs + 1;
             printf(
                 "ERROR(%d): The operation 'not' does not work with arrays.\n",
                 tree->lineNum
             );
+            myDataType = unknown;
         }
-        tree->dataType = boolData;
-        dataType = boolData;
+        // Self
+        tree->dataType = myDataType;
     } else if(IsRelOp(tree)) {
-        DataType dataTypeChildren[2] = {unknown, unknown};
-        dataTypeChildren[0] = WriteRefs(tree->child[0], newScope);
-        dataTypeChildren[1] = WriteRefs(tree->child[1], newScope);
-        if(dataTypeChildren[0] != dataTypeChildren[1]) {
+        // Setup and Recursion
+        DataType myDataType = unknown;
+        WriteRefs(tree->child[1], newScope);
+        WriteRefs(tree->child[0], newScope);
+        myDataType = boolData;
+        // Error Checking
+        if(tree->child[0]->dataType != tree->child[1]->dataType) {
             errs = errs + 1;
             printf(
                 "ERROR(%d): '%s' requires operands of the same type but lhs is type %s and rhs is type %s.\n",
                 tree->lineNum,
                 tree->literal,
-                DataTypeToString(dataTypeChildren[0]),
-                DataTypeToString(dataTypeChildren[1])
+                DataTypeToString(tree->child[0]->dataType),
+                DataTypeToString(tree->child[1]->dataType)
             );
+            myDataType = unknown;
         }
         if(IsArray(tree->child[0]) != IsArray(tree->child[1])) {
             errs = errs + 1;
@@ -179,39 +199,47 @@ DataType WriteRefs (Node * tree, ScopeTable * table) {
                 IsArrayToString(IsArray(tree->child[0])),
                 IsArrayToString(IsArray(tree->child[1]))
             );
+            myDataType = unknown;
         }
-        tree->dataType = boolData;
-        dataType = boolData;
+        // Self
+        tree->dataType = myDataType;
     } else if(IsUnary(tree)) {
-        DataType dataTypeChild = unknown;
-        dataTypeChild = WriteRefs(tree->child[0], newScope);
+        // Setup and Recursion
+        DataType myDataType = unknown;
+        WriteRefs(tree->child[0], newScope);
+        myDataType = tree->child[0]->dataType;
+        // Error Checking
         if(tree->nodeType == ntSignOp && IsArray(tree->child[0])) {
             errs = errs + 1;
             printf(
                 "ERROR(%d): The operation 'chsign' does not work with arrays.\n",
                 tree->lineNum
             );
+            myDataType = unknown;
         } else if(tree->nodeType == ntSizeofOp && !IsArray(tree->child[0])) {
             errs = errs + 1;
             printf(
                 "ERROR(%d): The operation 'sizeof' only works with arrays.\n",
                 tree->lineNum
             );
+            myDataType = unknown;
         } else if(tree->nodeType == ntQuestOp && IsArray(tree->child[0])) {
             errs = errs + 1;
             printf(
                 "ERROR(%d): The operation '?' does not work with arrays.\n",
                 tree->lineNum
             );
+            myDataType = unknown;
         }
-        tree->dataType = dataTypeChild;
-        dataType = dataTypeChild;
+        // Self
+        tree->dataType = myDataType;
     } else if(IsArrAd(tree)) {
-        DataType dataTypeChildren[2] = {unknown, unknown};
-        dataTypeChildren[0] = WriteRefs(tree->child[0], newScope);
-        dataTypeChildren[1] = WriteRefs(tree->child[1], newScope);
-        tree->isInitialized = tree->child[0]->isInitialized;
-        tree->dataType = dataTypeChildren[0];
+        // Setup and Recursion
+        DataType myDataType = unknown;
+        WriteRefs(tree->child[1], newScope);
+        WriteRefs(tree->child[0], newScope);
+        myDataType = tree->child[0]->dataType;
+        // Error Checking
         if(!tree->child[0]->isArray) {
             errs = errs + 1;
             printf(
@@ -219,6 +247,7 @@ DataType WriteRefs (Node * tree, ScopeTable * table) {
                 tree->lineNum,
                 tree->child[0]->literal
             );
+            myDataType = unknown;
         }
         if(tree->child[1]->isArray && tree->child[1]->child[1] == NULL) {
             errs = errs + 1;
@@ -227,41 +256,62 @@ DataType WriteRefs (Node * tree, ScopeTable * table) {
                 tree->lineNum,
                 tree->child[1]->literal
             );
-        } else if(dataTypeChildren[1] != intData) {
+            myDataType = unknown;
+        } else if(tree->child[1]->dataType != intData) {
             errs = errs + 1;
             printf(
                 "ERROR(%d): Array '%s' should be indexed by type int but got %s.\n",
                 tree->lineNum,
                 tree->child[0]->literal,
-                DataTypeToString(dataTypeChildren[1])
+                DataTypeToString(tree->child[1]->dataType)
             );
+            myDataType = unknown;
         }
-        dataType = dataTypeChildren[0];
+        // Self
+        tree->dataType = myDataType;
+    } else if(IsConst(tree)) {
+        DataType myDataType = unknown;
+        switch (tree->nodeType) {
+            case ntNumConst:
+                myDataType = intData;
+                break;
+            case ntCharConst:
+                myDataType = charData;
+                break;
+            case ntBoolConst:
+                myDataType = boolData;
+                break;
+            default:
+                printf("uhhhhhhhhhhhh %s\n", tree->literal);
+                myDataType = unknown;
+                break;
+        }
+        tree->dataType = myDataType;
+    } else if(IsNewEntry(tree)) {
+        SymbolTableEntry * newEntry = NewEntry(tree);
+        if(AddEntryToScope(newEntry, newScope)) {
+            if(tree->entry->following->node->isInitialized || tree->isInitialized) {
+                tree->entry->following->node->isInitialized = 1;
+            } else {
+                warns = warns + 1;
+                printf(
+                    "WARNING(%d): Variable '%s' may be uninitialized when used here.\n",
+                    tree->lineNum,
+                    tree->literal
+                );
+            }
+            tree->dataType = tree->entry->following->node->dataType;
+            tree->isArray = tree->entry->following->node->isArray;
+        } else {
+            errs = errs + 1;
+            printf(
+                "ERROR(%d): Symbol '%s' is not declared.\n",
+                tree->lineNum,
+                tree->literal
+            );
+            free(newEntry);
+        }
     } else {
-        if(IsConst(tree)) {
-            switch (tree->nodeType) {
-                case ntNumConst:
-                    dataType = intData;
-                    break;
-                case ntCharConst:
-                    dataType = charData;
-                    break;
-                case ntBoolConst:
-                    dataType = boolData;
-                    break;
-                default:
-                    printf("uhhhhhhhhhhhh %s\n", tree->literal);
-                    break;
-            }
-            tree->dataType = dataType;
-        } else if(IsNewEntry(tree)) {
-            SymbolTableEntry * newEntry = NewEntry(tree);
-            if(AddEntryToScope(newEntry, newScope)) {
-                dataType = newEntry->following->node->dataType;
-                tree->dataType = dataType;
-                tree->isArray = newEntry->following->node->isArray;
-            }
-        }
         int i;
         for(i = 0; i < AST_MAX_CHILDREN; i++) {
             if(tree->child[i] != NULL) {
@@ -272,7 +322,6 @@ DataType WriteRefs (Node * tree, ScopeTable * table) {
     if(tree->sibling != NULL) {
         WriteRefs(tree->sibling, table);
     }
-    return dataType;
 }
 
 void CheckMain (ScopeTable *table) {

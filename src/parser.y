@@ -129,7 +129,6 @@ varDeclId:
         $$ = NewNode($1, ntVarArray); // doesn't clean ytarr
         $$->isDecl = 1;
         $$->isArray = 1;
-        $$->isInitialized = 1; // remove if we don't want to treat array decls as init
     };
 typeSpec:
     ytbool {

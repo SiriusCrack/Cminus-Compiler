@@ -132,17 +132,7 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
                     myDecl->followers[i] = entry;
                 }
             }
-            if(entry->node->isInitialized) {
-                entry->following->node->isInitialized = 1;
-            }
-            if(!entry->following->node->isInitialized) {
-                warns = warns + 1;
-                printf("WARNING(%d): Variable '%s' may be uninitialized when used here.\n", entry->node->lineNum, entry->node->literal);
-            }
         } else {
-            errs = errs + 1;
-            printf("ERROR(%d): Symbol '%s' is not declared.\n", entry->node->lineNum, entry->node->literal);
-            free(entry);
             return 0;
         }
     }
@@ -152,7 +142,7 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
     } else {
         // Abomination of a traversal if i ever saw one
         SymbolTableEntry * cur = scope->symbolTable;
-        while(1) { // removed duplicate check. should probably rework
+        while(1) { // removed duplicate check. should probably rework  edit: still havent re-added dCheck... seems fine
             if(cur->next != NULL) {
                 cur = cur->next;
             } else {

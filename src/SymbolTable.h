@@ -1,10 +1,10 @@
 #ifndef _SYMBOLTABLE_H_
 #define _SYMBOLTABLE_H_
-#include "ASTNode.h"
 
 #define SCOPE_MAX_CHILDREN 24
 #define ENTRY_MAX_FOLLOWERS 24
 
+typedef struct Node Node;
 typedef struct SymbolTableEntry SymbolTableEntry;
 struct SymbolTableEntry {
     // Connections
