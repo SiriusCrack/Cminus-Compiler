@@ -121,6 +121,9 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
         SymbolTableEntry * myDecl = NULL;
         if(entry->node->nodeType == ntCall) {
             myDecl = FindFuncDecl(entry, scope);
+            if(myDecl == NULL) {
+                return 2;
+            }
         } else {
             myDecl = FindDecl(entry, scope);
         }
