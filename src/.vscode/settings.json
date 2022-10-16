@@ -6,6 +6,9 @@
         "stdio.h": "c",
         "symboltable.h": "c",
         "string.h": "c",
-        "semanticanalysis.h": "c"
+        "semanticanalysis.h": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c"
     }
 }
