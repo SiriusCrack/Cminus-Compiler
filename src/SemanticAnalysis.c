@@ -91,10 +91,10 @@ void WriteRefs (Node * tree, ScopeTable * table) {
     } else if(IsAssign(tree)) {
         // Setup and Recursion
         DataType myDataType = unknown;
+        WriteRefs(tree->child[1], newScope);
         tree->child[0]->isInitialized = 1; // might change this to child[1] init? doesnt seem to in testData
         if(tree->child[0]->nodeType == ntArrAd) tree->child[0]->child[0]->isInitialized = 1;
         WriteRefs(tree->child[0], newScope);
-        WriteRefs(tree->child[1], newScope);
         myDataType = tree->child[0]->dataType;
         // Error Checking
         if(IsArray(tree->child[0]) != IsArray(tree->child[1])) {
