@@ -51,6 +51,8 @@ typedef enum {
     intData
 } DataType;
 
+typedef struct SymbolTableEntry SymbolTableEntry;
+
 typedef struct Node Node;
 struct Node {
     // Connections
