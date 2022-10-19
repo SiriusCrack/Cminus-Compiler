@@ -7,7 +7,7 @@ X "ERROR(%d): '%s' requires operands of the same type but lhs is %s and rhs is %
 X "ERROR(%d): Array '%s' should be indexed by type int but got %s.\n"
 X "ERROR(%d): Array index is the unindexed array '%s'.\n"
 X "ERROR(%d): Cannot have a break statement outside of loop.\n"
-"ERROR(%d): Cannot index nonarray '%s'.\n"
+X "ERROR(%d): Cannot index nonarray '%s'.\n"
 "ERROR(%d): Cannot return an array.\n"
 "ERROR(%d): Cannot use array as test condition in %s statement.\n"
 "ERROR(%d): Cannot use array in position %d in range of for statement.\n"
