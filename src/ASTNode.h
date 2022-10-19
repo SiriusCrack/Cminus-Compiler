@@ -48,7 +48,8 @@ typedef enum {
     voidData,
     boolData,
     charData,
-    intData
+    intData,
+    stringData
 } DataType;
 
 typedef struct SymbolTableEntry SymbolTableEntry;

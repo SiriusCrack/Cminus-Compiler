@@ -20,6 +20,7 @@ int IsRelOp (Node * node);
 int IsUnary (Node * node);
 int IsArray (Node * node);
 int IsArrAd (Node * node);
+int IsReturn (Node * node);
 int IsBreak (Node * node);
 int IsConst (Node * node);
 
@@ -302,6 +303,18 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         }
         // Self
         tree->dataType = myDataType;
+    } else if(IsReturn(tree)) {
+        if(tree->child[0] != NULL) {
+            WriteRefs(tree->child[0], newScope);
+            // Error Checking
+            if(tree->child[0]->isArray) {
+                errs = errs + 1;
+                printf(
+                    "ERROR(%d): Cannot return an array.\n",
+                    tree->lineNum
+                );
+            }
+        }
     } else if(IsBreak(tree)) {
         // Error Checking
         if(FindLoop(newScope) == NULL) {
@@ -322,6 +335,10 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                 break;
             case ntBoolConst:
                 myDataType = boolData;
+                break;
+            case ntStringConst:
+                myDataType = stringData;
+                tree->isArray = 1;
                 break;
             default:
                 printf("uhhhhhhhhhhhh %s\n", tree->literal);
@@ -543,6 +560,16 @@ int IsArrAd (Node * node) {
     }
 }
 
+int IsReturn (Node * node) {
+    if(
+        node->nodeType == ntReturn
+    ) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 int IsBreak (Node * node) {
     if(
         node->nodeType == ntBreak
@@ -557,6 +584,7 @@ int IsConst (Node * node) {
     if(
         node->nodeType == ntNumConst ||
         node->nodeType == ntCharConst ||
+        node->nodeType == ntStringConst ||
         node->nodeType == ntBoolConst
     ) {
         return 1;
