@@ -426,6 +426,14 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                 tree->literal
             );
             free(newEntry);
+        } else if(addEntryResult == 3) {
+            errs = errs + 1;
+            printf(
+                "ERROR(%d): Cannot use function '%s' as a variable.\n",
+                tree->lineNum,
+                tree->literal
+            );
+            free(newEntry);
         }
     } else {
         int i;

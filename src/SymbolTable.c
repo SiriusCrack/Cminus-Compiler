@@ -124,7 +124,11 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
                 return 2;
             }
         } else {
-            myDecl = FindDecl(entry, scope);
+            if(FindFuncDecl(entry, scope) != NULL) {
+                return 3;
+            } else {
+                myDecl = FindDecl(entry, scope);
+            }
         }
         if(myDecl != NULL) {
             entry->following = myDecl;
