@@ -106,6 +106,17 @@ Node * AddChild (Node * treePtr, Node * newChild) {
     }
 }
 
+char * NodeTypeToString(NodeType nodeType) {
+    switch(nodeType) {
+        case ntIter:
+            return "while";
+        case ntIf:
+            return "if";
+        default:
+            return "unknown";
+    }
+}
+
 char * DataTypeToString (DataType dataType) {
     switch(dataType) {
         case voidData:
