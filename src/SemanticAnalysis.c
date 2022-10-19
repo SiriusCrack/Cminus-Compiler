@@ -376,14 +376,16 @@ void CheckUse (ScopeTable *table) {
     int i = 0;
     SymbolTableEntry *cur = table->symbolTable;
     while(cur != NULL) {
-        if(cur->isDecl) {
-            if(cur->followers[0] == NULL) {
-                warns = warns + 1;
-                printf(
-                    "WARNING(%d): The variable '%s' seems not to be used.\n",
-                    cur->node->lineNum,
-                    cur->node->literal
-                );
+        if(cur->node->literal[0] != '*') {
+            if(cur->isDecl) {
+                if(cur->followers[0] == NULL) {
+                    warns = warns + 1;
+                    printf(
+                        "WARNING(%d): The variable '%s' seems not to be used.\n",
+                        cur->node->lineNum,
+                        cur->node->literal
+                    );
+                }
             }
         }
         i = i + 1;

@@ -1,6 +1,7 @@
 #include "ASTNode.h"
 #include "SymbolTable.h"
 #include "SemanticAnalysis.h"
+#include "IOLoader.h"
 #include "parser.tab.h"
 #include <stdio.h>
 
@@ -9,6 +10,7 @@ extern int yydebug;
 
 int NodeUID;
 Node * AST;
+Node * IOTree;
 ScopeTable * SymbolTable;
 
 int PrintDebugFlag;
@@ -33,13 +35,14 @@ int main (int argc, char * argv[]) {
     }
     if(yyin != NULL) {
         SymbolTable = NewGlobalScope();
+        IOTree = LoadIO();
         yyparse();
         PrintTree(AST, 0);
         WriteScopes(AST, SymbolTable);
         CheckMain(SymbolTable);
         WriteRefs(AST, SymbolTable);
-        PrintSymbolTable(SymbolTable);
         CheckUse(SymbolTable);
+        PrintSymbolTable(SymbolTable);
         if(errs < 1) PrintAnnotatedTree(AST, 0);
     }
     printf("Number of warnings: %d\n", warns);

@@ -2,12 +2,12 @@ BIN = c-
 
 lexsrc = parser.l
 yaccsrc = parser.y
-headers = Token.h ASTNode.h SymbolTable.h SemanticAnalysis.h
-src = main.c ASTNode.c SymbolTable.c SemanticAnalysis.c
+headers = Token.h ASTNode.h SymbolTable.h SemanticAnalysis.h IOLoader.h
+src = main.c ASTNode.c SymbolTable.c SemanticAnalysis.c IOLoader.c
 
 lexgens = lex.yy.c
 yaccgens = parser.tab.h parser.tab.c parser.output
-srcobjs = main.o ASTNode.o SymbolTable.o SemanticAnalysis.o
+srcobjs = main.o ASTNode.o SymbolTable.o SemanticAnalysis.o IOLoader.o
 lexyaccobjs = lex.yy.o parser.tab.o
 
 $(BIN) : $(lexyaccobjs) $(srcobjs)
