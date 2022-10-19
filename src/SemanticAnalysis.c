@@ -131,16 +131,18 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         WriteRefs(tree->child[1], newScope);
         myDataType = boolData;
         // Error Checking
-        if(tree->child[0]->dataType != tree->child[1]->dataType) {
-            errs = errs + 1;
-            printf(
-                "ERROR(%d): '%s' requires operands of the same type but lhs is type %s and rhs is type %s.\n",
-                tree->lineNum,
-                tree->literal,
-                DataTypeToString(tree->child[0]->dataType),
-                DataTypeToString(tree->child[1]->dataType)
-            );
-            myDataType = unknown;
+        if((tree->child[0]->dataType != unknown) && (tree->child[1]->dataType != unknown)) {
+            if(tree->child[0]->dataType != tree->child[1]->dataType) {
+                errs = errs + 1;
+                printf(
+                    "ERROR(%d): '%s' requires operands of the same type but lhs is type %s and rhs is type %s.\n",
+                    tree->lineNum,
+                    tree->literal,
+                    DataTypeToString(tree->child[0]->dataType),
+                    DataTypeToString(tree->child[1]->dataType)
+                );
+                myDataType = unknown;
+            }
         }
         if(IsArray(tree->child[0]) != IsArray(tree->child[1])) {
             errs = errs + 1;
