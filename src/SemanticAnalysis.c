@@ -290,7 +290,6 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         int i;
         for(i = 0; i < AST_MAX_CHILDREN; i++) {
             if(tree->child[i] != NULL) {
-                printf("%s\n", tree->child[i]->literal);
                 WriteRefs(tree->child[i], newScope);
             } else {
                 break;
@@ -394,6 +393,9 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         }
         tree->dataType = myDataType;
     } else if(IsNewEntry(tree)) {
+        if(tree->child[0] != NULL) {
+            WriteRefs(tree->child[0], newScope);
+        }
         SymbolTableEntry * newEntry = NewEntry(tree);
         int addEntryResult = 0;
         addEntryResult = AddEntryToScope(newEntry, newScope);
@@ -434,6 +436,22 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                 tree->literal
             );
             free(newEntry);
+        } else if(addEntryResult == 4) {
+            errs = errs + 1;
+            printf(
+                "ERROR(%d): Too few parameters passed for function '%s' declared on line %d.\n",
+                tree->lineNum,
+                tree->literal,
+                tree->entry->following->node->lineNum
+            );
+        } else if(addEntryResult == 5) {
+            errs = errs + 1;
+            printf(
+                "ERROR(%d): Too many parameters passed for function '%s' declared on line %d.\n",
+                tree->lineNum,
+                tree->literal,
+                tree->entry->following->node->lineNum
+            );
         }
     } else {
         int i;

@@ -114,14 +114,69 @@ SymbolTableEntry * NewEntry (Node * node) {
     }
 }
 
-int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
+int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) { //awful spaghetti mess. should probably separate ntCalls from other IDs
+    int errResult = 1;
     // Connect to decl
     if(!entry->isDecl) {
         SymbolTableEntry * myDecl = NULL;
         if(entry->node->nodeType == ntCall) {
             myDecl = FindFuncDecl(entry, scope);
             if(myDecl == NULL) {
-                return 2;
+                if(FindDecl(entry, scope) != NULL) {
+                    return 2;
+                }
+            } else {
+                int i;
+                Node * declParams[10];
+                for(i = 0; i < 10; i++) {
+                    declParams[i] = NULL;
+                }
+                Node * myParams[10];
+                for(i = 0; i < 10; i++) {
+                    myParams[i] = NULL;
+                }
+                int declParamCount = 0;
+                if(myDecl->node->child[0] != NULL) {
+                    declParams[declParamCount] = myDecl->node->child[0];
+                    declParamCount++;
+                    Node * cur = myDecl->node->child[0];
+                    while(cur->sibling != NULL) {
+                        declParams[declParamCount] = cur;
+                        declParamCount++;
+                        cur = cur->sibling;
+                    }
+                }
+                int myParamCount = 0;
+                if(entry->node->child[0] != NULL) {
+                    myParams[myParamCount] = entry->node->child[0];
+                    myParamCount++;
+                    Node * cur = entry->node->child[0];
+                    while(cur->sibling != NULL) {
+                        myParams[myParamCount] = cur;
+                        myParamCount++;
+                        cur = cur->sibling;
+                    }
+                }
+                if(declParamCount > myParamCount) {
+                    errResult = 4;
+                }
+                if(declParamCount < myParamCount) {
+                    errResult = 5;
+                }
+                for(i = 0; i < declParamCount; i++) {
+                    if(declParams[i]->dataType != declParams[i]->dataType) {
+                        errs = errs + 1;
+                        printf(
+                            "ERROR(%d): Expecting %s in parameter %i of call to '%s' declared on line %d but got %s.\n",
+                            declParams[i]->lineNum,
+                            DataTypeToString(declParams[i]->dataType),
+                            i+1,
+                            myDecl->node->literal,
+                            myDecl->node->lineNum,
+                            DataTypeToString(myParams[i]->dataType)
+                        );
+                    }
+                }
             }
         } else {
             if(FindFuncDecl(entry, scope) != NULL) {
@@ -153,7 +208,7 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) {
                 cur = cur->next;
             } else {
                 cur->next = entry;
-                return 1;
+                return errResult;
             }
         }
     }
