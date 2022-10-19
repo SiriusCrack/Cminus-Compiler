@@ -5,5 +5,5 @@ for i in ./TestData/$TESTBATCH/*.c-; do
 	#j=${i##*/}
 	j=${i%.c-}
 	j=$j.out
-	diff -rs <(./src/c- -P $i) $j | egrep '^Files .+ and .+ are identical$' | awk -F '(Files | and | are identical)' '{print "MATCH"}'
+	diff -rs <(./src/c- -P $i) $j | grep -E '^Files .+ and .+ are identical$' | awk -F '(Files | and | are identical)' '{print "MATCH"}'
 done
