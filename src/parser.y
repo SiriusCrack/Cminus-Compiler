@@ -299,11 +299,13 @@ unmatchedSelectStmt:
 matchedIterStmt:
     ytwhile simpleExp ytdo matched {
         $$ = NewNode($1, ntIter);
+        $$->isLoop = 1;
         $$ = AddChild($$, $2);
         $$ = AddChild($$, $4);
     }|
     ytfor ID ytequals iterRange ytdo matched {
         $$ = NewNode($1, ntTo);
+        $$->isLoop = 1;
         Node * id;
         id = NewNode($2, ntVar);
         id->isDecl = 1;
@@ -316,11 +318,13 @@ matchedIterStmt:
 unmatchedIterStmt:
     ytwhile simpleExp ytdo unmatched {
         $$ = NewNode($1, ntIter);
+        $$->isLoop = 1;
         $$ = AddChild($$, $2);
         $$ = AddChild($$, $4);
     }|
     ytfor ID ytequals iterRange ytdo unmatched {
         $$ = NewNode($1, ntTo);
+        $$->isLoop = 1;
         Node * id;
         id = NewNode($2, ntVar);
         id->isDecl = 1;

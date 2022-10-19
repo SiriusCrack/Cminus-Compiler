@@ -41,5 +41,6 @@ void PrintSymbolTable (ScopeTable * symbolTable);
 SymbolTableEntry * NewEntry (Node * node);
 int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope);
 SymbolTableEntry * FindDecl(SymbolTableEntry * entry, ScopeTable * scope);
+SymbolTableEntry * FindLoop(ScopeTable * scope);
 
 #endif

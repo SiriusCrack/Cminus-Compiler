@@ -20,12 +20,16 @@ int IsRelOp (Node * node);
 int IsUnary (Node * node);
 int IsArray (Node * node);
 int IsArrAd (Node * node);
+int IsBreak (Node * node);
 int IsConst (Node * node);
 
 void WriteScopes (Node * node, ScopeTable * table) {
     // Action
     ScopeTable * newScope = table;
     if(IsScope(node)) { // add scope table
+        if(node->parent != NULL) {
+            node->isLoop = node->parent->isLoop;
+        }
         newScope = NewScope(node);
         AddChildScope(table, newScope);
     } else if(node->isDecl) { // add declaration to this scope table
@@ -298,6 +302,14 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         }
         // Self
         tree->dataType = myDataType;
+    } else if(IsBreak(tree)) {
+        // Error Checking
+        if(FindLoop(newScope) == NULL) {
+            printf(
+                "ERROR(%d): Cannot have a break statement outside of loop.\n",
+                tree->lineNum
+            );
+        }
     } else if(IsConst(tree)) {
         DataType myDataType = unknown;
         switch (tree->nodeType) {
@@ -523,6 +535,16 @@ int IsArray (Node * node) {
 int IsArrAd (Node * node) {
     if(
         node->nodeType == ntArrAd
+    ) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int IsBreak (Node * node) {
+    if(
+        node->nodeType == ntBreak
     ) {
         return 1;
     } else {
