@@ -283,15 +283,18 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                 tree->child[1]->literal
             );
             myDataType = unknown;
-        } else if(tree->child[1]->dataType != intData) {
-            errs = errs + 1;
-            printf(
-                "ERROR(%d): Array '%s' should be indexed by type int but got %s.\n",
-                tree->lineNum,
-                tree->child[0]->literal,
-                DataTypeToString(tree->child[1]->dataType)
-            );
-            myDataType = unknown;
+        }
+        if((tree->child[0]->dataType != unknown) && (tree->child[1]->dataType != unknown)) {
+            if(tree->child[1]->dataType != intData) {
+                errs = errs + 1;
+                printf(
+                    "ERROR(%d): Array '%s' should be indexed by type int but got type %s.\n",
+                    tree->lineNum,
+                    tree->child[0]->literal,
+                    DataTypeToString(tree->child[1]->dataType)
+                );
+                myDataType = unknown;
+            }
         }
         // Self
         tree->dataType = myDataType;
