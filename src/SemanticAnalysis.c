@@ -17,6 +17,7 @@ int IsIncDec (Node * node);
 int IsCmp (Node * node);
 int IsUnaryCmp (Node * node);
 int IsRelOp (Node * node);
+int IsCond (Node * node);
 int IsUnary (Node * node);
 int IsArray (Node * node);
 int IsArrAd (Node * node);
@@ -264,6 +265,25 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         }
         // Self
         tree->dataType = myDataType;
+    } else if(IsCond(tree)) {
+        // Setup and Recursion
+        int i;
+        for(i = 0; i < AST_MAX_CHILDREN; i++) {
+            if(tree->child[i] != NULL) {
+                WriteRefs(tree->child[i], newScope);
+            } else {
+                break;
+            }
+        }
+        // Error Checking
+        if(tree->child[0]->isArray) {
+            errs = errs + 1;
+            printf(
+                "ERROR(%d): Cannot use array as test condition in %s statement.\n",
+                tree->lineNum,
+                NodeTypeToString(tree->nodeType)
+            );
+        }
     } else if(IsArrAd(tree)) {
         // Setup and Recursion
         DataType myDataType = unknown;
@@ -501,6 +521,17 @@ int IsCmp (Node * node) {
     if(
         node->nodeType == ntOrOp ||
         node->nodeType == ntAndOp
+    ) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int IsCond (Node * node) {
+    if(
+        node->nodeType == ntIter ||
+        node->nodeType == ntIf
     ) {
         return 1;
     } else {
