@@ -305,6 +305,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
     } else if(IsBreak(tree)) {
         // Error Checking
         if(FindLoop(newScope) == NULL) {
+            errs = errs + 1;
             printf(
                 "ERROR(%d): Cannot have a break statement outside of loop.\n",
                 tree->lineNum
