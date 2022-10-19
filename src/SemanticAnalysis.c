@@ -21,6 +21,7 @@ int IsCond (Node * node);
 int IsUnary (Node * node);
 int IsArray (Node * node);
 int IsArrAd (Node * node);
+int IsRange (Node * node);
 int IsReturn (Node * node);
 int IsBreak (Node * node);
 int IsConst (Node * node);
@@ -284,6 +285,32 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                 NodeTypeToString(tree->nodeType)
             );
         }
+    } else if(IsRange(tree)) {
+        // Setup and Recursion
+        int i;
+        for(i = 0; i < AST_MAX_CHILDREN; i++) {
+            if(tree->child[i] != NULL) {
+                printf("%s\n", tree->child[i]->literal);
+                WriteRefs(tree->child[i], newScope);
+            } else {
+                break;
+            }
+        }
+        // Error Checking
+        for(i = 0; i < AST_MAX_CHILDREN; i++) {
+            if(tree->child[i] != NULL) {
+                if(tree->child[i]->isArray) {
+                    errs = errs + 1;
+                    printf(
+                        "ERROR(%d): Cannot use array in position %d in range of for statement.\n",
+                        tree->lineNum,
+                        i+1
+                    );
+                }
+            } else {
+                break;
+            }
+        }
     } else if(IsArrAd(tree)) {
         // Setup and Recursion
         DataType myDataType = unknown;
@@ -467,8 +494,8 @@ int IsScope (Node * node) {
     if(
         node->nodeType == ntCompound ||
         node->nodeType == ntFunc ||
-        node->nodeType == ntIterwComp ||
-        node->nodeType == ntTowComp
+        node->nodeType == ntIter ||
+        node->nodeType == ntTo
     ) {
         return 1;
     } else {
@@ -584,6 +611,16 @@ int IsArray (Node * node) {
 int IsArrAd (Node * node) {
     if(
         node->nodeType == ntArrAd
+    ) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int IsRange (Node * node) {
+    if(
+        node->nodeType == ntRange
     ) {
         return 1;
     } else {
