@@ -120,13 +120,13 @@ char * NodeTypeToString(NodeType nodeType) {
 char * DataTypeToString (DataType dataType) {
     switch(dataType) {
         case voidData:
-            return "void";
+            return "type void";
         case boolData:
-            return "bool";
+            return "type bool";
         case charData:
-            return "char";
+            return "type char";
         case intData:
-            return "int";
+            return "type int";
         default:
             return "unknown";
     }

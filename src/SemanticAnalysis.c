@@ -75,7 +75,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
             if(tree->child[0]->dataType != intData) {
                 errs = errs + 1;
                 printf(
-                    "ERROR(%d): '%s' requires operands of type %s but lhs is of type %s.\n",
+                    "ERROR(%d): '%s' requires operands of %s but lhs is of %s.\n",
                     tree->lineNum,
                     tree->literal,
                     DataTypeToString(intData),
@@ -85,7 +85,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
             if(tree->child[1]->dataType != intData) {
                 errs = errs + 1;
                 printf(
-                    "ERROR(%d): '%s' requires operands of type %s but rhs is of type %s.\n",
+                    "ERROR(%d): '%s' requires operands of %s but rhs is of %s.\n",
                     tree->lineNum,
                     tree->literal,
                     DataTypeToString(intData),
@@ -119,7 +119,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                 if((tree->child[0]->dataType != unknown) && (tree->child[1]->dataType != unknown)) { //why tho??
                     errs = errs + 1;
                     printf(
-                        "ERROR(%d): '%s' requires operands of the same type but lhs is type %s and rhs is type %s.\n",
+                        "ERROR(%d): '%s' requires operands of the same type but lhs is %s and rhs is %s.\n",
                         tree->lineNum,
                         tree->literal,
                         DataTypeToString(tree->child[0]->dataType),
@@ -142,7 +142,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
             if(tree->child[0]->dataType != tree->child[1]->dataType) {
                 errs = errs + 1;
                 printf(
-                    "ERROR(%d): '%s' requires operands of the same type but lhs is type %s and rhs is type %s.\n",
+                    "ERROR(%d): '%s' requires operands of the same type but lhs is %s and rhs is %s.\n",
                     tree->lineNum,
                     tree->literal,
                     DataTypeToString(tree->child[0]->dataType),
@@ -183,7 +183,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
             if(tree->child[0]->dataType != boolData) {
                 errs = errs + 1;
                 printf(
-                    "ERROR(%d): '%s' requires operands of type %s but lhs is of type %s.\n",
+                    "ERROR(%d): '%s' requires operands of %s but lhs is of %s.\n",
                     tree->lineNum,
                     tree->literal,
                     DataTypeToString(boolData),
@@ -193,7 +193,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
             if(tree->child[1]->dataType != boolData) {
                 errs = errs + 1;
                 printf(
-                    "ERROR(%d): '%s' requires operands of type %s but rhs is of type %s.\n",
+                    "ERROR(%d): '%s' requires operands of %s but rhs is of %s.\n",
                     tree->lineNum,
                     tree->literal,
                     DataTypeToString(boolData),
@@ -339,7 +339,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
             if(tree->child[1]->dataType != intData) {
                 errs = errs + 1;
                 printf(
-                    "ERROR(%d): Array '%s' should be indexed by type int but got type %s.\n",
+                    "ERROR(%d): Array '%s' should be indexed by type int but got %s.\n",
                     tree->lineNum,
                     tree->child[0]->literal,
                     DataTypeToString(tree->child[1]->dataType)
