@@ -269,6 +269,17 @@ SymbolTableEntry * FindLoop(ScopeTable * scope) {
     }
 }
 
+SymbolTableEntry * FindMyFunc (ScopeTable * scope) {
+    if(scope->parent != NULL) { // traverse up
+        if(scope->self->node->nodeType == ntFunc) {
+            return scope->self;
+        }
+        return FindMyFunc(scope->parent);
+    } else { // you've reached the top
+        return NULL;
+    }
+}
+
 SymbolTableEntry * FindFuncDecl (SymbolTableEntry *entry, ScopeTable *scope) {
     if(scope->parent == NULL) {
         printf("stop, you're in global lol\n");
