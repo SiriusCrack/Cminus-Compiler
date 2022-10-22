@@ -306,6 +306,15 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                         i+1
                     );
                 }
+                if(tree->child[i]->dataType != intData) {
+                    errs = errs + 1;
+                    printf( // why is "type int" a string in example? weird
+                        "ERROR(%d): Expecting type int in position %d in range of for statement but got %s.\n",
+                        tree->lineNum,
+                        i+1,
+                        DataTypeToString(tree->child[i]->dataType)
+                    );
+                }
             } else {
                 break;
             }
