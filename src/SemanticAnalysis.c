@@ -368,17 +368,49 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         // Self
         tree->dataType = myDataType;
     } else if(IsReturn(tree)) {
-        if(tree->child[0] != NULL) {
-            WriteRefs(tree->child[0], newScope);
+            if(tree->child[0] != NULL) {
+                WriteRefs(tree->child[0], newScope);
+                tree->dataType = tree->child[0]->dataType;
+                tree->isArray = tree->child[0]->isArray;
+            } else {
+                tree->dataType = voidData;
+            }
+            SymbolTableEntry * myFunc = FindMyFunc(newScope);
             // Error Checking
-            if(tree->child[0]->isArray) {
+            if(tree->isArray) {
                 errs = errs + 1;
                 printf(
                     "ERROR(%d): Cannot return an array.\n",
                     tree->lineNum
                 );
+            } else if(myFunc->node->dataType == voidData && tree->dataType != voidData) {
+                errs = errs + 1;
+                printf(
+                    "ERROR(%d): Function '%s' at line %d is expecting no return value, but return has a value.\n",
+                    tree->lineNum,
+                    myFunc->node->literal,
+                    myFunc->node->lineNum
+                );
+            } else if(myFunc->node->dataType != voidData && tree->dataType == voidData) {
+                errs = errs + 1;
+                printf(
+                    "ERROR(%d): Function '%s' at line %d is expecting to return %s but return has no value.\n",
+                    tree->lineNum,
+                    myFunc->node->literal,
+                    myFunc->node->lineNum,
+                    DataTypeToString(myFunc->node->dataType)
+                );
+            } else if(myFunc->node->dataType != tree->dataType) {
+                errs = errs + 1;
+                printf(
+                    "ERROR(%d): Function '%s' at line %d is expecting to return %s but returns %s.\n",
+                    tree->lineNum,
+                    myFunc->node->literal,
+                    myFunc->node->lineNum,
+                    DataTypeToString(myFunc->node->dataType),
+                    DataTypeToString(tree->dataType)
+                );
             }
-        }
     } else if(IsBreak(tree)) {
         // Error Checking
         if(FindLoop(newScope) == NULL) {

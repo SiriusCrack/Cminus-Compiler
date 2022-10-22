@@ -1,6 +1,5 @@
 X "ERROR(%d): '%s' is a simple variable and cannot be called.\n"
-X "ERROR(%d): '%s' requires both operands be arrays or not but lhs is%s an array and
-rhs is%s an array.\n"
+X "ERROR(%d): '%s' requires both operands be arrays or not but lhs is%s an array and rhs is%s an array.\n"
 X "ERROR(%d): '%s' requires operands of %s but lhs is of %s.\n"
 X "ERROR(%d): '%s' requires operands of %s but rhs is of %s.\n"
 X "ERROR(%d): '%s' requires operands of the same type but lhs is %s and rhs is %s.\n"
