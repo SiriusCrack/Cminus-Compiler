@@ -208,6 +208,7 @@ parmId:
     ID ytarr ']' {
         $$ = NewNode($1, ntParmArray); // doesn't clean ytarr
         $$->isDecl = 1;
+        $$->isArray = 1;
     };
 stmt:
     matched {

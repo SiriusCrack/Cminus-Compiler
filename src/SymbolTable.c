@@ -85,7 +85,7 @@ void PrintSymbolTable (ScopeTable * symbolTable) {
             printf(".\t");
         }
         printf(" ");
-        printf("entry [%d]: %d%s i=%d\n", cur->node->lineNum, cur->node->isDecl, cur->node->literal, cur->node->isInitialized);
+        printf("entry [%d]: %d%s i=%d a=%d\n", cur->node->lineNum, cur->node->isDecl, cur->node->literal, cur->node->isInitialized, cur->node->isArray);
         cur = cur->next;
     }
     for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
@@ -141,9 +141,9 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) { //awful spa
                     declParamCount++;
                     Node * cur = myDecl->node->child[0];
                     while(cur->sibling != NULL) {
+                        cur = cur->sibling;
                         declParams[declParamCount] = cur;
                         declParamCount++;
-                        cur = cur->sibling;
                     }
                 }
                 int myParamCount = 0;
@@ -152,29 +152,52 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) { //awful spa
                     myParamCount++;
                     Node * cur = entry->node->child[0];
                     while(cur->sibling != NULL) {
+                        cur = cur->sibling;
                         myParams[myParamCount] = cur;
                         myParamCount++;
-                        cur = cur->sibling;
                     }
                 }
+                int minParamCount = 0;
                 if(declParamCount > myParamCount) {
                     errResult = 4;
-                }
-                if(declParamCount < myParamCount) {
+                    minParamCount = myParamCount;
+                } else if(declParamCount < myParamCount) {
                     errResult = 5;
+                    minParamCount = declParamCount;
                 }
-                for(i = 0; i < declParamCount; i++) {
-                    if(declParams[i]->dataType != declParams[i]->dataType) {
+                for(i = 0; i < minParamCount; i++) {
+                    if(declParams[i]->dataType != myParams[i]->dataType) {
                         errs = errs + 1;
                         printf(
                             "ERROR(%d): Expecting %s in parameter %i of call to '%s' declared on line %d but got %s.\n",
-                            declParams[i]->lineNum,
+                            myParams[i]->lineNum,
                             DataTypeToString(declParams[i]->dataType),
                             i+1,
                             myDecl->node->literal,
                             myDecl->node->lineNum,
                             DataTypeToString(myParams[i]->dataType)
                         );
+                    }
+                    if(declParams[i]->isArray != myParams[i]->isArray) {
+                        if(declParams[i]->isArray && !myParams[i]->isArray) {
+                            errs = errs + 1;
+                            printf(
+                                "ERROR(%d): Expecting array in parameter %i of call to '%s' declared on line %d.\n",
+                                myParams[i]->lineNum,
+                                i+1,
+                                myDecl->node->literal,
+                                myDecl->node->lineNum
+                            );
+                        } else if(!declParams[i]->isArray && myParams[i]->isArray) {
+                            errs = errs + 1;
+                            printf(
+                                "ERROR(%d): Not expecting array in parameter %i of call to '%s' declared on line %d.\n",
+                                myParams[i]->lineNum,
+                                i+1,
+                                myDecl->node->literal,
+                                myDecl->node->lineNum
+                            );
+                        }
                     }
                 }
             }
