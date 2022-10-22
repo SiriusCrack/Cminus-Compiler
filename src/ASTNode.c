@@ -127,12 +127,14 @@ char * DataTypeToString (DataType dataType) {
             return "type char";
         case intData:
             return "type int";
+        case stringData:
+            return "type string";
         default:
             return "unknown";
     }
 }
 
-void SetDataType (char *dataType, Node *node) {
+void SetDataType (char *dataType, Node *node) { // depreciated. dataTypeliteral no longer used
     if(strcmp(dataType, "void") == 0) {
         node->dataType = voidData;
     } else if(strcmp(dataType, "bool") == 0) {
@@ -141,6 +143,8 @@ void SetDataType (char *dataType, Node *node) {
         node->dataType = charData;
     } else if(strcmp(dataType, "int") == 0) {
         node->dataType = intData;
+    } else if(strcmp(dataType, "string") == 0) {
+        node->dataType = stringData;
     } else {
         printf("Attempted to set invalid datatype\n");
         return;
