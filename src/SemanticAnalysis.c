@@ -458,6 +458,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                 tree->dataType = voidData;
             }
             SymbolTableEntry * myFunc = FindMyFunc(newScope);
+            myFunc->node->hasReturn = 1;
             // Error Checking
             if(tree->isArray) {
                 errs = errs + 1;
@@ -590,6 +591,19 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         for(i = 0; i < AST_MAX_CHILDREN; i++) {
             if(tree->child[i] != NULL) {
                 WriteRefs(tree->child[i], newScope);
+            }
+        }
+    }
+    if(tree->nodeType == ntFunc) {
+        if(!tree->hasReturn) {
+            if(tree->dataType != voidData) {
+                errs = errs + 1;
+                printf(
+                    "WARNING(%d): Expecting to return %s but function '%s' has no return statement.\n",
+                    tree->lineNum,
+                    DataTypeToString(tree->dataType),
+                    tree->literal
+                );
             }
         }
     }
