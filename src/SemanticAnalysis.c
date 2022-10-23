@@ -35,9 +35,25 @@ void WriteScopes (Node * node, ScopeTable * table) {
         }
         newScope = NewScope(node);
         AddChildScope(table, newScope);
-    } else if(node->isDecl) { // add declaration to this scope table
+    } else if(node->isDecl) { // guess we're just adding stuff wherever now ig
+        SymbolTableEntry * myDecl = NULL;
         SymbolTableEntry * newEntry = NewEntry(node);
-        AddEntryToScope(newEntry, newScope);
+        if(node->nodeType == ntFunc) {
+            myDecl = FindFuncDecl(newEntry, newScope);
+        } else {
+            myDecl = FindReDecl(newEntry, newScope);
+        }
+        if(myDecl != NULL) {
+            errs = errs + 1;
+            printf(
+                "ERROR(%d): Symbol '%s' is already declared at line %d.\n",
+                node->lineNum,
+                node->literal,
+                myDecl->node->lineNum
+            );
+        } else {
+            AddEntryToScope(newEntry, newScope);
+        }
         if(node->isInitialized) { // roundabout way to check for that weird "var:data" grammar. should definitely move at some point.
             if(node->child[0] != NULL) {
                 WriteRefs(node->child[0], newScope);

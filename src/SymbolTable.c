@@ -258,6 +258,38 @@ SymbolTableEntry * FindDecl(SymbolTableEntry * entry, ScopeTable * scope) {
     }
 }
 
+SymbolTableEntry * FindReDecl(SymbolTableEntry * entry, ScopeTable * scope) {
+    // Search this scope
+    if(scope->symbolTable != NULL) {
+        SymbolTableEntry * cur = scope->symbolTable;
+        while(cur != NULL) {
+            if(cur->isDecl) {
+                if(strcmp(cur->node->literal, entry->node->literal) == 0) { // found match
+                    return cur;
+                }
+            }
+            cur = cur->next;
+        }
+    }
+    // Search forloop decls
+    if(scope->parent != NULL) { // traverse up
+        if(scope->parent->self != NULL) { //check not global 
+            if(scope->parent->self->node->nodeType == ntTo) {
+                SymbolTableEntry * cur = scope->parent->symbolTable;
+                while(cur != NULL) {
+                    if(cur->isDecl) {
+                        if(strcmp(cur->node->literal, entry->node->literal) == 0) { // found match
+                            return cur;
+                        }
+                    }
+                    cur = cur->next;
+                }
+            }
+        }
+    }
+    return NULL;
+}
+
 SymbolTableEntry * FindLoop(ScopeTable * scope) {
     if(scope->parent != NULL) { // traverse up
         if(scope->self->node->isLoop) {
