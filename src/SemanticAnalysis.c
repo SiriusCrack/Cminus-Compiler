@@ -603,13 +603,15 @@ void CheckMain (ScopeTable *table) {
     for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
         if(table->child[i] != NULL) {
             if(strcmp("main", table->child[i]->scopeName) == 0) {
-                return;
+                if(table->child[i]->symbolTable == NULL) {
+                    return;
+                }
             }
         } else {
             break;
         }
     }
-    printf("ERROR(LINKER): A function named 'main()' must be defined.\n");
+    printf("ERROR(LINKER): A function named 'main' with no parameters must be defined.\n");
 }
 
 void CheckUse (ScopeTable *table) {
