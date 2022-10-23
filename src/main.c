@@ -40,7 +40,6 @@ int main (int argc, char * argv[]) {
         PrintTree(AST, 0);
         WriteScopes(AST, SymbolTable);
         CheckMain(SymbolTable);
-        // printf("nani\n");
         WriteRefs(AST, SymbolTable);
         CheckUse(SymbolTable);
         PrintSymbolTable(SymbolTable);
