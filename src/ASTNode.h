@@ -91,6 +91,7 @@ struct Node {
 Node * NewNode (Token, NodeType);
 Node * AddSibling (Node * treePtr, Node * newSibling);
 Node * AddChild (Node * treePtr, Node * newChild);
+char * IsArrayToASTString(int isArray);
 char * NodeTypeToString(NodeType nodeType);
 char * DataTypeToString (DataType dataType);
 void SetDataType (char *dataType, Node *node);

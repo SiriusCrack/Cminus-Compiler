@@ -108,6 +108,15 @@ Node * AddChild (Node * treePtr, Node * newChild) {
     }
 }
 
+char * IsArrayToASTString(int isArray) {
+    switch(isArray) {
+        case 1:
+            return "is array ";
+        default:
+            return "";
+    }
+}
+
 char * NodeTypeToString(NodeType nodeType) {
     switch(nodeType) {
         case ntIter:
@@ -339,10 +348,10 @@ void PrintAnnotatedTree (Node * AST, int level) {
             }
             switch (cur->nodeType) {
                 case ntVar:
-                    printf("Var: %s of type %s ", cur->value.str, cur->dataTypeLiteral);
+                    printf("Var: %s %sof type %s ", cur->value.str, IsArrayToASTString(cur->isArray), cur->dataTypeLiteral);
                     break;
                 case ntStaticVar:
-                    printf("Var: %s of type %s ", cur->value.str, cur->dataTypeLiteral);
+                    printf("Var: %s %sof type %s ", cur->value.str, IsArrayToASTString(cur->isArray), cur->dataTypeLiteral);
                     break;
                 case ntFunc:
                     printf("Func: %s returns type %s ", cur->value.str, cur->dataTypeLiteral);

@@ -8,7 +8,7 @@ extern ScopeTable * SymbolTable;
 extern int warns;
 extern int errs;
 
-char * IsArrayToString(int isArray);
+char * IsArrayToSemanticString(int isArray);
 int IsScope (Node * node);
 int IsNewEntry (Node * node);
 int IsOp (Node * node);
@@ -73,8 +73,8 @@ void WriteScopes (Node * node, ScopeTable * table) {
                         "ERROR(%d): Initializer for variable '%s' requires both operands be arrays or not but variable is%s an array and rhs is%s an array.\n",
                         node->lineNum,
                         node->literal,
-                        IsArrayToString(node->isArray),
-                        IsArrayToString(node->child[0]->isArray)
+                        IsArrayToSemanticString(node->isArray),
+                        IsArrayToSemanticString(node->child[0]->isArray)
                     );
                 } else if(!node->child[0]->isConst) {
                     errs = errs + 1;
@@ -161,8 +161,8 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                 "ERROR(%d): '%s' requires both operands be arrays or not but lhs is%s an array and rhs is%s an array.\n",
                 tree->lineNum,
                 tree->literal,
-                IsArrayToString(IsArray(tree->child[0])),
-                IsArrayToString(IsArray(tree->child[1]))
+                IsArrayToSemanticString(IsArray(tree->child[0])),
+                IsArrayToSemanticString(IsArray(tree->child[1]))
             );
             myDataType = unknown;
         } else if((tree->child[0]->dataType != unknown) && (tree->child[1]->dataType != unknown)) {
@@ -208,8 +208,8 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                 "ERROR(%d): '%s' requires both operands be arrays or not but lhs is%s an array and rhs is%s an array.\n",
                 tree->lineNum,
                 tree->literal,
-                IsArrayToString(IsArray(tree->child[0])),
-                IsArrayToString(IsArray(tree->child[1]))
+                IsArrayToSemanticString(IsArray(tree->child[0])),
+                IsArrayToSemanticString(IsArray(tree->child[1]))
             );
             myDataType = unknown;
         }
@@ -683,7 +683,7 @@ void CheckUse (ScopeTable *table) {
     }
 }
 
-char * IsArrayToString(int isArray) {
+char * IsArrayToSemanticString(int isArray) {
     if(isArray) {
         return "";
     } else {
