@@ -337,14 +337,16 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                 tree->lineNum
             );
             myDataType = unknown;
-        } else if(tree->nodeType == ntSignOp && tree->child[0]->dataType != intData) {
-            errs = errs + 1;
-            printf(
-                "ERROR(%d): Unary 'chsign' requires an operand of type int but was given %s.\n",
-                tree->lineNum,
-                DataTypeToString(tree->child[0]->dataType)
-            );
-            myDataType = unknown;
+        } else if(tree->child[0]->dataType != unknown) {
+            if(tree->nodeType == ntSignOp && tree->child[0]->dataType != intData) {
+                errs = errs + 1;
+                printf(
+                    "ERROR(%d): Unary 'chsign' requires an operand of type int but was given %s.\n",
+                    tree->lineNum,
+                    DataTypeToString(tree->child[0]->dataType)
+                );
+                myDataType = unknown;
+            }
         }
         // Self
         tree->dataType = myDataType;
