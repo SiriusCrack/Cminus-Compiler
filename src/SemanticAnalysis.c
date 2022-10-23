@@ -617,7 +617,8 @@ void CheckMain (ScopeTable *table) {
     for(i = 0; i < SCOPE_MAX_CHILDREN; i++) {
         if(table->child[i] != NULL) {
             if(strcmp("main", table->child[i]->scopeName) == 0) {
-                if(table->child[i]->symbolTable == NULL) {
+                if(table->child[i]->self->node->child[0] == NULL) {
+                    table->child[i]->isIO = 1;
                     return;
                 }
             }
@@ -632,13 +633,15 @@ void CheckMain (ScopeTable *table) {
 void CheckUse (ScopeTable *table) {
     if(!table->isIO) {
         if(table->self != NULL) {
-            if(table->self->followers[0] == NULL) {
-                warns = warns + 1;
-                printf(
-                    "WARNING(%d): The function '%s' seems not to be used.\n",
-                    table->self->node->lineNum,
-                    table->self->node->literal
-                );
+            if(table->self->node->nodeType == ntFunc) {
+                if(table->self->followers[0] == NULL) {
+                    warns = warns + 1;
+                    printf(
+                        "WARNING(%d): The function '%s' seems not to be used.\n",
+                        table->self->node->lineNum,
+                        table->self->node->literal
+                    );
+                }
             }
         }
     }
