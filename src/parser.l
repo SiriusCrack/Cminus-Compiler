@@ -62,6 +62,7 @@ int checkBool (char * str) {
 }
 
 static int setToken (int lineNum, int tokenClass, char * literal) {
+    printf("%s\n", literal);
     yylval.token.tokenClass = tokenClass;
     yylval.token.lineNum = lineNum;
     yylval.token.literal = strdup(literal);

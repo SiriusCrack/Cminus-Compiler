@@ -22,6 +22,7 @@ ScopeTable * NewGlobalScope () {
         }
         newScope->scopeName = strdup("Global");
         newScope->depth = 0;
+        newScope->isIO = 0;
         newScope->self = NULL;
         newScope->symbolTable = NULL;
         return newScope;
@@ -41,6 +42,7 @@ ScopeTable * NewScope (Node * node) {
         }
         newScope->scopeName = node->literal;
         newScope->depth = 0;
+        newScope->isIO = 0;
         newScope->self = NewEntry(node);
         newScope->symbolTable = NULL;
         node->entry = newScope->self;
@@ -203,6 +205,14 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) { //awful spa
             }
         } else {
             if(FindFuncDecl(entry, scope) != NULL) {
+                myDecl = FindFuncDecl(entry, scope);
+                entry->following = myDecl;
+                int i;
+                for(i = 0; i < ENTRY_MAX_FOLLOWERS; i++) {
+                    if(myDecl->followers[i] == NULL) {
+                        myDecl->followers[i] = entry;
+                    }
+                }
                 return 3;
             } else {
                 myDecl = FindDecl(entry, scope);

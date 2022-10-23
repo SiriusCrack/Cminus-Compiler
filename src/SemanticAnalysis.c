@@ -597,7 +597,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
     if(tree->nodeType == ntFunc) {
         if(!tree->hasReturn) {
             if(tree->dataType != voidData) {
-                errs = errs + 1;
+                warns = warns + 1;
                 printf(
                     "WARNING(%d): Expecting to return %s but function '%s' has no return statement.\n",
                     tree->lineNum,
@@ -625,22 +625,44 @@ void CheckMain (ScopeTable *table) {
             break;
         }
     }
+    errs = errs + 1;
     printf("ERROR(LINKER): A function named 'main' with no parameters must be defined.\n");
 }
 
 void CheckUse (ScopeTable *table) {
+    if(!table->isIO) {
+        if(table->self != NULL) {
+            if(table->self->followers[0] == NULL) {
+                warns = warns + 1;
+                printf(
+                    "WARNING(%d): The function '%s' seems not to be used.\n",
+                    table->self->node->lineNum,
+                    table->self->node->literal
+                );
+            }
+        }
+    }
     int i = 0;
     SymbolTableEntry *cur = table->symbolTable;
     while(cur != NULL) {
         if(cur->node->literal[0] != '*') {
             if(cur->isDecl) {
                 if(cur->followers[0] == NULL) {
-                    warns = warns + 1;
-                    printf(
-                        "WARNING(%d): The variable '%s' seems not to be used.\n",
-                        cur->node->lineNum,
-                        cur->node->literal
-                    );
+                    if(cur->node->nodeType == ntParm || cur->node->nodeType == ntParmArray) {
+                        warns = warns + 1;
+                        printf(
+                            "WARNING(%d): The parameter '%s' seems not to be used.\n",
+                            cur->node->lineNum,
+                            cur->node->literal
+                        );
+                    } else {
+                        warns = warns + 1;
+                        printf(
+                            "WARNING(%d): The variable '%s' seems not to be used.\n",
+                            cur->node->lineNum,
+                            cur->node->literal
+                        );
+                    }
                 }
             }
         }

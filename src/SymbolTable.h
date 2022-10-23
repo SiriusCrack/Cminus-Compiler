@@ -28,6 +28,7 @@ struct ScopeTable {
     // Info
     char * scopeName; // name of this scope
     int depth;
+    int isIO;
     SymbolTableEntry *self;
     SymbolTableEntry * symbolTable; //pointer to the vector of symbols in this scope
 };

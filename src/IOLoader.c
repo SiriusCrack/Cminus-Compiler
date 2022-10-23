@@ -19,6 +19,7 @@ Node * fudgeTable (Node * node, ScopeTable * table) {
         node->isDecl = 1;
         node->isInitialized = 1;
         newScope = NewScope(node);
+        newScope->isIO = 1;
         AddChildScope(table, newScope);
     } else if (node->nodeType == ntParm) {
         node->isDecl = 1;
