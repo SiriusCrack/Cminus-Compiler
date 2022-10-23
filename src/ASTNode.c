@@ -342,7 +342,7 @@ void PrintAnnotatedTree (Node * AST, int level) {
                     printf("Var: %s of type %s ", cur->value.str, cur->dataTypeLiteral);
                     break;
                 case ntStaticVar:
-                    printf("Var: %s of static type %s ", cur->value.str, cur->dataTypeLiteral);
+                    printf("Var: %s of type %s ", cur->value.str, cur->dataTypeLiteral);
                     break;
                 case ntFunc:
                     printf("Func: %s returns type %s ", cur->value.str, cur->dataTypeLiteral);
@@ -357,53 +357,53 @@ void PrintAnnotatedTree (Node * AST, int level) {
                     printf("Compound ");
                     break;
                 case ntAssign:
-                    printf("Assign: %s ", cur->value.str);
+                    printf("Assign: %s of %s ", cur->value.str, DataTypeToString(cur->dataType));
                     break;
                 case ntTrueAssign:
-                    printf("Assign: %s ", cur->value.str);
+                    printf("Assign: %s of %s ", cur->value.str, DataTypeToString(cur->dataType));
                     break;
                 case ntID:
-                    printf("Id: %s ", cur->value.str);
+                    printf("Id: %s of %s ", cur->value.str, DataTypeToString(cur->dataType));
                     break;
                 case ntNumConst:
-                    printf("Const %d ", cur->value.integer);
+                    printf("Const %d of %s ", cur->value.integer, DataTypeToString(cur->dataType));
                     break;
                 case ntCharConst:
-                    printf("Const \'%c\' ", cur->value.character);
+                    printf("Const \'%c\' of %s ", cur->value.character, DataTypeToString(cur->dataType));
                     break;
                 case ntStringConst:
-                    printf("Const \"%s\" ", cur->value.str);
+                    printf("Const \"%s\" of %s ", cur->value.str, DataTypeToString(cur->dataType));
                     break;
                 case ntBoolConst:
                     if(cur->value.integer == 1) {
-                        printf("Const true ");
+                        printf("Const true of type bool ");
                     } else {
-                        printf("Const false ");
+                        printf("Const false of type bool ");
                     }
                     break;
                 case ntReturn:
                     printf("Return ");
                     break;
                 case ntOp:
-                    printf("Op: %s ", cur->value.str);
+                    printf("Op: %s of %s ", cur->value.str, DataTypeToString(cur->dataType));
                     break;
                 case ntRelOp:
-                    printf("Op: %s ", cur->value.str);
+                    printf("Op: %s of %s ", cur->value.str, DataTypeToString(cur->dataType));
                     break;
                 case ntCall:
-                    printf("Call: %s ", cur->value.str);
+                    printf("Call: %s of %s ", cur->value.str, DataTypeToString(cur->dataType));
                     break;
                 case ntIf:
                     printf("If ");
                     break;
                 case ntVarArray:
-                    printf("Var: %s of array of type %s ", cur->value.str, cur->dataTypeLiteral);
+                    printf("Var: %s is array of type %s ", cur->value.str, cur->dataTypeLiteral);
                     break;
                 case ntParmArray:
-                    printf("Parm: %s of array of type %s ", cur->value.str, cur->dataTypeLiteral);
+                    printf("Parm: %s is array of type %s ", cur->value.str, cur->dataTypeLiteral);
                     break;
                 case ntArrAd:
-                    printf("Op: [ ");
+                    printf("Op: [ of %s ", DataTypeToString(cur->dataType));
                     break;
                 case ntIter:
                     printf("While ");
@@ -424,22 +424,22 @@ void PrintAnnotatedTree (Node * AST, int level) {
                     printf("Range ");
                     break;
                 case ntSignOp:
-                    printf("Op: chsign ");
+                    printf("Op: chsign of %s ", DataTypeToString(cur->dataType));
                     break;
                 case ntNotOp:
-                    printf("Op: not ");
+                    printf("Op: not of %s ", DataTypeToString(cur->dataType));
                     break;
                 case ntOrOp:
-                    printf("Op: or ");
+                    printf("Op: or of %s ", DataTypeToString(cur->dataType));
                     break;
                 case ntAndOp:
-                    printf("Op: and ");
+                    printf("Op: and of %s ", DataTypeToString(cur->dataType));
                     break;
                 case ntSizeofOp:
-                    printf("Op: sizeof ");
+                    printf("Op: sizeof of %s ", DataTypeToString(cur->dataType));
                     break;
                 case ntQuestOp:
-                    printf("Op: ? ");
+                    printf("Op: ? of %s ", DataTypeToString(cur->dataType));
                     break;
                 default:
                     printf("unknown node\n");
