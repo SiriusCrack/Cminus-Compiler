@@ -30,8 +30,8 @@ X "ERROR(%d): Too few parameters passed for function '%s' declared on line %d.\n
 X "ERROR(%d): Too many parameters passed for function '%s' declared on line %d.\n"
 X "ERROR(%d): Unary '%s' requires an operand of %s but was given %s.\n"
 X "ERROR(LINKER): A function named 'main' with no parameters must be defined.\n");
-"WARNING(%d): Expecting to return %s but function '%s' has no return statement.\n"
-"WARNING(%d): The function '%s' seems not to be used.\n"
-"WARNING(%d): The parameter '%s' seems not to be used.\n"
-"WARNING(%d): The variable '%s' seems not to be used.\n"
-"WARNING(%d): Variable '%s' may be uninitialized when used here.\n"
+X "WARNING(%d): Expecting to return %s but function '%s' has no return statement.\n"
+X "WARNING(%d): The function '%s' seems not to be used.\n"
+X "WARNING(%d): The parameter '%s' seems not to be used.\n"
+X "WARNING(%d): The variable '%s' seems not to be used.\n"
+X "WARNING(%d): Variable '%s' may be uninitialized when used here.\n"
