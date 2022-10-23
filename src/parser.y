@@ -555,18 +555,22 @@ constant:
     NUMCONST {
         $$ = NewNode($1, ntNumConst);
         $$->isInitialized = 1;
+        $$->isConst = 1;
     }|
     CHARCONST {
         $$ = NewNode($1, ntCharConst);
         $$->isInitialized = 1;
+        $$->isConst = 1;
     }|
     STRINGCONST {
         $$ = NewNode($1, ntStringConst);
         $$->isInitialized = 1;
+        $$->isConst = 1;
     }|
     BOOLCONST {
         $$ = NewNode($1, ntBoolConst);
         $$->isInitialized = 1;
+        $$->isConst = 1;
     };
 
 %%

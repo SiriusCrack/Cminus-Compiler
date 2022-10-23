@@ -75,6 +75,7 @@ struct Node {
     int isInitialized;
     int isArray;
     int isLoop;
+    int isConst;
     DataType dataType;
     char *dataTypeLiteral; // should probably get rid of this, but would reworking PrintTree()
     

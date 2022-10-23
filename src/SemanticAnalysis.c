@@ -38,6 +38,41 @@ void WriteScopes (Node * node, ScopeTable * table) {
     } else if(node->isDecl) { // add declaration to this scope table
         SymbolTableEntry * newEntry = NewEntry(node);
         AddEntryToScope(newEntry, newScope);
+        if(node->isInitialized) { // roundabout way to check for that weird "var:data" grammar. should definitely move at some point.
+            if(node->child[0] != NULL) {
+                WriteRefs(node->child[0], newScope);
+                if(
+                    (node->dataType != unknown) &&
+                    (node->child[0]->dataType != unknown) &&
+                    (node->dataType != node->child[0]->dataType)
+                ) {
+                    errs = errs + 1;
+                    printf(
+                        "ERROR(%d): Initializer for variable '%s' of %s is of %s\n",
+                        node->lineNum,
+                        node->literal,
+                        DataTypeToString(node->dataType),
+                        DataTypeToString(node->child[0]->dataType)
+                    );
+                } else if(node->isArray != node->child[0]->isArray) {
+                    errs = errs + 1;
+                    printf(
+                        "ERROR(%d): Initializer for variable '%s' requires both operands be arrays or not but variable is%s an array and rhs is%s an array.\n",
+                        node->lineNum,
+                        node->literal,
+                        IsArrayToString(node->isArray),
+                        IsArrayToString(node->child[0]->isArray)
+                    );
+                } else if(!node->child[0]->isConst) {
+                    errs = errs + 1;
+                    printf(
+                        "ERROR(%d): Initializer for variable '%s' is not a constant expression.\n",
+                        node->lineNum,
+                        node->literal
+                    );
+                }
+            }
+        }
     }
     // Traversal
     int i;
@@ -95,6 +130,9 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         }
         // Self
         tree->dataType = myDataType;
+        if(tree->child[0]->isConst && tree->child[1]->isConst) {
+            tree->isConst = 1;
+        }
     } else if(IsAssign(tree)) {
         // Setup and Recursion
         DataType myDataType = unknown;
@@ -164,6 +202,9 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         }
         // Self
         tree->dataType = myDataType;
+        if(tree->child[0]->isConst && tree->child[1]->isConst) {
+            tree->isConst = 1;
+        }
     } else if(IsCmp(tree)) {
         // Setup and Recursion
         DataType myDataType = unknown;
@@ -203,6 +244,9 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         }
         // Self
         tree->dataType = myDataType;
+        if(tree->child[0]->isConst && tree->child[1]->isConst) {
+            tree->isConst = 1;
+        }
     } else if(IsIncDec(tree)) {
         // Setup and Recursion
         DataType myDataType = unknown;
@@ -220,6 +264,9 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         }
         // Self
         tree->dataType = myDataType;
+        if(tree->child[0]->isConst) {
+            tree->isConst = 1;
+        }
     } else if(IsUnaryCmp(tree)) {
         // Setup and Recursion
         DataType myDataType = unknown;
@@ -236,6 +283,9 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         }
         // Self
         tree->dataType = myDataType;
+        if(tree->child[0]->isConst) {
+            tree->isConst = 1;
+        }
     } else if(IsUnary(tree)) {
         // Setup and Recursion
         DataType myDataType = unknown;
