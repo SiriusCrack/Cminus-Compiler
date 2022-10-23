@@ -35,7 +35,7 @@ void WriteScopes (Node * node, ScopeTable * table) {
         }
         newScope = NewScope(node);
         AddChildScope(table, newScope);
-    } else if(node->isDecl) { // guess we're just adding stuff wherever now ig
+    } else if(node->isDecl) { // guess we're just adding stuff wherever now ok
         SymbolTableEntry * myDecl = NULL;
         SymbolTableEntry * newEntry = NewEntry(node);
         if(node->nodeType == ntFunc) {
