@@ -30,9 +30,6 @@ void WriteScopes (Node * node, ScopeTable * table) {
     // Action
     ScopeTable * newScope = table;
     if(IsScope(node)) { // add scope table
-        if(node->parent != NULL) {
-            node->isLoop = node->parent->isLoop;
-        }
         newScope = NewScope(node);
         AddChildScope(table, newScope);
     } else if(node->isDecl) { // guess we're just adding stuff wherever now ok
