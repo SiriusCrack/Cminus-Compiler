@@ -296,6 +296,14 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                 tree->lineNum
             );
             myDataType = unknown;
+        } else if(tree->child[0]->dataType != boolData && tree->child[0]->dataType != unknown) {
+            errs = errs + 1;
+            printf(
+                "ERROR(%d): Unary 'not' requires an operand of type bool but was given %s.\n",
+                tree->lineNum,
+                DataTypeToString(tree->child[0]->dataType)
+            );
+            myDataType = unknown;
         }
         // Self
         tree->dataType = myDataType;
@@ -327,6 +335,14 @@ void WriteRefs (Node * tree, ScopeTable * table) {
             printf(
                 "ERROR(%d): The operation '?' does not work with arrays.\n",
                 tree->lineNum
+            );
+            myDataType = unknown;
+        } else if(tree->nodeType == ntSignOp && tree->child[0]->dataType != intData) {
+            errs = errs + 1;
+            printf(
+                "ERROR(%d): Unary 'chsign' requires an operand of type int but was given %s.\n",
+                tree->lineNum,
+                DataTypeToString(tree->child[0]->dataType)
             );
             myDataType = unknown;
         }
