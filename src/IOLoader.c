@@ -51,5 +51,6 @@ Node * LoadIO () {
     AddChild(tree->sibling->sibling->sibling->sibling->sibling, fudgeNode("*dummy*", ntParm));
     AddSibling(tree, fudgeNode("outnl", ntFunc));
     fudgeTable(tree, SymbolTable);
+    tree->dataType = intData;
     return tree;
 }
