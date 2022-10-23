@@ -397,14 +397,16 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                         i+1
                     );
                 }
-                if(tree->child[i]->dataType != intData) {
-                    errs = errs + 1;
-                    printf( // why is "type int" a string in example? weird
-                        "ERROR(%d): Expecting type int in position %d in range of for statement but got %s.\n",
-                        tree->lineNum,
-                        i+1,
-                        DataTypeToString(tree->child[i]->dataType)
-                    );
+                if(tree->child[i]->dataType != unknown) {
+                    if(tree->child[i]->dataType != intData) {
+                        errs = errs + 1;
+                        printf( // why is "type int" a string in example? weird
+                            "ERROR(%d): Expecting type int in position %d in range of for statement but got %s.\n",
+                            tree->lineNum,
+                            i+1,
+                            DataTypeToString(tree->child[i]->dataType)
+                        );
+                    }
                 }
             } else {
                 break;
@@ -542,6 +544,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                     tree->lineNum,
                     tree->literal
                 );
+                tree->entry->following->node->isInitialized = 1;
             }
             tree->dataType = tree->entry->following->node->dataType;
             tree->isArray = tree->entry->following->node->isArray;
