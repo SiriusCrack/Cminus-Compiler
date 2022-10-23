@@ -18,6 +18,7 @@ Node * fudgeTable (Node * node, ScopeTable * table) {
     if(node->nodeType == ntFunc) {
         node->isDecl = 1;
         node->isInitialized = 1;
+        node->dataType = voidData;
         newScope = NewScope(node);
         newScope->isIO = 1;
         AddChildScope(table, newScope);

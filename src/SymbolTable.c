@@ -128,6 +128,7 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) { //awful spa
                     return 2;
                 }
             } else {
+                entry->node->dataType = myDecl->node->dataType;
                 int i;
                 Node * declParams[10];
                 for(i = 0; i < 10; i++) {
@@ -204,7 +205,7 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) { //awful spa
                 }
             }
         } else {
-            if(FindFuncDecl(entry, scope) != NULL) {
+            if(FindFuncDecl(entry, scope) != NULL) { //used func as a var 
                 myDecl = FindFuncDecl(entry, scope);
                 entry->following = myDecl;
                 int i;
