@@ -234,6 +234,7 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) { //awful spa
     // Add to scope
     if(scope->symbolTable == NULL) {
         scope->symbolTable = entry;
+        return errResult;
     } else {
         // Abomination of a traversal if i ever saw one
         SymbolTableEntry * cur = scope->symbolTable;
