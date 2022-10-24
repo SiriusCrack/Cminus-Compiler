@@ -289,18 +289,20 @@ SymbolTableEntry * FindReDecl(SymbolTableEntry * entry, ScopeTable * scope) {
         }
     }
     // Search forloop decls
-    if(scope->self->node->nodeType == ntCompound) {
-        if(scope->parent != NULL) { // traverse up
-            if(scope->parent->self != NULL) { //check not global 
-                if(scope->parent->self->node->nodeType == ntTo) {
-                    SymbolTableEntry * cur = scope->parent->symbolTable;
-                    while(cur != NULL) {
-                        if(cur->isDecl) {
-                            if(strcmp(cur->node->literal, entry->node->literal) == 0) { // found match
-                                return cur;
+    if(scope->self != NULL) {
+        if(scope->self->node->nodeType == ntCompound) {
+            if(scope->parent != NULL) { // traverse up
+                if(scope->parent->self != NULL) { //check not global 
+                    if(scope->parent->self->node->nodeType == ntTo) {
+                        SymbolTableEntry * cur = scope->parent->symbolTable;
+                        while(cur != NULL) {
+                            if(cur->isDecl) {
+                                if(strcmp(cur->node->literal, entry->node->literal) == 0) { // found match
+                                    return cur;
+                                }
                             }
+                            cur = cur->next;
                         }
-                        cur = cur->next;
                     }
                 }
             }
