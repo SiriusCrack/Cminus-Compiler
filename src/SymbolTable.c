@@ -134,6 +134,8 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) { //awful spa
                         }
                     }
                     return 2;
+                } else {
+                    return 0;
                 }
             } else {
                 entry->node->dataType = myDecl->node->dataType;
@@ -178,41 +180,43 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) { //awful spa
                 } else {
                     minParamCount = declParamCount;
                 }
-                for(i = 0; i < minParamCount; i++) {
-                    if(declParams[i]->dataType != unknown) {
-                        myParams[i]->dataType = declParams[i]->dataType;
-                        if(declParams[i]->dataType != myParams[i]->dataType) {
-                            errs = errs + 1;
-                            printf(
-                                "ERROR(%d): Expecting %s in parameter %i of call to '%s' declared on line %d but got %s.\n",
-                                myParams[i]->lineNum,
-                                DataTypeToString(declParams[i]->dataType),
-                                i+1,
-                                myDecl->node->literal,
-                                myDecl->node->lineNum,
-                                DataTypeToString(myParams[i]->dataType)
-                            );
-                        }
-                        if(declParams[i]->isArray != myParams[i]->isArray) {
-                            if(declParams[i]->isArray && !myParams[i]->isArray) {
+                if(strcmp(myDecl->node->literal, "main")) {
+                    for(i = 0; i < minParamCount; i++) {
+                        if(declParams[i]->dataType != unknown && myParams[i]->dataType) {
+                            if(declParams[i]->dataType != myParams[i]->dataType) {
                                 errs = errs + 1;
                                 printf(
-                                    "ERROR(%d): Expecting array in parameter %i of call to '%s' declared on line %d.\n",
+                                    "ERROR(%d): Expecting %s in parameter %i of call to '%s' declared on line %d but got %s.\n",
                                     myParams[i]->lineNum,
+                                    DataTypeToString(declParams[i]->dataType),
                                     i+1,
                                     myDecl->node->literal,
-                                    myDecl->node->lineNum
-                                );
-                            } else if(!declParams[i]->isArray && myParams[i]->isArray) {
-                                errs = errs + 1;
-                                printf(
-                                    "ERROR(%d): Not expecting array in parameter %i of call to '%s' declared on line %d.\n",
-                                    myParams[i]->lineNum,
-                                    i+1,
-                                    myDecl->node->literal,
-                                    myDecl->node->lineNum
+                                    myDecl->node->lineNum,
+                                    DataTypeToString(myParams[i]->dataType)
                                 );
                             }
+                            if(declParams[i]->isArray != myParams[i]->isArray) {
+                                if(declParams[i]->isArray && !myParams[i]->isArray) {
+                                    errs = errs + 1;
+                                    printf(
+                                        "ERROR(%d): Expecting array in parameter %i of call to '%s' declared on line %d.\n",
+                                        myParams[i]->lineNum,
+                                        i+1,
+                                        myDecl->node->literal,
+                                        myDecl->node->lineNum
+                                    );
+                                } else if(!declParams[i]->isArray && myParams[i]->isArray) {
+                                    errs = errs + 1;
+                                    printf(
+                                        "ERROR(%d): Not expecting array in parameter %i of call to '%s' declared on line %d.\n",
+                                        myParams[i]->lineNum,
+                                        i+1,
+                                        myDecl->node->literal,
+                                        myDecl->node->lineNum
+                                    );
+                                }
+                            }
+                            myParams[i]->dataType = declParams[i]->dataType;
                         }
                     }
                 }

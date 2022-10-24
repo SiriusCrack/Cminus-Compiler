@@ -74,6 +74,7 @@ scopedVarDecl:
         Node * cur = $3;
         while(cur != NULL) {
             SetDataType($2, cur);
+            cur->isInitialized = 1;
             if(cur->sibling != NULL) {
                 cur = cur->sibling;
             } else {

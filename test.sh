@@ -1,4 +1,4 @@
-TESTBATCH=finished
+TESTBATCH=working
 
 for i in ./TestData/$TESTBATCH/*.c-; do
 	echo $i

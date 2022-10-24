@@ -86,6 +86,9 @@ void WriteScopes (Node * node, ScopeTable * table) {
                 }
             }
         }
+        if(newScope->self == NULL) {
+            node->isInitialized = 1;
+        }
     }
     // Traversal
     int i;
@@ -167,13 +170,29 @@ void WriteRefs (Node * tree, ScopeTable * table) {
             myDataType = unknown;
         } else if((tree->child[0]->dataType != unknown) && (tree->child[1]->dataType != unknown)) {
             if(tree->child[0]->dataType != tree->child[1]->dataType) {
-                if((tree->child[0]->dataType != unknown) && (tree->child[1]->dataType != unknown)) { //why tho??
+                if(tree->literal[0] == '=') {
                     errs = errs + 1;
                     printf(
                         "ERROR(%d): '%s' requires operands of the same type but lhs is %s and rhs is %s.\n",
                         tree->lineNum,
                         tree->literal,
                         DataTypeToString(tree->child[0]->dataType),
+                        DataTypeToString(tree->child[1]->dataType)
+                    );
+                } else if(tree->child[0]->dataType != intData) {
+                    errs = errs + 1;
+                    printf(
+                        "ERROR(%d): '%s' requires operands of type int but lhs is of %s.\n",
+                        tree->lineNum,
+                        tree->literal,
+                        DataTypeToString(tree->child[0]->dataType)
+                    );
+                } else if(tree->child[1]->dataType != intData) {
+                    errs = errs + 1;
+                    printf(
+                        "ERROR(%d): '%s' requires operands of type int but rhs is of %s.\n",
+                        tree->lineNum,
+                        tree->literal,
                         DataTypeToString(tree->child[1]->dataType)
                     );
                 }
@@ -319,21 +338,21 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                 "ERROR(%d): The operation 'chsign' does not work with arrays.\n",
                 tree->lineNum
             );
-            myDataType = unknown;
+            // myDataType = unknown;
         } else if(tree->nodeType == ntSizeofOp && !IsArray(tree->child[0])) {
             errs = errs + 1;
             printf(
                 "ERROR(%d): The operation 'sizeof' only works with arrays.\n",
                 tree->lineNum
             );
-            myDataType = unknown;
+            // myDataType = unknown;
         } else if(tree->nodeType == ntQuestOp && IsArray(tree->child[0])) {
             errs = errs + 1;
             printf(
                 "ERROR(%d): The operation '?' does not work with arrays.\n",
                 tree->lineNum
             );
-            myDataType = unknown;
+            // myDataType = unknown;
         } else if(tree->child[0]->dataType != unknown) {
             if(tree->nodeType == ntSignOp && tree->child[0]->dataType != intData) {
                 errs = errs + 1;
@@ -342,7 +361,15 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                     tree->lineNum,
                     DataTypeToString(tree->child[0]->dataType)
                 );
-                myDataType = unknown;
+                // myDataType = unknown;
+            } else if(tree->nodeType == ntQuestOp && tree->child[0]->dataType != intData) {
+                errs = errs + 1;
+                printf(
+                    "ERROR(%d): Unary '?' requires an operand of type int but was given %s.\n",
+                    tree->lineNum,
+                    DataTypeToString(tree->child[0]->dataType)
+                );
+                // myDataType = unknown;
             }
         }
         // Self
@@ -427,7 +454,6 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                 tree->lineNum,
                 tree->child[0]->literal
             );
-            myDataType = unknown;
         }
         if(tree->child[1]->isArray && tree->child[1]->child[1] == NULL) {
             errs = errs + 1;
@@ -436,7 +462,6 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                 tree->lineNum,
                 tree->child[1]->literal
             );
-            myDataType = unknown;
         }
         if((tree->child[0]->dataType != unknown) && (tree->child[1]->dataType != unknown)) {
             if(tree->child[1]->dataType != intData) {
@@ -447,7 +472,6 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                     tree->child[0]->literal,
                     DataTypeToString(tree->child[1]->dataType)
                 );
-                myDataType = unknown;
             }
         }
         // Self
@@ -638,13 +662,15 @@ void CheckUse (ScopeTable *table) {
     if(!table->isIO) {
         if(table->self != NULL) {
             if(table->self->node->nodeType == ntFunc) {
-                if(table->self->followers[0] == NULL) {
-                    warns = warns + 1;
-                    printf(
-                        "WARNING(%d): The function '%s' seems not to be used.\n",
-                        table->self->node->lineNum,
-                        table->self->node->literal
-                    );
+                if(strcmp(table->self->node->literal, "main")) {
+                    if(table->self->followers[0] == NULL) {
+                        warns = warns + 1;
+                        printf(
+                            "WARNING(%d): The function '%s' seems not to be used.\n",
+                            table->self->node->lineNum,
+                            table->self->node->literal
+                        );
+                    }
                 }
             }
         }
