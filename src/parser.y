@@ -270,7 +270,9 @@ localDecls:
 stmtList:
     stmtList stmt {
         if($1 != NULL) {
-            $$ = AddSibling($1, $2);
+            if($2 != NULL) {
+                $$ = AddSibling($1, $2);
+            }
         } else {
             $$ = $2;
         }
