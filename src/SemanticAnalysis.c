@@ -182,6 +182,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         }
         // Self
         tree->dataType = myDataType;
+        tree->isArray = tree->child[0]->isArray;
     } else if(IsRelOp(tree)) {
         // Setup and Recursion
         DataType myDataType = unknown;
