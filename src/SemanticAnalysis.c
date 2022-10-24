@@ -176,7 +176,6 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                         DataTypeToString(tree->child[0]->dataType),
                         DataTypeToString(tree->child[1]->dataType)
                     );
-                    myDataType = unknown;
                 }
             }
         }
@@ -367,14 +366,16 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                 NodeTypeToString(tree->nodeType)
             );
         }
-        if(tree->child[0]->dataType != boolData) {
-            errs = errs + 1;
-            printf(
-                "ERROR(%d): Expecting Boolean test condition in %s statement but got %s.\n",
-                tree->lineNum,
-                NodeTypeToString(tree->nodeType),
-                DataTypeToString(tree->child[0]->dataType)
-            );
+        if(tree->child[0]->dataType != unknown) {
+            if(tree->child[0]->dataType != boolData) {
+                errs = errs + 1;
+                printf(
+                    "ERROR(%d): Expecting Boolean test condition in %s statement but got %s.\n",
+                    tree->lineNum,
+                    NodeTypeToString(tree->nodeType),
+                    DataTypeToString(tree->child[0]->dataType)
+                );
+            }
         }
     } else if(IsRange(tree)) {
         // Setup and Recursion
