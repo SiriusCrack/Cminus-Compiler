@@ -124,7 +124,15 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) { //awful spa
         if(entry->node->nodeType == ntCall) {
             myDecl = FindFuncDecl(entry, scope);
             if(myDecl == NULL) {
-                if(FindDecl(entry, scope) != NULL) {
+                myDecl = FindDecl(entry, scope);
+                if(myDecl != NULL) {
+                    entry->following = myDecl;
+                    int i;
+                    for(i = 0; i < ENTRY_MAX_FOLLOWERS; i++) {
+                        if(myDecl->followers[i] == NULL) {
+                            myDecl->followers[i] = entry;
+                        }
+                    }
                     return 2;
                 }
             } else {
