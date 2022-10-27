@@ -39,8 +39,8 @@ program:
     };
 declList:
     declList decl {
-        if($1 != NULL) {
-            $$ = AddSibling($1, $2);
+        if(($1 && $2) != NULL) {
+            $$ = AddSibling($1, $2);`
         } else {
             $$ = $2;
         }
@@ -54,71 +54,82 @@ decl:
     }|
     funDecl {
         $$ = $1;
+    }|
+    error {
+        $$ = NULL;
     };
 varDecl:
     typeSpec varDeclList ';' {
         Node * cur = $2;
         while(cur != NULL) {
             SetDataType($1, cur);
-            if(cur->sibling != NULL) {
-                cur = cur->sibling;
-            } else {
-                cur = NULL;
-            }
+            cur = cur->sibling;
         }
         $$ = $2;
+        yyerrok;
+    }|
+    error varDeclList ';' {
+        $$ = NULL;
+        yyerrok;
+    }|
+    typeSpec error ';' {
+        $$ = NULL;
+        yyerrok;
     };
 scopedVarDecl:
-    ytstatic typeSpec varDeclList ';' {
-        $3->nodeType = ntStaticVar;
+    ytstatic typeSpec varDeclList ';' { // static token memleak
         Node * cur = $3;
         while(cur != NULL) {
             SetDataType($2, cur);
+            cur->nodeType = ntStaticVar;
             cur->isInitialized = 1;
-            if(cur->sibling != NULL) {
-                cur = cur->sibling;
-            } else {
-                cur = NULL;
-            }
+            cur = cur->sibling;
         }
         $$ = $3;
+        yyerrok;
     }|
     typeSpec varDeclList ';' {
         Node * cur = $2;
         while(cur != NULL) {
             SetDataType($1, cur);
-            if(cur->sibling != NULL) {
-                cur = cur->sibling;
-            } else {
-                cur = NULL;
-            }
+            cur = cur->sibling;
         }
         $$ = $2;
+        yyerrok;
     };
 varDeclList:
     varDeclList ',' varDeclInit {
-        if($1 != NULL) {
+        if(($1 && $3) != NULL) {
             $$ = AddSibling($1, $3);
         } else {
             $$ = $3;
         }
+        yyerrok;
+    }|
+    varDeclList ',' error {
+        $$ = NULL;
     }|
     varDeclInit {
         $$ = $1;
+    }|
+    error {
+        $$ = NULL;
     };
 varDeclInit:
     varDeclId {
         $$ = $1;
     }|
     varDeclId ':' simpleExp {
-        if($1 != NULL) {
-            if($3 != NULL) {
-                $$ = AddChild($1, $3);
-                $1->isInitialized = 1;
-            }
+        if(($1 && $3) != NULL) {
+            $$ = AddChild($1, $3);
+            $1->isInitialized = 1;
         } else {
             $$ = $1;
         }
+    }|
+    error ':' simpleExp {
+        $$ = NULL;
+        yyerrok;
     };
 varDeclId:
     ID {
@@ -129,8 +140,15 @@ varDeclId:
         $$ = NewNode($1, ntVarArray); // doesn't clean ytarr
         $$->isDecl = 1;
         $$->isArray = 1;
+    }|
+    ID ytarr error { // also memleak
+        $$ = NULL;
+    }|
+    error ']' {
+        $$ = NULL;
+        yyerrok;
     };
-typeSpec:
+typeSpec: // doesnt clean any tokens
     ytbool {
         $$ = "bool";
     }|
@@ -150,6 +168,12 @@ funDecl:
         $$ = AddChild($$, $6);
         $6->nodeType = ntCompoundwFunc;
     }|
+    typeSpec error {
+        $$ = NULL;
+    }|
+    typeSpec ID '(' error {
+        $$ = NULL;
+    }|
     ID '(' parms ')' compoundStmt {
         $$ = NewNode($1, ntFunc);
         $$->isDecl = 1;
@@ -158,6 +182,12 @@ funDecl:
         $$ = AddChild($$, $3); //might be empty
         $$ = AddChild($$, $5);
         $5->nodeType = ntCompoundwFunc;
+    }|
+    ID '(' error {
+        $$ = NULL;
+    }
+    ID '(' parms ')' error {
+        $$ = NULL;
     };
 parms:
     parmList {
@@ -168,13 +198,20 @@ parms:
     };
 parmList:
     parmList ';' parmTypeList {
-        $$ = $1;
-        if($3 != NULL) {
+        if(($1 && $3) != NULL) {
             $$ = AddSibling($1, $3);
+        } else {
+            $$ = $1;
         }
+    }|
+    parmList ';' error {
+        $$ = NULL;
     }|
     parmTypeList {
         $$ = $1;
+    }|
+    error {
+        $$ = NULL;
     };
 parmTypeList:
     typeSpec parmIdList {
@@ -182,24 +219,30 @@ parmTypeList:
         while(cur != NULL) {
             SetDataType($1, cur);
             cur->isInitialized = 1;
-            if(cur->sibling != NULL) {
-                cur = cur->sibling;
-            } else {
-                cur = NULL;
-            }
+            cur = cur->sibling;
         }
         $$ = $2;
+    }|
+    typeSpec error {
+        $$ = NULL;
     };
 parmIdList:
     parmIdList ',' parmId {
-        if($1 != NULL) {
+        if(($1 && $3) != NULL) {
             $$ = AddSibling($1, $3);
         } else {
             $$ = $1;
         }
+        yyerrok;
+    }|
+    parmIdList ',' error {
+        $$ = NULL;
     }|
     parmId {
         $$ = $1;
+    }|
+    error {
+        $$ = NULL;
     };
 parmId:
     ID {
@@ -211,24 +254,24 @@ parmId:
         $$->isDecl = 1;
         $$->isArray = 1;
     };
-stmt:
+stmt: // so many memleaks
     matched {
         $$ = $1;
     }|
     unmatched {
         $$ = $1;
     };
-    
 matched:
-    expStmt {
-        $$ = $1;
-    }|
-    compoundStmt {
-    }|
     matchedSelectStmt {
         $$ = $1;
     }|
     matchedIterStmt {
+        $$ = $1;
+    }|
+    expStmt {
+        $$ = $1;
+    }|
+    compoundStmt {
         $$ = $1;
     }|
     returnStmt {
@@ -237,68 +280,23 @@ matched:
     breakStmt {
         $$ = $1;
     };
-unmatched:
-    unmatchedSelectStmt {
-        $$ = $1;
-    }|
-    unmatchedIterStmt {
-        $$ = $1;
-    };
-expStmt:
-    exp ';' {
-        $$ = $1;
-    }|
-    ';' {
-        $$ = NULL;
-    };
-compoundStmt:
-    ytcompound localDecls stmtList '}' {
-        $$ = NewNode($1, ntCompound);
-        $$ = AddChild($$, $2); //might be empty
-        $$ = AddChild($$, $3);
-    };
-localDecls:
-    localDecls scopedVarDecl {
-        if($1 != NULL) {
-            $$ = AddSibling($1, $2);
-        } else {
-            $$ = $2;
-        }
-    }|
-    %empty {
-        $$ = NULL;
-    };
-stmtList:
-    stmtList stmt {
-        if($1 != NULL) {
-            if($2 != NULL) {
-                $$ = AddSibling($1, $2);
-            }
-        } else {
-            $$ = $2;
-        }
-    }|
-    %empty {
-        $$ = NULL;
-    };
-matchedSelectStmt:
+matchedSelectStmt: 
     ytif simpleExp ytthen matched ytelse matched {
         $$ = NewNode($1, ntIf);
         $$ = AddChild($$, $2);
         $$ = AddChild($$, $4);
         $$ = AddChild($$, $6);
-    };
-unmatchedSelectStmt:
-    ytif simpleExp ytthen stmt {
-        $$ = NewNode($1, ntIf);
-        $$ = AddChild($$, $2);
-        $$ = AddChild($$, $4);
     }|
-    ytif simpleExp ytthen matched ytelse unmatched {
-        $$ = NewNode($1, ntIf);
-        $$ = AddChild($$, $2);
-        $$ = AddChild($$, $4);
-        $$ = AddChild($$, $6);
+    ytif error {
+        $$ = NULL;
+    }|
+    ytif error ytelse matched {
+        $$ = NULL;
+        yyerrok;
+    }|
+    ytif error ytthen matched ytelse matched {
+        $$ = NULL;
+        yyerrok;
     };
 matchedIterStmt:
     ytwhile simpleExp ytdo matched {
@@ -306,6 +304,13 @@ matchedIterStmt:
         $$->isLoop = 1;
         $$ = AddChild($$, $2);
         $$ = AddChild($$, $4);
+    }|
+    ytwhile error ytdo matched {
+        $$ = NULL;
+        yyerrok;
+    }|
+    ytwhile error {
+        $$ = NULL;
     }|
     ytfor ID ytequals iterRange ytdo matched {
         $$ = NewNode($1, ntTo);
@@ -318,6 +323,40 @@ matchedIterStmt:
         $$ = AddChild($$, id);
         $$ = AddChild($$, $4);
         $$ = AddChild($$, $6);
+    }|
+    ytfor ID ytequals error ytdo matched {
+        $$ = NULL;
+        yyerrok;
+    }|
+    ytfor error {
+        $$ = NULL;
+    };
+unmatched:
+    unmatchedSelectStmt {
+        $$ = $1;
+    }|
+    unmatchedIterStmt {
+        $$ = $1;
+    };
+unmatchedSelectStmt:
+    ytif simpleExp ytthen stmt {
+        $$ = NewNode($1, ntIf);
+        $$ = AddChild($$, $2);
+        $$ = AddChild($$, $4);
+    }|
+    ytif error ytthen stmt {
+        $$ = NULL;
+        yyerrok;
+    }|
+    ytif simpleExp ytthen matched ytelse unmatched {
+        $$ = NewNode($1, ntIf);
+        $$ = AddChild($$, $2);
+        $$ = AddChild($$, $4);
+        $$ = AddChild($$, $6);
+    }|
+    ytif error ytthen matched ytelse unmatched {
+        $$ = NULL;
+        yyerrok;
     };
 unmatchedIterStmt:
     ytwhile simpleExp ytdo unmatched {
@@ -325,6 +364,10 @@ unmatchedIterStmt:
         $$->isLoop = 1;
         $$ = AddChild($$, $2);
         $$ = AddChild($$, $4);
+    }|
+    ytwhile error ytdo unmatched {
+        $$ = NULL;
+        yyerrok;
     }|
     ytfor ID ytequals iterRange ytdo unmatched {
         $$ = NewNode($1, ntTo);
@@ -337,6 +380,10 @@ unmatchedIterStmt:
         $$ = AddChild($$, id);
         $$ = AddChild($$, $4);
         $$ = AddChild($$, $6);
+    }|
+    ytfor ID ytequals error ytdo unmatched {
+        $$ = NULL;
+        yyerrok;
     };
 iterRange:
     simpleExp ytto simpleExp {
@@ -344,11 +391,61 @@ iterRange:
         $$ = AddChild($$, $1);
         $$ = AddChild($$, $3);
     }|
+    simpleExp ytto error {
+        $$ = NULL;
+    }|
     simpleExp ytto simpleExp ytby simpleExp {
         $$ = NewNode($2, ntRange);
         $$ = AddChild($$, $1);
         $$ = AddChild($$, $3);
         $$ = AddChild($$, $5);
+    }|
+    error ytby error {
+        $$ = NULL;
+        yyerrok;
+    }|
+    simpleExp ytto simpleExp ytby error {
+        $$ = NULL;
+    };
+expStmt:
+    exp ';' {
+        $$ = $1;
+    }|
+    error ';' {
+        $$ = NULL;
+        yyerrok;
+    };
+    ';' {
+        $$ = NULL;
+    }|
+compoundStmt:
+    ytcompound localDecls stmtList '}' {
+        $$ = NewNode($1, ntCompound);
+        $$ = AddChild($$, $2); //might be empty
+        $$ = AddChild($$, $3);
+        yyerrok;
+    };
+localDecls:
+    localDecls scopedVarDecl {
+        if(($1 && $2) != NULL) {
+            $$ = AddSibling($1, $2);
+        } else {
+            $$ = $2;
+        }
+    }|
+    %empty {
+        $$ = NULL;
+    };
+stmtList:
+    stmtList stmt {
+        if(($1 && $2) != NULL) {
+            $$ = AddSibling($1, $2);
+        } else {
+            $$ = $2;
+        }
+    }|
+    %empty {
+        $$ = NULL;
     };
 returnStmt:
     ytreturn ';' {
@@ -357,6 +454,11 @@ returnStmt:
     ytreturn exp ';' {
         $$ = NewNode($1, ntReturn);
         $$ = AddChild($$, $2);
+        yyerrok;
+    }|
+    ytreturn error ';' {
+        $$ = NULL;
+        yyerrok;
     };
 breakStmt:
     ytbreak ';' {
@@ -368,6 +470,13 @@ exp:
         $2 = AddChild($2, $3);
         $$ = $2;
     }|
+    error assignop exp {
+        $$ = NULL;
+        yyerrok;
+    }|
+    mutable assignop error {
+        $$ = NULL;
+    }|
     mutable ytinc {
         $$ = NewNode($2, ntAssign);
         $$ = AddChild($$, $1);
@@ -378,6 +487,14 @@ exp:
     }|
     simpleExp {
         $$ = $1;
+    }|
+    error ytinc {
+        $$ = NULL;
+        yyerrok;
+    }|
+    error ytdec {
+        $$ = NULL;
+        yyerrok;
     };
 assignop:
     ytequals {
@@ -401,6 +518,9 @@ simpleExp:
         $$ = AddChild($$, $1);
         $$ = AddChild($$, $3);
     }|
+    simpleExp ytor error {
+        $$ = NULL;
+    }|
     andExp {
         $$ = $1;
     };
@@ -412,11 +532,17 @@ andExp:
     }|
     unaryRelExp {
         $$ = $1;
+    }|
+    andExp ytand error {
+        $$ = NULL;
     };
 unaryRelExp:
     ytnot unaryRelExp {
         $$ = NewNode($1, ntNotOp);
         $$ = AddChild($$, $2);
+    }|
+    ytnot error {
+        $$ = NULL;
     }|
     relExp {
         $$ = $1;
@@ -455,6 +581,9 @@ sumExp:
         $2 = AddChild($2, $3);
         $$ = $2;
     }|
+    sumExp sumop error {
+        $$ = NULL;
+    }|
     mulExp {
         $$ = $1;
     };
@@ -470,6 +599,9 @@ mulExp:
         $2 = AddChild($2, $1);
         $2 = AddChild($2, $3);
         $$ = $2;
+    }|
+    mulExp mulop error {
+        $$ = NULL;
     }|
     unaryExp {
         $$ = $1;
@@ -487,6 +619,9 @@ mulop:
 unaryExp:
     unaryop unaryExp {
         $$ = AddChild($1, $2);
+    }|
+    unaryop error {
+        $$ = NULL;
     }|
     factor {
         $$ = $1;
@@ -514,14 +649,20 @@ mutable:
     }|
     ID ytarr exp ']' {
         $$ = NewNode($2, ntArrAd);
-        Node * firstChild;
-        firstChild = NewNode($1, ntID);
-        $$ = AddChild($$, firstChild);
-        $$ = AddChild($$, $3);
+        Node * id;
+        id = NewNode($1, ntID);
+        $$ = AddChild($$, id);
+        if($3 != NULL) {
+            $$ = AddChild($$, $3);
+        }
     };
 immutable:
     '(' exp ')' {
         $$ = $2;
+        yyerrok;
+    }|
+    '(' error {
+        $$ = NULL;
     }|
     call {
         $$ = $1;
@@ -535,6 +676,10 @@ call:
         if($3 != NULL) {
             $$ = AddChild($$, $3);
         }
+    }|
+    error '(' {
+        $$ = NULL;
+        yyerrok;
     };
 args:
     argList {
@@ -545,11 +690,15 @@ args:
     };
 argList:
     argList ',' exp {
-        if($1 != NULL) {
+        if(($1 && $3) != NULL) {
             $$ = AddSibling($1, $3);
         } else {
             $$ = $3;
         }
+        yyerrok;
+    }|
+    argList ',' error {
+        $$ = NULL;
     }|
     exp {
         $$ = $1;
