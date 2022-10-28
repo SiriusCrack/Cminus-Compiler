@@ -7,8 +7,10 @@
 #include <string.h>
 
 extern int yylex();
-
 extern Node * AST;
+extern int line;
+extern int errs;
+
 
 %}
 
@@ -34,6 +36,10 @@ extern Node * AST;
 program:
     declList {
         AST = $1;
+    }|
+    %empty {
+        errs++;
+        printf("ERROR(%d): Syntax error, unexpected end of input, expecting \"bool\" or \"char\" or \"int\" or identifier.\n", line);
     };
 declList:
     declList decl {
