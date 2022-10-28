@@ -7,13 +7,65 @@
 extern Token * lastToken;
 extern int errs;
 extern int warns;
+extern int line;
 
 char * getExpecting(const char *msg);
 int isBasic(yytoken_kind_t tokenClass);
+int isBasicString(yytoken_kind_t tokenClass);
 
 void yyerror(const char *msg) {
-    if(lastToken->tokenClass == ID) {
-        char * expecting = getExpecting(msg);
+    // printf("%s\n", msg);
+    char * expecting = NULL;
+    if(strstr(msg, "syntax error, unexpected ','")) {
+        expecting = getExpecting(msg);
+        if(expecting) {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected ',', expecting %s.\n",
+                line,
+                expecting
+            );
+        } else {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected ','.\n",
+                line
+            );
+        }
+    } else if(strstr(msg, "syntax error, unexpected ')'")) {
+        expecting = getExpecting(msg);
+        if(expecting) {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected ')', expecting %s.\n",
+                line,
+                expecting
+            );
+        } else {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected ')'.\n",
+                line
+            );
+        }
+    } else if(strstr(msg, "syntax error, unexpected ';'")) {
+        expecting = getExpecting(msg);
+        if(expecting) {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected ';', expecting %s.\n",
+                line,
+                expecting
+            );
+        } else {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected ';'.\n",
+                line
+            );
+        }
+    } else if(lastToken->tokenClass == ID) {
+        expecting = getExpecting(msg);
         errs++;
         printf(
             "ERROR(%d): Syntax error, unexpected identifier \"%s\", expecting %s.\n",
@@ -21,33 +73,97 @@ void yyerror(const char *msg) {
             lastToken->literal,
             expecting
         );
-    } else if(isBasic(lastToken->tokenClass)) {
+    } else if(lastToken->tokenClass == NUMCONST) {
+        expecting = getExpecting(msg);
         errs++;
         printf(
-            "ERROR(%d): Syntax error, unexpected '%s'.\n",
+            "ERROR(%d): Syntax error, numeric constant \"%s\", expecting %s.\n",
             lastToken->lineNum,
-            lastToken->literal
+            lastToken->literal,
+            expecting
         );
+    } else if(isBasic(lastToken->tokenClass)) {
+        expecting = getExpecting(msg);
+        if(expecting) {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected '%s', expecting %s.\n",
+                lastToken->lineNum,
+                lastToken->literal,
+                expecting
+            );
+        } else {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected '%s'.\n",
+                lastToken->lineNum,
+                lastToken->literal
+            );
+        }
+    } else if(isBasicString(lastToken->tokenClass)) {
+        expecting = getExpecting(msg);
+        if(expecting) {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected \"%s\", expecting %s.\n",
+                lastToken->lineNum,
+                lastToken->literal,
+                expecting
+            );
+        } else {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected \"%s\".\n",
+                lastToken->lineNum,
+                lastToken->literal
+            );
+        }
     } else {
-        printf("%d\n", lastToken->tokenClass);
+        printf("%s %d\n", msg, lastToken->tokenClass);
     }
 }
 
 char * getExpecting(const char *msg) {
     char * expecting = strstr(msg, ", expecting ");
     if(expecting != NULL) {
-        char * result = strstr(expecting, "\"");
-        if(result == NULL) {
-            result = strstr(expecting, "\'");
+        char * result = NULL;
+        result = strstr(expecting, "\"");
+        if(result != NULL) {
+            expecting = result;
+            return expecting;
         }
-        expecting = result;
+        result = strstr(expecting, "\'");
+        if(result != NULL) {
+            expecting = result;
+            return expecting;
+        }
+        result = strstr(expecting, "ID");
+        if(result != NULL) {
+            expecting = "identifier";
+            return expecting;
+        }
     }
     return expecting;
 }
 
 int isBasic(yytoken_kind_t tokenClass) {
     if(
-        tokenClass == ytequals
+        tokenClass == ytequals ||
+        tokenClass == ytadd ||
+        tokenClass == ytcompound
+    ) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int isBasicString(yytoken_kind_t tokenClass) {
+    if(
+        tokenClass == ytelse ||
+        tokenClass == ytif ||
+        tokenClass == ytwhile ||
+        tokenClass == ytint
     ) {
         return 1;
     } else {
