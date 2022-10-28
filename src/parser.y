@@ -727,5 +727,4 @@ constant:
         $$->isInitialized = 1;
         $$->isConst = 1;
     };
-
 %%
