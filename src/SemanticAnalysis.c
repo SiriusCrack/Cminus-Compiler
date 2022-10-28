@@ -27,6 +27,10 @@ int IsBreak (Node * node);
 int IsConst (Node * node);
 
 void WriteScopes (Node * node, ScopeTable * table) {
+    // Check
+    if(node == NULL) {
+        return;
+    }
     // Action
     ScopeTable * newScope = table;
     if(IsScope(node)) { // add scope table
@@ -103,6 +107,10 @@ void WriteScopes (Node * node, ScopeTable * table) {
 }
 
 void WriteRefs (Node * tree, ScopeTable * table) {
+    // Check
+    if(tree == NULL) {
+        return;
+    }
     ScopeTable * newScope = table;
     if(IsScope(tree)) {
         newScope = GetMatchingChildScope(newScope, tree->UID);
