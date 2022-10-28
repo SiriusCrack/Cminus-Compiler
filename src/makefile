@@ -3,7 +3,7 @@ BIN = c-
 lexsrc = parser.l
 yaccsrc = parser.y
 headers = Token.h ASTNode.h SymbolTable.h SemanticAnalysis.h IOLoader.h
-src = main.c ASTNode.c SymbolTable.c SemanticAnalysis.c IOLoader.c
+src = lex.yy.c parser.tab.c main.c ASTNode.c SymbolTable.c SemanticAnalysis.c IOLoader.c
 
 lexgens = lex.yy.c
 yaccgens = parser.tab.h parser.tab.c parser.output
