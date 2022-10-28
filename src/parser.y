@@ -1,7 +1,7 @@
 %{
 #include "Token.h"
 #include "ASTNode.h"
-// #include "yyerror.h"
+#include "yyerror.h"
 #include "parser.tab.h"
 #include <stdio.h>
 #include <string.h>
@@ -9,11 +9,6 @@
 extern int yylex();
 
 extern Node * AST;
-
-int yyerror (const char *s) { //does nothing?
-    printf("%s\n", s);
-    return 0;
-}
 
 %}
 

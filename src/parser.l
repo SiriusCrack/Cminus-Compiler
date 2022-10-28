@@ -6,6 +6,7 @@
 #include <string.h>
 
 int line = 1;
+Token * lastToken;
 
 char checkSpecialChars (char * str) {
     if(str[1] == '\\') {
@@ -85,6 +86,7 @@ static int setToken (int lineNum, int tokenClass, char * literal) {
         default:
             yylval.token.value.str = strdup(removeEscapedChars(yylval.token.literal));
     }
+    lastToken = &yylval.token;
     return tokenClass;
 }
 %}
