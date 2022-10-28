@@ -16,7 +16,23 @@ int isBasicString(yytoken_kind_t tokenClass);
 void yyerror(const char *msg) {
     // printf("%s\n", msg);
     char * expecting = NULL;
-    if(strstr(msg, "syntax error, unexpected ','")) {
+    if(strstr(msg, "syntax error, unexpected '}'")) {
+        expecting = getExpecting(msg);
+        if(expecting) {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected '}', expecting %s.\n",
+                line,
+                expecting
+            );
+        } else {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected '}'.\n",
+                line
+            );
+        }
+    } else if(strstr(msg, "syntax error, unexpected ','")) {
         expecting = getExpecting(msg);
         if(expecting) {
             errs++;
@@ -66,22 +82,80 @@ void yyerror(const char *msg) {
         }
     } else if(lastToken->tokenClass == ID) {
         expecting = getExpecting(msg);
-        errs++;
-        printf(
-            "ERROR(%d): Syntax error, unexpected identifier \"%s\", expecting %s.\n",
-            lastToken->lineNum,
-            lastToken->literal,
-            expecting
-        );
+        if(expecting) {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected identifier \"%s\", expecting %s.\n",
+                lastToken->lineNum,
+                lastToken->literal,
+                expecting
+            );
+        } else {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected identifier \"%s\".\n",
+                lastToken->lineNum,
+                lastToken->literal,
+                expecting
+            );
+        }
     } else if(lastToken->tokenClass == NUMCONST) {
         expecting = getExpecting(msg);
-        errs++;
-        printf(
-            "ERROR(%d): Syntax error, numeric constant \"%s\", expecting %s.\n",
-            lastToken->lineNum,
-            lastToken->literal,
-            expecting
-        );
+        if(expecting) {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected numeric constant \"%s\", expecting %s.\n",
+                lastToken->lineNum,
+                lastToken->literal,
+                expecting
+            );
+        } else {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected numeric constant \"%s\".\n",
+                lastToken->lineNum,
+                lastToken->literal,
+                expecting
+            );
+        }
+    } else if(lastToken->tokenClass == BOOLCONST) {
+        expecting = getExpecting(msg);
+        if(expecting) {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected Boolean constant \"%s\", expecting %s.\n",
+                lastToken->lineNum,
+                lastToken->literal,
+                expecting
+            );
+        } else {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected Boolean constant \"%s\".\n",
+                lastToken->lineNum,
+                lastToken->literal,
+                expecting
+            );
+        }
+    } else if(lastToken->tokenClass == STRINGCONST) {
+        expecting = getExpecting(msg);
+        if(expecting) {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected string constant \"%s\", expecting %s.\n",
+                lastToken->lineNum,
+                lastToken->literal,
+                expecting
+            );
+        } else {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected string constant \"%s\".\n",
+                lastToken->lineNum,
+                lastToken->literal,
+                expecting
+            );
+        }
     } else if(isBasic(lastToken->tokenClass)) {
         expecting = getExpecting(msg);
         if(expecting) {
@@ -163,7 +237,8 @@ int isBasicString(yytoken_kind_t tokenClass) {
         tokenClass == ytelse ||
         tokenClass == ytif ||
         tokenClass == ytwhile ||
-        tokenClass == ytint
+        tokenClass == ytint ||
+        tokenClass == ytinc
     ) {
         return 1;
     } else {
