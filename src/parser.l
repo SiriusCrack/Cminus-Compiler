@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
+extern int errs;
+
 int line = 1;
 Token * lastToken;
 
@@ -191,5 +193,6 @@ static int setToken (int lineNum, int tokenClass, char * literal) {
 [0-9]+ { 
     return setToken (line, NUMCONST, yytext); }
 . { 
-    ; }
+    errs++;
+    printf("ERROR(%d): Invalid or misplaced input character: '%s'. Character Ignored.\n", line, yytext); }
 %%
