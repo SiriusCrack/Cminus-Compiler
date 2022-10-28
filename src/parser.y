@@ -1,6 +1,7 @@
 %{
 #include "Token.h"
 #include "ASTNode.h"
+// #include "yyerror.h"
 #include "parser.tab.h"
 #include <stdio.h>
 #include <string.h>
@@ -9,7 +10,7 @@ extern int yylex();
 
 extern Node * AST;
 
-int yyerror (char *s) { //does nothing?
+int yyerror (const char *s) { //does nothing?
     printf("%s\n", s);
     return 0;
 }
@@ -32,6 +33,8 @@ int yyerror (char *s) { //does nothing?
 %type <nodePtr> varDeclId varDeclInit parmId mutable assignop constant returnStmt funDecl exp simpleExp andExp unaryRelExp relExp sumExp mulExp unaryExp factor expStmt compoundStmt scopedVarDecl localDecls varDecl matched stmt parms parmList parmTypeList decl relop call args sumop mulop matchedSelectStmt immutable unmatchedSelectStmt matchedIterStmt unmatchedIterStmt iterRange argList declList varDeclList stmtList parmIdList breakStmt unmatched unaryop
 %type <literal> typeSpec
 
+%define parse.error verbose
+
 %%
 program:
     declList {
@@ -39,8 +42,8 @@ program:
     };
 declList:
     declList decl {
-        if(($1 && $2) != NULL) {
-            $$ = AddSibling($1, $2);`
+        if($1 != NULL && $2 != NULL) {
+            $$ = AddSibling($1, $2);
         } else {
             $$ = $2;
         }
@@ -99,7 +102,7 @@ scopedVarDecl:
     };
 varDeclList:
     varDeclList ',' varDeclInit {
-        if(($1 && $3) != NULL) {
+        if($1 != NULL && $3 != NULL) {
             $$ = AddSibling($1, $3);
         } else {
             $$ = $3;
@@ -120,7 +123,7 @@ varDeclInit:
         $$ = $1;
     }|
     varDeclId ':' simpleExp {
-        if(($1 && $3) != NULL) {
+        if($1 != NULL && $3 != NULL) {
             $$ = AddChild($1, $3);
             $1->isInitialized = 1;
         } else {
@@ -185,7 +188,7 @@ funDecl:
     }|
     ID '(' error {
         $$ = NULL;
-    }
+    }|
     ID '(' parms ')' error {
         $$ = NULL;
     };
@@ -198,7 +201,7 @@ parms:
     };
 parmList:
     parmList ';' parmTypeList {
-        if(($1 && $3) != NULL) {
+        if($1 != NULL && $3 != NULL) {
             $$ = AddSibling($1, $3);
         } else {
             $$ = $1;
@@ -228,7 +231,7 @@ parmTypeList:
     };
 parmIdList:
     parmIdList ',' parmId {
-        if(($1 && $3) != NULL) {
+        if($1 != NULL && $3 != NULL) {
             $$ = AddSibling($1, $3);
         } else {
             $$ = $1;
@@ -414,10 +417,10 @@ expStmt:
     error ';' {
         $$ = NULL;
         yyerrok;
-    };
+    }|
     ';' {
         $$ = NULL;
-    }|
+    };
 compoundStmt:
     ytcompound localDecls stmtList '}' {
         $$ = NewNode($1, ntCompound);
@@ -427,7 +430,7 @@ compoundStmt:
     };
 localDecls:
     localDecls scopedVarDecl {
-        if(($1 && $2) != NULL) {
+        if($1 != NULL && $2 != NULL) {
             $$ = AddSibling($1, $2);
         } else {
             $$ = $2;
@@ -438,7 +441,7 @@ localDecls:
     };
 stmtList:
     stmtList stmt {
-        if(($1 && $2) != NULL) {
+        if($1 != NULL && $2 != NULL) {
             $$ = AddSibling($1, $2);
         } else {
             $$ = $2;
@@ -690,7 +693,7 @@ args:
     };
 argList:
     argList ',' exp {
-        if(($1 && $3) != NULL) {
+        if($1 != NULL && $3 != NULL) {
             $$ = AddSibling($1, $3);
         } else {
             $$ = $3;
