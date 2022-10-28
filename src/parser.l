@@ -6,6 +6,7 @@
 #include <string.h>
 
 extern int errs;
+extern int warns;
 
 int line = 1;
 Token * lastToken;
@@ -177,6 +178,9 @@ static int setToken (int lineNum, int tokenClass, char * literal) {
     return setToken (line, ytcompound, yytext); }
 "[" {
     return setToken (line, ytarr, yytext); }
+"''" { 
+    errs++;
+    printf("ERROR(%d): Empty character ''.  Characters ignored.\n", line); }
 [\],;:}\(\)] { 
     return yytext[0]; }
 "true"|"false" { 
@@ -185,7 +189,8 @@ static int setToken (int lineNum, int tokenClass, char * literal) {
     return setToken (line, STRINGCONST, yytext); }
 '[^']'|'\\?.' { 
     return setToken (line, CHARCONST, yytext); }
-'[^\n^']+'|'\\?.[^\n^']+' { 
+'[^\n^']+' { 
+    warns++;
     printf("WARNING(%d): character is %d characters long and not a single character: '%s'.  The first char will be used.\n", line, strlen(yytext)-2, yytext); 
     return setToken (line, CHARCONST, yytext); }
 [a-zA-Z][0-9a-zA-Z]* { 
