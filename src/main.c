@@ -39,7 +39,7 @@ int main (int argc, char * argv[]) {
         yyparse();
         PrintTree(AST, 0);
         WriteScopes(AST, SymbolTable);
-        CheckMain(SymbolTable);
+        if(AST != NULL) CheckMain(SymbolTable);
         WriteRefs(AST, SymbolTable);
         CheckUse(SymbolTable);
         PrintSymbolTable(SymbolTable);
