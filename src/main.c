@@ -38,10 +38,12 @@ int main (int argc, char * argv[]) {
         IOTree = LoadIO();
         yyparse();
         PrintTree(AST, 0);
-        WriteScopes(AST, SymbolTable);
-        if(AST != NULL) CheckMain(SymbolTable);
-        WriteRefs(AST, SymbolTable);
-        CheckUse(SymbolTable);
+        if(errs < 1) {
+            WriteScopes(AST, SymbolTable);
+            if(AST != NULL) CheckMain(SymbolTable);
+            WriteRefs(AST, SymbolTable);
+            CheckUse(SymbolTable);
+        }
         PrintSymbolTable(SymbolTable);
         if(errs < 1) PrintAnnotatedTree(AST, 0);
     }
