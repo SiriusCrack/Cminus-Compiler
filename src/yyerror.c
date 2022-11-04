@@ -1,3 +1,7 @@
+/*
+ *  Probably better if just noone looks in here ever again tbh
+ */
+
 #include "yyerror.h"
 #include "parser.tab.h"
 #include <stdio.h>
@@ -9,16 +13,23 @@ extern int errs;
 extern int warns;
 extern int line;
 
-char * getExpecting(const char *msg);
+int expTokens[10];
+
+void getExpecting(char *expString, int expCount);
+void initializeExpTokens();
+char * ytToString(int yToken);
+int findExpTokens(const char *msg);
 int isBasic(int tokenClass);
 int isBasicString(int tokenClass);
 
 void yyerror(const char *msg) {
     // printf("%s\n", msg);
-    char * expecting = NULL;
+    initializeExpTokens();
+    char expecting[100] = "";
     if(strstr(msg, "syntax error, unexpected '('")) {
-        expecting = getExpecting(msg);
-        if(expecting) {
+        int expCount = findExpTokens(msg);
+        if(expCount > 0) {
+            getExpecting(expecting, expCount);
             errs++;
             printf(
                 "ERROR(%d): Syntax error, unexpected '(', expecting %s.\n",
@@ -33,8 +44,9 @@ void yyerror(const char *msg) {
             );
         }
     } else if(strstr(msg, "syntax error, unexpected ':'")) {
-        expecting = getExpecting(msg);
-        if(expecting) {
+        int expCount = findExpTokens(msg);
+        if(expCount > 0) {
+            getExpecting(expecting, expCount);
             errs++;
             printf(
                 "ERROR(%d): Syntax error, unexpected ':', expecting %s.\n",
@@ -49,8 +61,9 @@ void yyerror(const char *msg) {
             );
         }
     } else if(strstr(msg, "syntax error, unexpected '}'")) {
-        expecting = getExpecting(msg);
-        if(expecting) {
+        int expCount = findExpTokens(msg);
+        if(expCount > 0) {
+            getExpecting(expecting, expCount);
             errs++;
             printf(
                 "ERROR(%d): Syntax error, unexpected '}', expecting %s.\n",
@@ -65,8 +78,9 @@ void yyerror(const char *msg) {
             );
         }
     } else if(strstr(msg, "syntax error, unexpected ','")) {
-        expecting = getExpecting(msg);
-        if(expecting) {
+        int expCount = findExpTokens(msg);
+        if(expCount > 0) {
+            getExpecting(expecting, expCount);
             errs++;
             printf(
                 "ERROR(%d): Syntax error, unexpected ',', expecting %s.\n",
@@ -81,8 +95,9 @@ void yyerror(const char *msg) {
             );
         }
     } else if(strstr(msg, "syntax error, unexpected ')'")) {
-        expecting = getExpecting(msg);
-        if(expecting) {
+        int expCount = findExpTokens(msg);
+        if(expCount > 0) {
+            getExpecting(expecting, expCount);
             errs++;
             printf(
                 "ERROR(%d): Syntax error, unexpected ')', expecting %s.\n",
@@ -97,8 +112,9 @@ void yyerror(const char *msg) {
             );
         }
     } else if(strstr(msg, "syntax error, unexpected ';'")) {
-        expecting = getExpecting(msg);
-        if(expecting) {
+        int expCount = findExpTokens(msg);
+        if(expCount > 0) {
+            getExpecting(expecting, expCount);
             errs++;
             printf(
                 "ERROR(%d): Syntax error, unexpected ';', expecting %s.\n",
@@ -113,8 +129,9 @@ void yyerror(const char *msg) {
             );
         }
     } else if(lastToken->tokenClass == ID) {
-        expecting = getExpecting(msg);
-        if(expecting) {
+        int expCount = findExpTokens(msg);
+        if(expCount > 0) {
+            getExpecting(expecting, expCount);
             errs++;
             printf(
                 "ERROR(%d): Syntax error, unexpected identifier \"%s\", expecting %s.\n",
@@ -132,8 +149,9 @@ void yyerror(const char *msg) {
             );
         }
     } else if(lastToken->tokenClass == NUMCONST) {
-        expecting = getExpecting(msg);
-        if(expecting) {
+        int expCount = findExpTokens(msg);
+        if(expCount > 0) {
+            getExpecting(expecting, expCount);
             errs++;
             printf(
                 "ERROR(%d): Syntax error, unexpected numeric constant \"%s\", expecting %s.\n",
@@ -151,8 +169,9 @@ void yyerror(const char *msg) {
             );
         }
     } else if(lastToken->tokenClass == BOOLCONST) {
-        expecting = getExpecting(msg);
-        if(expecting) {
+        int expCount = findExpTokens(msg);
+        if(expCount > 0) {
+            getExpecting(expecting, expCount);
             errs++;
             printf(
                 "ERROR(%d): Syntax error, unexpected Boolean constant \"%s\", expecting %s.\n",
@@ -170,8 +189,9 @@ void yyerror(const char *msg) {
             );
         }
     } else if(lastToken->tokenClass == STRINGCONST) {
-        expecting = getExpecting(msg);
-        if(expecting) {
+        int expCount = findExpTokens(msg);
+        if(expCount > 0) {
+            getExpecting(expecting, expCount);
             errs++;
             printf(
                 "ERROR(%d): Syntax error, unexpected string constant \"%s\", expecting %s.\n",
@@ -189,8 +209,9 @@ void yyerror(const char *msg) {
             );
         }
     } else if(lastToken->tokenClass == CHARCONST) {
-        expecting = getExpecting(msg);
-        if(expecting) {
+        int expCount = findExpTokens(msg);
+        if(expCount > 0) {
+            getExpecting(expecting, expCount);
             errs++;
             printf(
                 "ERROR(%d): Syntax error, unexpected character constant %s, expecting %s.\n",
@@ -208,8 +229,9 @@ void yyerror(const char *msg) {
             );
         }
     } else if(isBasic(lastToken->tokenClass)) {
-        expecting = getExpecting(msg);
-        if(expecting) {
+        int expCount = findExpTokens(msg);
+        if(expCount > 0) {
+            getExpecting(expecting, expCount);
             errs++;
             printf(
                 "ERROR(%d): Syntax error, unexpected '%s', expecting %s.\n",
@@ -226,8 +248,9 @@ void yyerror(const char *msg) {
             );
         }
     } else if(isBasicString(lastToken->tokenClass)) {
-        expecting = getExpecting(msg);
-        if(expecting) {
+        int expCount = findExpTokens(msg);
+        if(expCount > 0) {
+            getExpecting(expecting, expCount);
             errs++;
             printf(
                 "ERROR(%d): Syntax error, unexpected \"%s\", expecting %s.\n",
@@ -248,82 +271,153 @@ void yyerror(const char *msg) {
     }
 }
 
-char * getExpecting(const char *msg) {
-    char * expecting = strstr(msg, ", expecting ");
-    if(expecting != NULL) {
-        char * result = NULL;
-        result = strstr(expecting, "\"");
-        if(result != NULL) {
-            expecting = result;
-            return expecting;
-        }
-        result = strstr(expecting, "\'");
-        if(result != NULL) {
-            expecting = result;
-            return expecting;
-        }
-        result = strstr(expecting, "ID");
-        if(result != NULL) {
-            expecting = "identifier";
-            return expecting;
-        }
-        result = strstr(expecting, "NUMCONST");
-        if(result != NULL) {
-            expecting = "numeric constant";
-            return expecting;
-        }
-        result = strstr(expecting, "CHARCONST");
-        if(result != NULL) {
-            expecting = "unfinished constant";
-            return expecting;
-        }
-        result = strstr(expecting, "STRINGCONST");
-        if(result != NULL) {
-            expecting = "unfinished constant";
-            return expecting;
-        }
-        result = strstr(expecting, "BOOLCONST");
-        if(result != NULL) {
-            expecting = "unfinished constant";
-            return expecting;
-        }
-        result = strstr(expecting, "ytint");
-        if(result != NULL) {
-            expecting = "\"int\"";
-            return expecting;
-        }
-        result = strstr(expecting, "ytbool");
-        if(result != NULL) {
-            expecting = "\"bool\"";
-            return expecting;
-        }
-        result = strstr(expecting, "ytchar");
-        if(result != NULL) {
-            expecting = "\"char\"";
-            return expecting;
-        }
-        result = strstr(expecting, "ytequals");
-        if(result != NULL) {
-            expecting = "\'=\'";
-            return expecting;
-        }
-        result = strstr(expecting, "ytdo");
-        if(result != NULL) {
-            expecting = "\"do\"";
-            return expecting;
-        }
-        result = strstr(expecting, "ytor");
-        if(result != NULL) {
-            expecting = "\"or\"";
-            return expecting;
-        }
-        result = strstr(expecting, "ytcompound");
-        if(result != NULL) {
-            expecting = "\')\'";
-            return expecting;
-        }
+void initializeExpTokens() {
+    for(int i = 0; i < 10; i++) {
+        expTokens[i] = 0;
     }
-    return expecting;
+}
+
+int findExpTokens(const char *msg) {
+    int addr = 0;
+    char * expecting = NULL;
+    expecting = strstr(msg, ", expecting ");
+    if(expecting == NULL) {
+        return 0;
+    }
+    if(strstr(expecting, "ID")) {
+        expTokens[addr] = ID;
+        addr++;
+    }
+    if(strstr(expecting, "NUMCONST")) {
+        expTokens[addr] = NUMCONST;
+        addr++;
+    }
+    if(strstr(expecting, "CHARCONST")) {
+        expTokens[addr] = CHARCONST;
+        addr++;
+    }
+    if(strstr(expecting, "BOOLCONST")) {
+        expTokens[addr] = BOOLCONST;
+        addr++;
+    }
+    if(strstr(expecting, "ytbool")) {
+        expTokens[addr] = ytbool;
+        addr++;
+    }
+    if(strstr(expecting, "ytchar")) {
+        expTokens[addr] = ytchar;
+        addr++;
+    }
+    if(strstr(expecting, "ytint")) {
+        expTokens[addr] = ytint;
+        addr++;
+    }
+    if(strstr(expecting, "ytequals")) {
+        expTokens[addr] = ytequals;
+        addr++;
+    }
+    if(strstr(expecting, "ytdo")) {
+        expTokens[addr] = ytdo;
+        addr++;
+    }
+    if(strstr(expecting, "ytor")) {
+        expTokens[addr] = ytor;
+        addr++;
+    }
+    if(strstr(expecting, "ytto")) {
+        expTokens[addr] = ytto;
+        addr++;
+    }
+    if(strstr(expecting, "ytthen")) {
+        expTokens[addr] = ytthen;
+        addr++;
+    }
+    if(strstr(expecting, "ytcompound")) {
+        expTokens[addr] = ytcompound;
+        addr++;
+    }
+    if(strstr(expecting, "\'\"\'")) {
+        expTokens[addr] = '\"';
+        addr++;
+    }
+    if(strstr(expecting, "\'\'\'")) {
+        expTokens[addr] = '\'';
+        addr++;
+    }
+    if(strstr(expecting, "\'(\'")) {
+        expTokens[addr] = '(';
+        addr++;
+    }
+    if(strstr(expecting, "\')\'")) {
+        expTokens[addr] = ')';
+        addr++;
+    }
+    if(strstr(expecting, "\']\'")) {
+        expTokens[addr] = ']';
+        addr++;
+    }
+    if(strstr(expecting, "\',\'")) {
+        expTokens[addr] = ',';
+        addr++;
+    }
+    if(strstr(expecting, "\';\'")) {
+        expTokens[addr] = ';';
+        addr++;
+    }
+    return addr;
+}
+
+void getExpecting(char *expString, int expCount) {
+    strcat(expString, ytToString(expTokens[0]));
+    for(int i = 1; i < expCount; i++) {
+        strcat(expString, " or ");
+        strcat(expString, ytToString(expTokens[i]));
+    }
+}
+
+char * ytToString(int yToken) {
+    switch(yToken) {
+        case ID:
+            return "identifier";
+        case NUMCONST:
+            return "numeric constant";
+        case CHARCONST:
+            return "unfinished constant";
+        case BOOLCONST:
+            return "unfinished constant";
+        case ytbool:
+            return "\"bool\"";
+        case ytchar:
+            return "\"char\"";
+        case ytint:
+            return "\"int\"";
+        case ytequals:
+            return "\'=\'";
+        case ytdo:
+            return "\"do\"";
+        case ytor:
+            return "\"or\"";
+        case ytto:
+            return "\"to\"";
+        case ytthen:
+            return "\"then\"";
+        case ytcompound:
+            return "\')\'";
+        case '\"':
+            return "\'\"\'";
+        case '\'':
+            return "\'\'\'";
+        case '(':
+            return "\'(\'";
+        case ')':
+            return "\')\'";
+        case ']':
+            return "\']\'";
+        case ',':
+            return "\',\'";
+        case ';':
+            return "\';\'";
+    }
 }
 
 int isBasic(int tokenClass) {
@@ -336,7 +430,8 @@ int isBasic(int tokenClass) {
         tokenClass == ytmod ||
         tokenClass == ytlesser||
         tokenClass == ytgreater ||
-        tokenClass == ytcompound
+        tokenClass == ytcompound ||
+        tokenClass == ytarr
     ) {
         return 1;
     } else {
@@ -370,8 +465,7 @@ int isBasicString(int tokenClass) {
         tokenClass == ytto ||
         tokenClass == ytby ||
         tokenClass == ytbreak ||
-        tokenClass == ytreturn ||
-        tokenClass == ytarr
+        tokenClass == ytreturn
     ) {
         return 1;
     } else {
