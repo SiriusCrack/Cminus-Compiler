@@ -383,6 +383,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
             }
         }
         // Self
+        if(tree->nodeType == ntSizeofOp) myDataType = intData;
         tree->dataType = myDataType;
     } else if(IsCond(tree)) {
         // Setup and Recursion
