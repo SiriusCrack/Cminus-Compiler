@@ -550,10 +550,6 @@ void WriteRefs (Node * tree, ScopeTable * table) {
             case ntBoolConst:
                 myDataType = boolData;
                 break;
-            case ntStringConst:
-                myDataType = stringData;
-                tree->isArray = 1;
-                break;
             default:
                 printf("uhhhhhhhhhhhh %s\n", tree->literal);
                 myDataType = unknown;
@@ -889,7 +885,6 @@ int IsConst (Node * node) {
     if(
         node->nodeType == ntNumConst ||
         node->nodeType == ntCharConst ||
-        node->nodeType == ntStringConst ||
         node->nodeType == ntBoolConst
     ) {
         return 1;

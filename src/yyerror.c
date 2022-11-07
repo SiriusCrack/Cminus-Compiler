@@ -222,26 +222,6 @@ void yyerror(const char *msg) {
                 expecting
             );
         }
-    } else if(lastToken->tokenClass == STRINGCONST) {
-        int expCount = findExpTokens(msg);
-        if(expCount > 0) {
-            getExpecting(expecting, expCount);
-            errs++;
-            printf(
-                "ERROR(%d): Syntax error, unexpected string constant \"%s\", expecting %s.\n",
-                lastToken->lineNum,
-                lastToken->literal,
-                expecting
-            );
-        } else {
-            errs++;
-            printf(
-                "ERROR(%d): Syntax error, unexpected string constant \"%s\".\n",
-                lastToken->lineNum,
-                lastToken->literal,
-                expecting
-            );
-        }
     } else if(lastToken->tokenClass == CHARCONST) {
         int expCount = findExpTokens(msg);
         if(expCount > 0) {
