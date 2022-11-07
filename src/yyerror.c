@@ -1,7 +1,7 @@
-/*
- *  Probably better if just noone looks in here ever again tbh
- */
-
+// Known Errors
+// yyerror should be giving me "expecting bool chat int" etc for first error sommetimes, but doesnt
+// yyerror returns "expecting ')'" sometimes instead of "expecting '}'"
+// relops arent working
 #include "yyerror.h"
 #include "parser.tab.h"
 #include <stdio.h>
@@ -23,7 +23,7 @@ int isBasic(int tokenClass);
 int isBasicString(int tokenClass);
 
 void yyerror(const char *msg) {
-    // printf("%s\n", msg);
+    ?? printf("%s\n", msg);
     initializeExpTokens();
     char expecting[100] = "";
     if(strstr(msg, "syntax error, unexpected '('")) {
@@ -57,6 +57,39 @@ void yyerror(const char *msg) {
             errs++;
             printf(
                 "ERROR(%d): Syntax error, unexpected ':'.\n",
+                line
+            );
+        }
+    } else if(strstr(msg, "syntax error, unexpected ']'")) {
+        expecting = getExpecting(msg);
+        if(expecting) {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected ']', expecting %s.\n",
+                line,
+                expecting
+            );
+        } else {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected ']'.\n",
+                line
+            );
+        }
+    } else if(strstr(msg, "syntax error, unexpected '}'")) {
+        int expCount = findExpTokens(msg);
+        if(expCount > 0) {
+            getExpecting(expecting, expCount);
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected ']', expecting %s.\n",
+                line,
+                expecting
+            );
+        } else {
+            errs++;
+            printf(
+                "ERROR(%d): Syntax error, unexpected ']'.\n",
                 line
             );
         }
