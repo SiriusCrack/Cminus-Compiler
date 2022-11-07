@@ -1,4 +1,9 @@
-// Needs to be entirely reworked... along with SymbolTable.c
+// Known Errors
+/* Needs to be entirely reworked... along with SymbolTable.c.
+.. Functionally, seems to work aside from initlization check,
+.. but SemanticAnalysis is so poorly written, poorly separated, 
+.. it would be easier to completely rewrite. */
+// Strings need to be treated as character arrays, at least by PrintTable
 
 #include "SemanticAnalysis.h"
 #include <stdio.h>
