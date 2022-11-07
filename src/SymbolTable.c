@@ -347,7 +347,6 @@ SymbolTableEntry * FindMyFunc (ScopeTable * scope) {
 
 SymbolTableEntry * FindFuncDecl (SymbolTableEntry *entry, ScopeTable *scope) {
     if(scope->parent == NULL) {
-        printf("stop, you're in global lol\n");
         return NULL;
     }
     ScopeTable *parentScope = scope->parent;
