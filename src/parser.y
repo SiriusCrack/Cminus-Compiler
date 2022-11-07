@@ -557,6 +557,9 @@ relExp:
         $2 = AddChild($2, $3);
         $$ = $2;
     }|
+    sumExp relop error {
+        $$ = NULL;
+    }|
     sumExp {
         $$ = $1;
     };

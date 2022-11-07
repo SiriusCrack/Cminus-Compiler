@@ -1,7 +1,6 @@
 // Known Errors
 // yyerror should be giving me "expecting bool chat int" etc for first error sommetimes, but doesnt
 // yyerror returns "expecting ')'" sometimes instead of "expecting '}'"
-// relops arent working
 
 #include "yyerror.h"
 #include "parser.tab.h"
