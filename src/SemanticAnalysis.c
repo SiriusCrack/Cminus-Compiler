@@ -1,3 +1,5 @@
+// Needs to be entirely reworked... along with SymbolTable.c
+
 #include "SemanticAnalysis.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -161,7 +163,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         // Setup and Recursion
         DataType myDataType = unknown;
         WriteRefs(tree->child[1], newScope);
-        tree->child[0]->isInitialized = 1; // might change this to child[1] init? doesnt seem to in testData
+        tree->child[0]->isInitialized = 1; // might change this to child[1]'s init? doesnt seem to in testData
         if(tree->child[0]->nodeType == ntArrAd) tree->child[0]->child[0]->isInitialized = 1;
         WriteRefs(tree->child[0], newScope);
         myDataType = tree->child[0]->dataType;
@@ -551,7 +553,7 @@ void WriteRefs (Node * tree, ScopeTable * table) {
                 myDataType = boolData;
                 break;
             case ntStringConst:
-                myDataType = stringData;
+                myDataType = charData; // unsure
                 tree->isArray = 1;
                 break;
             default:
