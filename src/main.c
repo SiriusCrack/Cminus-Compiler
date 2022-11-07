@@ -63,11 +63,6 @@ void parseArgs (int argc, char * argv[]) {
     int i;
     for(i = 1; i < argc-1; i++) {
         switch (argv[i][1]) {
-            case 'd':
-                yydebug = 1;
-                break;
-            case 'D':
-                break;
             case 'h':
                 printf("usage: c- [options] [sourcefile]\n");
                 printf("options:\n");
@@ -76,6 +71,11 @@ void parseArgs (int argc, char * argv[]) {
                 printf("-h \t- print this usage message\n");
                 printf("-p \t- print the abstract syntax tree\n");
                 printf("-P \t- print the abstract syntax tree plus type information\n");
+                break;
+            case 'd':
+                yydebug = 1;
+                break;
+            case 'D':
                 break;
             case 'p':
                 PrintTreeFlag = 1;
