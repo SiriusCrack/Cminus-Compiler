@@ -83,23 +83,6 @@ void yyerror(const char *msg) {
             getExpecting(expecting, expCount);
             errs++;
             printf(
-                "ERROR(%d): Syntax error, unexpected ']', expecting %s.\n",
-                line,
-                expecting
-            );
-        } else {
-            errs++;
-            printf(
-                "ERROR(%d): Syntax error, unexpected ']'.\n",
-                line
-            );
-        }
-    } else if(strstr(msg, "syntax error, unexpected '}'")) {
-        int expCount = findExpTokens(msg);
-        if(expCount > 0) {
-            getExpecting(expecting, expCount);
-            errs++;
-            printf(
                 "ERROR(%d): Syntax error, unexpected '}', expecting %s.\n",
                 line,
                 expecting
