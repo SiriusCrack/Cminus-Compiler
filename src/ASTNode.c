@@ -50,6 +50,10 @@ Node * NewNode (Token token, NodeType nodeType) {
             case CHARCONST:
                 newNode->value.character = token.value.character;
                 break;
+            case STRINGCONST:
+                newNode->value.str = strdup(token.value.str);
+                free(token.value.str);
+                break;
             case BOOLCONST:
                 newNode->value.integer = token.value.integer;
                 break;
@@ -134,6 +138,8 @@ char * DataTypeToString (DataType dataType) {
             return "type char";
         case intData:
             return "type int";
+        case stringData:
+            return "type string";
         default:
             return "unknown";
     }
@@ -148,6 +154,8 @@ void SetDataType (char *dataType, Node *node) { // depreciated. dataTypeliteral 
         node->dataType = charData;
     } else if(strcmp(dataType, "int") == 0) {
         node->dataType = intData;
+    } else if(strcmp(dataType, "string") == 0) {
+        node->dataType = stringData;
     } else {
         printf("Attempted to set invalid datatype\n");
         return;
@@ -220,6 +228,9 @@ void PrintTree (Node * AST, int level) {
                     break;
                 case ntCharConst:
                     printf("Const \'%c\' ", cur->value.character);
+                    break;
+                case ntStringConst:
+                    printf("Const \"%s\" ", cur->value.str);
                     break;
                 case ntBoolConst:
                     if(cur->value.integer == 1) {

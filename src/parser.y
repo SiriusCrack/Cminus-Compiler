@@ -21,7 +21,7 @@ extern int errs;
 }
 
 %token <token> ytint ytbool ytchar ytstatic
-%token <token> ID NUMCONST CHARCONST BOOLCONST
+%token <token> ID NUMCONST CHARCONST STRINGCONST BOOLCONST
 %token <token> ytequals ytadd ytsub ytmul ytdiv ytmod ytassadd ytasssub ytassmul ytassdiv ytinc ytdec ytquestion
 %token <token> ytlesser ytgreater yteq ytnoteq yteqlesser yteqgreater
 %token <token> ytif ytelse ytwhile ytdo ytthen ytnot ytand ytor ytfor ytto ytby ytbreak ytreturn
@@ -718,6 +718,11 @@ constant:
     }|
     CHARCONST {
         $$ = NewNode($1, ntCharConst);
+        $$->isInitialized = 1;
+        $$->isConst = 1;
+    }|
+    STRINGCONST {
+        $$ = NewNode($1, ntStringConst);
         $$->isInitialized = 1;
         $$->isConst = 1;
     }|

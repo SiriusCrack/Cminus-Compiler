@@ -80,6 +80,9 @@ static int setToken (int lineNum, int tokenClass, char * literal) {
         case CHARCONST:
             yylval.token.value.character = checkSpecialChars(literal);
             break;
+        case STRINGCONST:
+            yylval.token.value.str = strdup(removeEscapedChars(yylval.token.literal));
+            break;
         case BOOLCONST:
             yylval.token.value.integer = checkBool(literal);
             break;
