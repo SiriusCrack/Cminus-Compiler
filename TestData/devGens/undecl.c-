@@ -1,4 +1,0 @@
-main() {
-    int hello;
-    world = 0;
-}

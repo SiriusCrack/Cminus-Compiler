@@ -1,7 +1,0 @@
-main() {
-    int hello;
-    int world;
-    {
-        int place;
-    }
-}

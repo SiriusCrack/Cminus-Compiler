@@ -1,5 +1,0 @@
-main() {
-    int hello;
-    int world;
-    world = world + 'c';
-}
