@@ -145,7 +145,7 @@ varDeclId:
         $$ = NewNode($1, ntVarArray); // doesn't clean ytarr
         $$->isDecl = 1;
         $$->isArray = 1;
-        $$->size = $3->value.integer;
+        $$->size = $3.value.integer;
     }|
     ID ytarr error { // also memleak
         $$ = NULL;
