@@ -8,6 +8,7 @@ extern int NodeUID;
 extern int PrintDebugFlag;
 extern int PrintTreeFlag;
 extern int PrintAnnotatedTreeFlag;
+extern int PrintPlacementTreeFlag;
 
 Node * NewNode (Token token, NodeType nodeType) {
     Node * newNode = (Node *) malloc(sizeof(Node));
@@ -464,6 +465,151 @@ void PrintAnnotatedTree (Node * AST, int level) {
                     }
                     printf("Child: %d  ", c);
                     PrintAnnotatedTree(cur->child[c], level+1);
+                }
+            }
+            cur = cur->sibling;
+        } while (cur != NULL);
+        return;
+    }
+}
+
+void PrintPlacementTree (Node * AST, int level) {
+    if(PrintPlacementTreeFlag != 1) {
+        return;
+    } else if(AST == NULL) {
+        printf("empty tree\n");
+        return;
+    } else {
+        Node * cur = AST;
+        do {
+            if(cur->siblingLevel > 0) {
+                int i = 0;
+                for(i = 0;i < level; i++) {
+                    printf(".   ");
+                }
+                printf("Sibling: %d  ", cur->siblingLevel);
+            }
+            switch (cur->nodeType) {
+                case ntVar:
+                    printf("Var: %s %sof type %s ", cur->value.str, IsArrayToASTString(cur->isArray), cur->dataTypeLiteral);
+                    break;
+                case ntStaticVar:
+                    printf("Var: %s %sof type %s ", cur->value.str, IsArrayToASTString(cur->isArray), cur->dataTypeLiteral);
+                    break;
+                case ntFunc:
+                    printf("Func: %s returns type %s ", cur->value.str, cur->dataTypeLiteral);
+                    break;
+                case ntParm:
+                    printf("Parm: %s of type %s ", cur->value.str, cur->dataTypeLiteral);
+                    break;
+                case ntCompound:
+                    printf("Compound ");
+                    break;
+                case ntCompoundwFunc:
+                    printf("Compound ");
+                    break;
+                case ntAssign:
+                    printf("Assign: %s of %s ", cur->value.str, DataTypeToString(cur->dataType));
+                    break;
+                case ntTrueAssign:
+                    printf("Assign: %s of %s ", cur->value.str, DataTypeToString(cur->dataType));
+                    break;
+                case ntID:
+                    printf("Id: %s of %s ", cur->value.str, DataTypeToString(cur->dataType));
+                    break;
+                case ntNumConst:
+                    printf("Const %d of %s ", cur->value.integer, DataTypeToString(cur->dataType));
+                    break;
+                case ntCharConst:
+                    printf("Const \'%c\' of %s ", cur->value.character, DataTypeToString(cur->dataType));
+                    break;
+                case ntStringConst:
+                    printf("Const \"%s\" of %s ", cur->value.str, DataTypeToString(cur->dataType));
+                    break;
+                case ntBoolConst:
+                    if(cur->value.integer == 1) {
+                        printf("Const true of type bool ");
+                    } else {
+                        printf("Const false of type bool ");
+                    }
+                    break;
+                case ntReturn:
+                    printf("Return ");
+                    break;
+                case ntOp:
+                    printf("Op: %s of %s ", cur->value.str, DataTypeToString(cur->dataType));
+                    break;
+                case ntRelOp:
+                    printf("Op: %s of %s ", cur->value.str, DataTypeToString(cur->dataType));
+                    break;
+                case ntCall:
+                    printf("Call: %s of %s ", cur->value.str, DataTypeToString(cur->dataType));
+                    break;
+                case ntIf:
+                    printf("If ");
+                    break;
+                case ntVarArray:
+                    printf("Var: %s is array of type %s ", cur->value.str, cur->dataTypeLiteral);
+                    break;
+                case ntParmArray:
+                    printf("Parm: %s is array of type %s ", cur->value.str, cur->dataTypeLiteral);
+                    break;
+                case ntArrAd:
+                    printf("Op: [ of %s ", DataTypeToString(cur->dataType));
+                    break;
+                case ntIter:
+                    printf("While ");
+                    break;
+                case ntIterwComp:
+                    printf("While ");
+                    break;
+                case ntTo:
+                    printf("For ");
+                    break;
+                case ntTowComp:
+                    printf("For ");
+                    break;
+                case ntBreak:
+                    printf("Break ");
+                    break;
+                case ntRange:
+                    printf("Range ");
+                    break;
+                case ntSignOp:
+                    printf("Op: chsign of %s ", DataTypeToString(cur->dataType));
+                    break;
+                case ntNotOp:
+                    printf("Op: not of %s ", DataTypeToString(cur->dataType));
+                    break;
+                case ntOrOp:
+                    printf("Op: or of %s ", DataTypeToString(cur->dataType));
+                    break;
+                case ntAndOp:
+                    printf("Op: and of %s ", DataTypeToString(cur->dataType));
+                    break;
+                case ntSizeofOp:
+                    printf("Op: sizeof of %s ", DataTypeToString(cur->dataType));
+                    break;
+                case ntQuestOp:
+                    printf("Op: ? of %s ", DataTypeToString(cur->dataType));
+                    break;
+                default:
+                    printf("unknown node\n");
+                    break;
+            }
+
+            if(cur->size > 0) printf("[mem: Local loc: %d size: %d] ", cur->location, cur->size);
+            printf("[line: %d]", cur->lineNum);
+            printf("\n");
+            int c;
+            for(c = 0; c < cur->childCount; c++) {
+                if(cur->child[c] != NULL) {
+                    int i = 0;
+                    for(i = 0;i < level+1; i++) {
+                        printf(".   ");
+                    }
+                    printf("Child: %d  ", c);
+                    PrintPlacementTree(cur->child[c], level+1);
                 }
             }
             cur = cur->sibling;

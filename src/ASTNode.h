@@ -87,7 +87,7 @@ struct Node {
     DataType dataType;
     int size;
     int location;
-    ReferenceType referenceType; 
+    ReferenceType referenceType;
     char *dataTypeLiteral; // should probably get rid of this, but would reworking PrintTree()
     
     // Data
@@ -107,4 +107,5 @@ char * DataTypeToString (DataType dataType);
 void SetDataType (char *dataType, Node *node);
 void PrintTree (Node *, int);
 void PrintAnnotatedTree (Node *, int);
+void PrintPlacementTree (Node *, int);
 #endif
