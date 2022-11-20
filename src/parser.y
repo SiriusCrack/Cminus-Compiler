@@ -139,11 +139,13 @@ varDeclId:
     ID {
         $$ = NewNode($1, ntVar);
         $$->isDecl = 1;
+        $$->size = 1;
     }|
     ID ytarr NUMCONST ']' {
         $$ = NewNode($1, ntVarArray); // doesn't clean ytarr
         $$->isDecl = 1;
         $$->isArray = 1;
+        $$->size = $3->value.integer;
     }|
     ID ytarr error { // also memleak
         $$ = NULL;
@@ -167,6 +169,7 @@ funDecl:
         $$ = NewNode($2, ntFunc);
         $$->isDecl = 1;
         $$->isInitialized = 1;
+        $$->size = 1;
         SetDataType($1, $$);
         $$ = AddChild($$, $4); //might be empty
         $$ = AddChild($$, $6);
@@ -182,6 +185,7 @@ funDecl:
         $$ = NewNode($1, ntFunc);
         $$->isDecl = 1;
         $$->isInitialized = 1;
+        $$->size = 1;
         SetDataType(strdup("void"), $$);
         $$ = AddChild($$, $3); //might be empty
         $$ = AddChild($$, $5);
@@ -252,11 +256,13 @@ parmId:
     ID {
         $$ = NewNode($1, ntParm);
         $$->isDecl = 1;
+        $$->size = 1;
     }|
     ID ytarr ']' {
         $$ = NewNode($1, ntParmArray); // doesn't clean ytarr
         $$->isDecl = 1;
         $$->isArray = 1;
+        $$->size = 1;
     };
 stmt: // so many memleaks
     matched {
@@ -323,6 +329,7 @@ matchedIterStmt:
         id = NewNode($2, ntVar);
         id->isDecl = 1;
         id->isInitialized = 1;
+        id->size = 1;
         SetDataType(strdup("int"), id); //is this fine? assumes always int
         $$ = AddChild($$, id);
         $$ = AddChild($$, $4);
@@ -380,6 +387,7 @@ unmatchedIterStmt:
         id = NewNode($2, ntVar);
         id->isDecl = 1;
         id->isInitialized = 1;
+        id->size = 1;
         SetDataType(strdup("int"), id); //is this fine? assumes always int
         $$ = AddChild($$, id);
         $$ = AddChild($$, $4);

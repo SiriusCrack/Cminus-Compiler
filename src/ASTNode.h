@@ -77,6 +77,7 @@ struct Node {
     int isConst;
     int hasReturn;
     DataType dataType;
+    int size;
     char *dataTypeLiteral; // should probably get rid of this, but would reworking PrintTree()
     
     // Data
