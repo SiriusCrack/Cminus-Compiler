@@ -2,20 +2,25 @@
 #include "SymbolTable.h"
 #include "SemanticAnalysis.h"
 #include "IOLoader.h"
+#include "Placement.h"
 #include "parser.tab.h"
 #include <stdio.h>
 
 extern FILE * yyin;
 extern int yydebug;
 
-int NodeUID;
 Node * AST;
 Node * IOTree;
 ScopeTable * SymbolTable;
 
+int NodeUID;
+int goffset;
+int foffset;
+
 int PrintDebugFlag;
 int PrintTreeFlag;
 int PrintAnnotatedTreeFlag;
+int PrintPlacementTreeFlag;
 int PrintSymTblFlag;
 int warns;
 int errs;
@@ -24,9 +29,12 @@ void parseArgs (int, char * []);
 
 int main (int argc, char * argv[]) {
     NodeUID = 0;
+    goffset = 0;
+    foffset = 0;
     PrintDebugFlag = 0;
     PrintTreeFlag = 0;
     PrintAnnotatedTreeFlag = 0;
+    PrintPlacementTreeFlag = 0;
     PrintSymTblFlag = 0;
     warns = 0;
     errs = 0;
@@ -43,9 +51,11 @@ int main (int argc, char * argv[]) {
             if(AST != NULL) CheckMain(SymbolTable);
             WriteRefs(AST, SymbolTable);
             CheckUse(SymbolTable);
+            DoPlacement(AST);
         }
         PrintSymbolTable(SymbolTable);
         if(errs < 1) PrintAnnotatedTree(AST, 0);
+        PrintPlacementTree(AST, 0);
     }
     printf("Number of warnings: %d\n", warns);
     printf("Number of errors: %d\n", errs);
@@ -71,6 +81,7 @@ void parseArgs (int argc, char * argv[]) {
                 printf("-h \t- print this usage message\n");
                 printf("-p \t- print the abstract syntax tree\n");
                 printf("-P \t- print the abstract syntax tree plus type information\n");
+                printf("-M \t- print scope/size/location information\n");
                 break;
             case 'd':
                 yydebug = 1;
@@ -82,6 +93,9 @@ void parseArgs (int argc, char * argv[]) {
                 break;
             case 'P':
                 PrintAnnotatedTreeFlag = 1;
+                break;
+            case 'M':
+                PrintPlacementTreeFlag = 1;
                 break;
             case 'T':
                 PrintSymTblFlag = 1;
