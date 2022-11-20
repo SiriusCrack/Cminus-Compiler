@@ -51,6 +51,14 @@ typedef enum {
     intData
 } DataType;
 
+typedef enum {
+    rtUnknown,
+    rtLocal,
+    rtGlobal,
+    rtStatic,
+    rtParameter
+} ReferenceType;
+
 typedef struct SymbolTableEntry SymbolTableEntry;
 
 typedef struct Node Node;
@@ -78,6 +86,8 @@ struct Node {
     int hasReturn;
     DataType dataType;
     int size;
+    int location;
+    ReferenceType referenceType; 
     char *dataTypeLiteral; // should probably get rid of this, but would reworking PrintTree()
     
     // Data

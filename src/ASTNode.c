@@ -40,6 +40,8 @@ Node * NewNode (Token token, NodeType nodeType) {
         newNode->hasReturn = 0;
         newNode->dataType = unknown;
         newNode->size = 0;
+        newNode->location = 0;
+        newNode->referenceType = rtUnknown;
         switch (token.tokenClass) {
             case NUMCONST:
                 newNode->value.integer = token.value.integer;
