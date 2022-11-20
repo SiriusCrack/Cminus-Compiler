@@ -12,6 +12,8 @@
 
 extern Node * AST;
 extern ScopeTable * SymbolTable;
+extern int goffset;
+extern int foffset;
 extern int warns;
 extern int errs;
 
@@ -60,6 +62,23 @@ void WriteScopes (Node * node, ScopeTable * table) {
                 myDecl->node->lineNum
             );
         } else {
+            int *offset;
+            if(newScope->parent == NULL) {
+                offset = &goffset;
+            } else {
+                offset = &foffset;
+            }
+            if(newEntry->node->isArray) {
+                *offset = *offset - 1;
+                if(newEntry->node->child[0] != NULL) {
+                    if(newEntry->node->child[0]->nodeType == ntStringConst) {
+                        newEntry->node->child[0]->location = *offset;
+                        *offset = *offset - newEntry->node->child[0]->size;
+                    }
+                }
+            }
+            newEntry->node->location = *offset;
+            *offset = *offset - newEntry->node->size;
             AddEntryToScope(newEntry, newScope);
         }
         if(node->isInitialized) { // roundabout way to check for that weird "var:data" grammar. should definitely move at some point.
