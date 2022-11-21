@@ -51,11 +51,12 @@ int main (int argc, char * argv[]) {
             if(AST != NULL) CheckMain(SymbolTable);
             WriteRefs(AST, SymbolTable);
             CheckUse(SymbolTable);
-            DoPlacement(AST);
+            DoPlacement(AST, SymbolTable);
         }
         PrintSymbolTable(SymbolTable);
         if(errs < 1) PrintAnnotatedTree(AST, 0);
-        PrintPlacementTree(AST, 0);
+        if(errs < 1) PrintPlacementTree(AST, 0);
+        if(errs < 1) if(PrintPlacementTreeFlag) printf("Offset for end of global space: %d\n", goffset);
     }
     printf("Number of warnings: %d\n", warns);
     printf("Number of errors: %d\n", errs);

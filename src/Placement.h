@@ -3,5 +3,5 @@
 #include "ASTNode.h"
 #include "SymbolTable.h"
 
-void DoPlacement (Node * node);
+void DoPlacement (Node * node, ScopeTable * table);
 #endif
