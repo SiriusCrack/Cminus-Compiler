@@ -53,6 +53,7 @@ typedef enum {
 
 typedef enum {
     rtUnknown,
+    rtNone,
     rtLocal,
     rtGlobal,
     rtStatic,
