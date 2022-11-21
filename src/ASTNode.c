@@ -121,6 +121,41 @@ char * IsArrayToASTString(int isArray) {
     }
 }
 
+char * IsArrayToOfString(int isArray) {
+    switch(isArray) {
+        case 1:
+            return "array of ";
+        default:
+            return "";
+    }
+}
+
+char * IsStaticToString(ReferenceType referenceType) {
+    switch(referenceType) {
+        case rtStatic:
+            return "static ";
+        default:
+            return "";
+    }
+}
+
+char * ReferenceTypeToMemPrint(ReferenceType referenceType) {
+    switch(referenceType) {
+        case rtLocal:
+            return "Local";
+        case rtGlobal:
+            return "Global";
+        case rtParameter:
+            return "Parameter";
+        case rtStatic:
+            return "LocalStatic";
+        case rtNone:
+            return "None";
+        default:
+            return "unknown";
+    }
+}
+
 char * NodeTypeToString(NodeType nodeType) {
     switch(nodeType) {
         case ntIter:
@@ -491,10 +526,10 @@ void PrintPlacementTree (Node * AST, int level) {
             }
             switch (cur->nodeType) {
                 case ntVar:
-                    printf("Var: %s %sof type %s ", cur->value.str, IsArrayToASTString(cur->isArray), cur->dataTypeLiteral);
+                    printf("Var: %s of %s%stype %s ", cur->value.str, IsStaticToString(cur->referenceType), IsArrayToOfString(cur->isArray), cur->dataTypeLiteral);
                     break;
                 case ntStaticVar:
-                    printf("Var: %s %sof type %s ", cur->value.str, IsArrayToASTString(cur->isArray), cur->dataTypeLiteral);
+                    printf("Var: %s of static %stype %s ", cur->value.str, IsArrayToOfString(cur->isArray), cur->dataTypeLiteral);
                     break;
                 case ntFunc:
                     printf("Func: %s returns type %s ", cur->value.str, cur->dataTypeLiteral);
@@ -515,7 +550,7 @@ void PrintPlacementTree (Node * AST, int level) {
                     printf("Assign: %s of %s ", cur->value.str, DataTypeToString(cur->dataType));
                     break;
                 case ntID:
-                    printf("Id: %s of %s ", cur->value.str, DataTypeToString(cur->dataType));
+                    printf("Id: %s of %s%stype %s ", cur->value.str, IsStaticToString(cur->entry->following->node->referenceType), IsArrayToOfString(cur->isArray), cur->entry->following->node->dataTypeLiteral);
                     break;
                 case ntNumConst:
                     printf("Const %d of %s ", cur->value.integer, DataTypeToString(cur->dataType));
@@ -524,7 +559,7 @@ void PrintPlacementTree (Node * AST, int level) {
                     printf("Const \'%c\' of %s ", cur->value.character, DataTypeToString(cur->dataType));
                     break;
                 case ntStringConst:
-                    printf("Const \"%s\" of %s ", cur->value.str, DataTypeToString(cur->dataType));
+                    printf("Const \"%s\" of array of %s ", cur->value.str, DataTypeToString(cur->dataType));
                     break;
                 case ntBoolConst:
                     if(cur->value.integer == 1) {
@@ -549,10 +584,10 @@ void PrintPlacementTree (Node * AST, int level) {
                     printf("If ");
                     break;
                 case ntVarArray:
-                    printf("Var: %s is array of type %s ", cur->value.str, cur->dataTypeLiteral);
+                    printf("Var: %s of array of type %s ", cur->value.str, cur->dataTypeLiteral);
                     break;
                 case ntParmArray:
-                    printf("Parm: %s is array of type %s ", cur->value.str, cur->dataTypeLiteral);
+                    printf("Parm: %s of array of type %s ", cur->value.str, cur->dataTypeLiteral);
                     break;
                 case ntArrAd:
                     printf("Op: [ of %s ", DataTypeToString(cur->dataType));
@@ -598,7 +633,7 @@ void PrintPlacementTree (Node * AST, int level) {
                     break;
             }
 
-            if(cur->size > 0) printf("[mem: Local loc: %d size: %d] ", cur->location, cur->size);
+            if(cur->size != 0) printf("[mem: %s loc: %d size: %d] ", ReferenceTypeToMemPrint(cur->referenceType), cur->location, cur->size);
             printf("[line: %d]", cur->lineNum);
             printf("\n");
             int c;
