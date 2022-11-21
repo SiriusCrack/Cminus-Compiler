@@ -86,6 +86,7 @@ scopedVarDecl:
         while(cur != NULL) {
             SetDataType($2, cur);
             cur->nodeType = ntStaticVar;
+            cur->referenceType = 3;
             cur->isInitialized = 1;
             cur = cur->sibling;
         }
@@ -733,7 +734,7 @@ constant:
         $$ = NewNode($1, ntStringConst);
         $$->isInitialized = 1;
         $$->isConst = 1;
-        $$->size = strlen($1.value.str);
+        $$->size = strlen($1.literal) + 1;
     }|
     BOOLCONST {
         $$ = NewNode($1, ntBoolConst);
