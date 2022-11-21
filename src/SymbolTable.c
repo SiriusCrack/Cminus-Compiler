@@ -22,6 +22,7 @@ ScopeTable * NewGlobalScope () {
         }
         newScope->scopeName = strdup("Global");
         newScope->depth = 0;
+        newScope->isGlobal = 1;
         newScope->isIO = 0;
         newScope->self = NULL;
         newScope->symbolTable = NULL;
@@ -42,10 +43,12 @@ ScopeTable * NewScope (Node * node) {
         }
         newScope->scopeName = node->literal;
         newScope->depth = 0;
+        newScope->isGlobal = 0;
         newScope->isIO = 0;
         newScope->self = NewEntry(node);
         newScope->symbolTable = NULL;
         node->entry = newScope->self;
+        node->entry->scope = newScope;
         return newScope;
     }
 }
@@ -251,6 +254,7 @@ int AddEntryToScope (SymbolTableEntry * entry, ScopeTable * scope) { //awful spa
     // Add to scope
     if(scope->symbolTable == NULL) {
         scope->symbolTable = entry;
+        entry->scope = scope;
         return errResult;
     } else {
         // Abomination of a traversal if i ever saw one

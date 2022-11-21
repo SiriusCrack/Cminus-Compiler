@@ -8,8 +8,11 @@
 typedef struct Node Node;
 
 typedef struct SymbolTableEntry SymbolTableEntry;
+typedef struct ScopeTable ScopeTable;
+
 struct SymbolTableEntry {
     // Connections
+    ScopeTable * scope; // pointer to this entry's scope
     SymbolTableEntry * next; // pointer to the next entry in this vector
 
     // Data
@@ -19,7 +22,6 @@ struct SymbolTableEntry {
     int isDecl;
 };
 
-typedef struct ScopeTable ScopeTable;
 struct ScopeTable {
     // Connections
     ScopeTable * parent;
@@ -28,8 +30,9 @@ struct ScopeTable {
     // Info
     char * scopeName; // name of this scope
     int depth;
+    int isGlobal;
     int isIO;
-    SymbolTableEntry *self;
+    SymbolTableEntry * self;
     SymbolTableEntry * symbolTable; //pointer to the vector of symbols in this scope
 };
 
