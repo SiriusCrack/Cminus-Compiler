@@ -4,3 +4,8 @@
 !.vscode/launch.json
 !.vscode/extensions.json
 *.tar
+*.o
+lex.yy.c
+parser.tab.h
+parser.tab.c
+parser.out
