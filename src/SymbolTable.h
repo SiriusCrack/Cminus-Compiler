@@ -28,7 +28,7 @@ struct ScopeTable {
     ScopeTable * child[SCOPE_MAX_CHILDREN]; // pointers to nested scopes
 
     // Info
-    char * scopeName; // name of this scope
+    char const * scopeName; // name of this scope
     int depth;
     int isGlobal;
     int isIO;

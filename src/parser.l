@@ -63,6 +63,7 @@ int checkBool (char * str) {
     } else if(str[0] == 'f') {
         return 0;
     }
+    return 0;
 }
 
 static int setToken (int lineNum, int tokenClass, char * literal) {

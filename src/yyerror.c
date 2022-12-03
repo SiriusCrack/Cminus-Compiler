@@ -18,7 +18,7 @@ int expTokens[10];
 
 void getExpecting(char *expString, int expCount);
 void initializeExpTokens();
-char * ytToString(int yToken);
+char const * ytToString(int yToken);
 int findExpTokens(const char *msg);
 int isBasic(int tokenClass);
 int isBasicString(int tokenClass);
@@ -297,7 +297,7 @@ void initializeExpTokens() {
 
 int findExpTokens(const char *msg) {
     int addr = 0;
-    char * expecting = NULL;
+    char const * expecting = NULL;
     expecting = strstr(msg, ", expecting ");
     if(expecting == NULL) {
         return 0;
@@ -393,7 +393,7 @@ void getExpecting(char *expString, int expCount) {
     }
 }
 
-char * ytToString(int yToken) {
+char const * ytToString(int yToken) {
     switch(yToken) {
         case ID:
             return "identifier";
@@ -436,6 +436,7 @@ char * ytToString(int yToken) {
         case ';':
             return "\';\'";
     }
+    return "oops";
 }
 
 int isBasic(int tokenClass) {

@@ -4,7 +4,7 @@
 
 extern ScopeTable * SymbolTable;
 
-Node * fudgeNode (char * literal, NodeType nodeType) {
+Node * fudgeNode (char const * literal, NodeType nodeType) {
     Token token;
     token.tokenClass = ID;
     token.lineNum = -1;
@@ -36,6 +36,7 @@ Node * fudgeTable (Node * node, ScopeTable * table) {
     if(node->sibling != NULL) {
         fudgeTable(node->sibling, table);
     }
+    return NULL;
 }
 
 Node * LoadIO () {

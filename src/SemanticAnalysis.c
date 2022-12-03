@@ -17,7 +17,7 @@ extern int foffset;
 extern int warns;
 extern int errs;
 
-char * IsArrayToSemanticString(int isArray);
+char const * IsArrayToSemanticString(int isArray);
 int IsScope (Node * node);
 int IsNewEntry (Node * node);
 int IsOp (Node * node);
@@ -729,7 +729,7 @@ void CheckUse (ScopeTable *table) {
     }
 }
 
-char * IsArrayToSemanticString(int isArray) {
+char const * IsArrayToSemanticString(int isArray) {
     if(isArray) {
         return "";
     } else {

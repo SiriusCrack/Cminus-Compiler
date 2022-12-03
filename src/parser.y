@@ -17,7 +17,7 @@ extern int errs;
 %union {
     Token token;
     Node * nodePtr;
-    char * literal;
+    char const * literal;
 }
 
 %token <token> ytint ytbool ytchar ytstatic
@@ -86,7 +86,7 @@ scopedVarDecl:
         while(cur != NULL) {
             SetDataType($2, cur);
             cur->nodeType = ntStaticVar;
-            cur->referenceType = 3;
+            cur->referenceType = rtGlobal;
             cur->isInitialized = 1;
             cur = cur->sibling;
         }

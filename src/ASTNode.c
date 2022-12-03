@@ -112,7 +112,7 @@ Node * AddChild (Node * treePtr, Node * newChild) {
     }
 }
 
-char * IsArrayToASTString(int isArray) {
+char const * IsArrayToASTString(int isArray) {
     switch(isArray) {
         case 1:
             return "is array ";
@@ -121,7 +121,7 @@ char * IsArrayToASTString(int isArray) {
     }
 }
 
-char * IsArrayToOfString(int isArray) {
+char const * IsArrayToOfString(int isArray) {
     switch(isArray) {
         case 1:
             return "array of ";
@@ -130,7 +130,7 @@ char * IsArrayToOfString(int isArray) {
     }
 }
 
-char * IsStaticToString(ReferenceType referenceType) {
+char const * IsStaticToString(ReferenceType referenceType) {
     switch(referenceType) {
         case rtStatic:
             return "static ";
@@ -139,7 +139,7 @@ char * IsStaticToString(ReferenceType referenceType) {
     }
 }
 
-char * ReferenceTypeToMemPrint(ReferenceType referenceType) {
+char const * ReferenceTypeToMemPrint(ReferenceType referenceType) {
     switch(referenceType) {
         case rtLocal:
             return "Local";
@@ -156,7 +156,7 @@ char * ReferenceTypeToMemPrint(ReferenceType referenceType) {
     }
 }
 
-char * NodeTypeToString(NodeType nodeType) {
+char const * NodeTypeToString(NodeType nodeType) {
     switch(nodeType) {
         case ntIter:
             return "while";
@@ -167,7 +167,7 @@ char * NodeTypeToString(NodeType nodeType) {
     }
 }
 
-char * DataTypeToString (DataType dataType) {
+char const * DataTypeToString (DataType dataType) {
     switch(dataType) {
         case voidData:
             return "type void";
@@ -182,7 +182,7 @@ char * DataTypeToString (DataType dataType) {
     }
 }
 
-void SetDataType (char *dataType, Node *node) { // depreciated. dataTypeliteral no longer used
+void SetDataType (char const *dataType, Node *node) { // depreciated. dataTypeliteral no longer used
     if(strcmp(dataType, "void") == 0) {
         node->dataType = voidData;
     } else if(strcmp(dataType, "bool") == 0) {

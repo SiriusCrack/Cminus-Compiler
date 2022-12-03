@@ -74,7 +74,7 @@ struct Node {
 
     // Info
     int UID;
-    char * literal;
+    char const * literal;
     int tokenClass;
     int lineNum;
     int siblingLevel;
@@ -89,7 +89,7 @@ struct Node {
     int size;
     int location;
     ReferenceType referenceType;
-    char *dataTypeLiteral; // should probably get rid of this, but would reworking PrintTree()
+    char const *dataTypeLiteral; // should probably get rid of this, but would reworking PrintTree()
     
     // Data
     union {
@@ -102,10 +102,10 @@ struct Node {
 Node * NewNode (Token, NodeType);
 Node * AddSibling (Node * treePtr, Node * newSibling);
 Node * AddChild (Node * treePtr, Node * newChild);
-char * IsArrayToASTString(int isArray);
-char * NodeTypeToString(NodeType nodeType);
-char * DataTypeToString (DataType dataType);
-void SetDataType (char *dataType, Node *node);
+char const * IsArrayToASTString(int isArray);
+char const * NodeTypeToString(NodeType nodeType);
+char const * DataTypeToString (DataType dataType);
+void SetDataType (char const *dataType, Node *node);
 void PrintTree (Node *, int);
 void PrintAnnotatedTree (Node *, int);
 void PrintPlacementTree (Node *, int);

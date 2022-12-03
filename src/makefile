@@ -11,10 +11,10 @@ srcobjs = main.o ASTNode.o SymbolTable.o SemanticAnalysis.o IOLoader.o Placement
 lexyaccobjs = lex.yy.o parser.tab.o
 
 $(BIN) : $(lexyaccobjs) $(srcobjs)
-	gcc $(lexyaccobjs) $(srcobjs) -o $(BIN)
+	g++ $(lexyaccobjs) $(srcobjs) -o $(BIN)
 
 $(srcobjs) : $(headers) $(src)
-	gcc $(src) -c
+	g++ $(src) -c
 
 $(lexgens) : $(lexsrc) $(yaccgens) $(headers)
 	flex $(lexsrc)
