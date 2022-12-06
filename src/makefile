@@ -2,19 +2,19 @@ BIN = c-
 
 lexsrc = parser.l
 yaccsrc = parser.y
-headers = Token.h ASTNode.h SymbolTable.h SemanticAnalysis.h IOLoader.h Placement.h yyerror.h emitcode.h
-src = lex.yy.c parser.tab.c main.c ASTNode.c SymbolTable.c SemanticAnalysis.c IOLoader.c Placement.c yyerror.c emitcode.cpp
+headers = Token.h ASTNode.h SymbolTable.h SemanticAnalysis.h IOLoader.h Placement.h yyerror.h emitcode.h codegen.h
+src = lex.yy.c parser.tab.c main.c ASTNode.c SymbolTable.c SemanticAnalysis.c IOLoader.c Placement.c yyerror.c emitcode.cpp codegen.cpp
 
 lexgens = lex.yy.c
 yaccgens = parser.tab.h parser.tab.c parser.output
-srcobjs = main.o ASTNode.o SymbolTable.o SemanticAnalysis.o IOLoader.o Placement.o yyerror.o emitcode.o
+srcobjs = main.o ASTNode.o SymbolTable.o SemanticAnalysis.o IOLoader.o Placement.o yyerror.o emitcode.o codegen.o
 lexyaccobjs = lex.yy.o parser.tab.o
 
 $(BIN) : $(lexyaccobjs) $(srcobjs)
 	g++ $(lexyaccobjs) $(srcobjs) -o $(BIN)
 
 $(srcobjs) : $(headers) $(src)
-	g++ $(src) -c
+	g++ $(src) -c -Wno-write-strings
 
 $(lexgens) : $(lexsrc) $(yaccgens) $(headers)
 	flex $(lexsrc)

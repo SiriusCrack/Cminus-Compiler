@@ -3,6 +3,7 @@
 #include "SemanticAnalysis.h"
 #include "IOLoader.h"
 #include "Placement.h"
+#include "codegen.h"
 #include "parser.tab.h"
 #include <stdio.h>
 
@@ -12,6 +13,7 @@ extern int yydebug;
 Node * AST;
 Node * IOTree;
 ScopeTable * SymbolTable;
+FILE * code;
 
 int NodeUID;
 int goffset;
@@ -51,13 +53,14 @@ int main (int argc, char * argv[]) {
             if(AST != NULL) CheckMain(SymbolTable);
             WriteRefs(AST, SymbolTable);
             CheckUse(SymbolTable);
-            DoPlacement(AST, SymbolTable);
+            Placement();
         }
         PrintSymbolTable(SymbolTable);
         if(errs < 1) PrintAnnotatedTree(AST, 0);
         if(errs < 1) PrintPlacementTree(AST, 0);
         if(errs < 1) if(PrintPlacementTreeFlag) printf("Offset for end of global space: %d\n", goffset);
     }
+    // WalkAST(AST);
     printf("Number of warnings: %d\n", warns);
     printf("Number of errors: %d\n", errs);
     return 0;
@@ -65,6 +68,7 @@ int main (int argc, char * argv[]) {
 
 void parseArgs (int argc, char * argv[]) {
     FILE * fp = fopen(argv[argc-1], "r");
+    code = fopen("out.tm", "w+");
     if(fp) {
         yyin = fp;
     } else {

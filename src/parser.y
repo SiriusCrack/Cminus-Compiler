@@ -170,7 +170,6 @@ funDecl:
         $$ = NewNode($2, ntFunc);
         $$->isDecl = 1;
         $$->isInitialized = 1;
-        $$->size = 1;
         SetDataType($1, $$);
         $$ = AddChild($$, $4); //might be empty
         $$ = AddChild($$, $6);
@@ -186,7 +185,6 @@ funDecl:
         $$ = NewNode($1, ntFunc);
         $$->isDecl = 1;
         $$->isInitialized = 1;
-        $$->size = 1;
         SetDataType(strdup("void"), $$);
         $$ = AddChild($$, $3); //might be empty
         $$ = AddChild($$, $5);
@@ -724,11 +722,13 @@ constant:
         $$ = NewNode($1, ntNumConst);
         $$->isInitialized = 1;
         $$->isConst = 1;
+        $$->size = 1;
     }|
     CHARCONST {
         $$ = NewNode($1, ntCharConst);
         $$->isInitialized = 1;
         $$->isConst = 1;
+        $$->size = 1;
     }|
     STRINGCONST {
         $$ = NewNode($1, ntStringConst);
@@ -740,5 +740,6 @@ constant:
         $$ = NewNode($1, ntBoolConst);
         $$->isInitialized = 1;
         $$->isConst = 1;
+        $$->size = 1;
     };
 %%

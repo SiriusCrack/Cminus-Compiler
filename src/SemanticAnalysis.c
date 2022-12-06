@@ -63,6 +63,7 @@ void WriteScopes (Node * node, ScopeTable * table) {
             );
         } else {
             AddEntryToScope(newEntry, newScope);
+            if(newScope->isGlobal) { newEntry->node->referenceType = rtGlobal; }
         }
         if(node->isInitialized) { // roundabout way to check for that weird "var:data" grammar. should definitely move at some point.
             if(node->child[0] != NULL) {

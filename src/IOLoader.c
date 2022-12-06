@@ -41,16 +41,31 @@ Node * fudgeTable (Node * node, ScopeTable * table) {
 
 Node * LoadIO () {
     Node * tree;
+
     tree = fudgeNode("input", ntFunc);
-    AddSibling(tree, fudgeNode("inputb", ntFunc));
-    AddSibling(tree, fudgeNode("inputc", ntFunc));
+    tree->dataType = intData;
     AddSibling(tree, fudgeNode("output", ntFunc));
-    AddChild(tree->sibling->sibling->sibling, fudgeNode("*dummy*", ntParm));
+    tree->sibling->dataType = voidData;
+    AddChild(tree->sibling, fudgeNode("*dummy*", ntParm));
+    tree->sibling->child[0]->dataType = intData;
+
+    AddSibling(tree, fudgeNode("inputb", ntFunc));
+    tree->sibling->sibling->dataType = boolData;
     AddSibling(tree, fudgeNode("outputb", ntFunc));
-    AddChild(tree->sibling->sibling->sibling->sibling, fudgeNode("*dummy*", ntParm));
+    tree->sibling->sibling->sibling->dataType = voidData;
+    AddChild(tree->sibling->sibling->sibling, fudgeNode("*dummy*", ntParm));
+    tree->sibling->sibling->sibling->child[0]->dataType = boolData;
+
+    AddSibling(tree, fudgeNode("inputc", ntFunc));
+    tree->sibling->sibling->sibling->sibling->dataType = charData;
     AddSibling(tree, fudgeNode("outputc", ntFunc));
+    tree->sibling->sibling->sibling->sibling->sibling->dataType = voidData;
     AddChild(tree->sibling->sibling->sibling->sibling->sibling, fudgeNode("*dummy*", ntParm));
+    tree->sibling->sibling->sibling->sibling->sibling->child[0]->dataType = charData;
+
     AddSibling(tree, fudgeNode("outnl", ntFunc));
+    tree->sibling->sibling->sibling->sibling->sibling->sibling->dataType = voidData;
+
     fudgeTable(tree, SymbolTable);
     tree->dataType = intData;
     return tree;

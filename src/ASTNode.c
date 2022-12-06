@@ -42,7 +42,7 @@ Node * NewNode (Token token, NodeType nodeType) {
         newNode->dataType = unknown;
         newNode->size = 0;
         newNode->location = 0;
-        newNode->referenceType = rtUnknown;
+        newNode->referenceType = rtNone;
         switch (token.tokenClass) {
             case NUMCONST:
                 newNode->value.integer = token.value.integer;
@@ -532,10 +532,10 @@ void PrintPlacementTree (Node * AST, int level) {
                     printf("Var: %s of static %stype %s ", cur->value.str, IsArrayToOfString(cur->isArray), cur->dataTypeLiteral);
                     break;
                 case ntFunc:
-                    printf("Func: %s returns type %s ", cur->value.str, cur->dataTypeLiteral);
+                    printf("Func: %s returns %s ", cur->value.str, DataTypeToString(cur->dataType));
                     break;
                 case ntParm:
-                    printf("Parm: %s of type %s ", cur->value.str, cur->dataTypeLiteral);
+                    printf("Parm: %s of %s ", cur->value.str, DataTypeToString(cur->dataType));
                     break;
                 case ntCompound:
                     printf("Compound ");
