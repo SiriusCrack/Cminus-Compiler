@@ -100,7 +100,7 @@ struct Node {
 };
 
 Node * NewNode (Token, NodeType);
-Node * AddSibling (Node * treePtr, Node * newSibling);
+Node * AddSibling (Node * node, Node * sibling);
 Node * AddChild (Node * treePtr, Node * newChild);
 char const * IsArrayToASTString(int isArray);
 char const * NodeTypeToString(NodeType nodeType);

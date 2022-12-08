@@ -70,29 +70,17 @@ Node * NewNode (Token token, NodeType nodeType) {
     }
 }
 
-Node * AddSibling (Node * treePtr, Node * newSibling) {
-    if(treePtr == NULL) {
-        if(PrintDebugFlag == 1) printf("started row with %s\n", newSibling->literal);
-        treePtr->siblingLevel = 0;
-        return newSibling;
-    } else {
-        Node * cur = treePtr;
-        while(cur->sibling != NULL) {
-            cur = cur->sibling;
+Node * AddSibling(Node * node, Node * sibling) {
+    if(node == NULL) { return sibling; }
+    else if(node->sibling != NULL) { AddSibling(node->sibling, sibling); }
+    else {
+        node->sibling = sibling;
+        if(sibling != NULL) {
+            sibling->prevSibling = node;
+            sibling->siblingLevel = sibling->prevSibling->siblingLevel + 1;
         }
-        newSibling->siblingLevel = cur->siblingLevel + 1;
-        cur->sibling = newSibling;
-        newSibling->prevSibling = cur;
-        if(PrintDebugFlag == 1) printf("added %s as sibling to %s\n", newSibling->literal, cur->literal);
-        cur = newSibling;
-        int i = cur->siblingLevel;
-        while(cur->sibling != NULL) { // walks to the end of siblingList, even though we should've just added the last sibling? seems redundant. oh well, it's worked so far...
-            i = i + 1;
-            cur = cur->sibling;
-            cur->siblingLevel = i;
-        }
-        return treePtr;
     }
+    return node;
 }
 
 Node * AddChild (Node * treePtr, Node * newChild) {
