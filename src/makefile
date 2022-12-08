@@ -1,29 +1,27 @@
 BIN = c-
 
-lexsrc = parser.l
-yaccsrc = parser.y
-headers = Token.h ASTNode.h SymbolTable.h SemanticAnalysis.h IOLoader.h Placement.h yyerror.h emitcode.h codegen.h
-src = lex.yy.c parser.tab.c main.c ASTNode.c SymbolTable.c SemanticAnalysis.c IOLoader.c Placement.c yyerror.c emitcode.cpp codegen.cpp
+OBJECTS = main.o $(LEXYACCOBJECTS) ASTNode.o SymbolTable.o SemanticAnalysis.o IOLoader.o Placement.o yyerror.o emitcode.o codegen.o
+SOURCES = main.c $(LEXGENERATIONS) $(YACCGENERATIONS)
+HEADERS = Token.h ASTNode.h SymbolTable.h SemanticAnalysis.h IOLoader.h Placement.h yyerror.h emitcode.h codegen.h
+LEXYACCOBJECTS = lex.yy.o parser.tab.o
+YACCGENERATIONS = parser.tab.c
+LEXGENERATIONS = lex.yy.c
 
-lexgens = lex.yy.c
-yaccgens = parser.tab.h parser.tab.c parser.output
-srcobjs = main.o ASTNode.o SymbolTable.o SemanticAnalysis.o IOLoader.o Placement.o yyerror.o emitcode.o codegen.o
-lexyaccobjs = lex.yy.o parser.tab.o
+$(BIN) : $(OBJECTS)
+	g++ $(OBJECTS) -o $(BIN)
+	rm -f $(OBJECTS) parser.out
 
-$(BIN) : $(lexyaccobjs) $(srcobjs)
-	g++ $(lexyaccobjs) $(srcobjs) -o $(BIN)
+$(OBJECTS) : $(SOURCES) $(HEADERS)
+	g++ $(SOURCES) -c -Wno-write-strings
 
-$(srcobjs) : $(headers) $(src)
-	g++ $(src) -c -Wno-write-strings
+$(LEXGENERATIONS) : parser.l $(YACCGENERATIONS) parser.tab.h $(HEADERS)
+	flex parser.l
 
-$(lexgens) : $(lexsrc) $(yaccgens) $(headers)
-	flex $(lexsrc)
-
-$(yaccgens) : $(yaccsrc) $(headers)
-	bison -v -t -d $(yaccsrc)
+$(YACCGENERATIONS) : parser.y $(HEADERS)
+	bison -v -t -d parser.y
 
 clean :
-	rm -f $(BIN) $(BIN).tar $(lexgens) $(yaccgens) $(srcobjs) $(lexyaccobjs) parser.out
+	rm -f $(BIN) $(BIN).tar $(OBJECTS) parser.out
 
-tar	: $(lexsrc) $(yaccsrc) $(headers) $(src) makefile
-	tar -cvf $(BIN).tar $(lexsrc) $(yaccsrc) $(headers) $(src) makefile
+tar	: $(SOURCES) $(HEADERS) parser.l parser.y makefile
+	tar -cvf $(BIN).tar $(SOURCES) $(HEADERS) parser.l parser.y makefile
