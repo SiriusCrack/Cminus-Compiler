@@ -45,7 +45,7 @@ int main (int argc, char * argv[]) {
     }
     if(yyin != NULL) {
         SymbolTable = NewGlobalScope();
-        IOTree = LoadIO();
+        AST = LoadIO();
         yyparse();
         PrintTree(AST, 0);
         if(errs < 1) {

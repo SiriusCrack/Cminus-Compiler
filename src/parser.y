@@ -35,7 +35,7 @@ extern int errs;
 %%
 program:
     declList {
-        AST = $1;
+        AST = AddSibling(AST, $1);
     }|
     %empty {
         errs++;
