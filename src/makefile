@@ -9,7 +9,7 @@ LEXGENERATIONS = lex.yy.c
 
 $(BIN) : $(OBJECTS)
 	g++ $(OBJECTS) -o $(BIN)
-	rm -f $(OBJECTS) parser.out
+	rm -f $(OBJECTS) parser.output
 
 $(OBJECTS) : $(SOURCES) $(HEADERS)
 	g++ $(SOURCES) -c -Wno-write-strings
@@ -21,7 +21,7 @@ $(YACCGENERATIONS) : parser.y $(HEADERS)
 	bison -v -t -d parser.y
 
 clean :
-	rm -f $(BIN) $(BIN).tar $(OBJECTS) parser.out
+	rm -f $(BIN) $(BIN).tar $(OBJECTS) parser.output
 
 tar	: $(SOURCES) $(HEADERS) parser.l parser.y makefile
 	tar -cvf $(BIN).tar $(SOURCES) $(HEADERS) parser.l parser.y makefile
