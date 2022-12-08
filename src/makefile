@@ -1,7 +1,7 @@
 BIN = c-
 
 OBJECTS = main.o $(LEXYACCOBJECTS) ASTNode.o SymbolTable.o SemanticAnalysis.o IOLoader.o Placement.o yyerror.o emitcode.o codegen.o
-SOURCES = main.c $(LEXGENERATIONS) $(YACCGENERATIONS)
+SOURCES = main.c $(LEXGENERATIONS) $(YACCGENERATIONS) ASTNode.c SymbolTable.c SemanticAnalysis.c IOLoader.c Placement.c yyerror.c emitcode.cpp codegen.c
 HEADERS = Token.h ASTNode.h SymbolTable.h SemanticAnalysis.h IOLoader.h Placement.h yyerror.h emitcode.h codegen.h
 LEXYACCOBJECTS = lex.yy.o parser.tab.o
 YACCGENERATIONS = parser.tab.c

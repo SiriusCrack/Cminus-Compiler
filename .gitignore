@@ -5,6 +5,7 @@
 !.vscode/extensions.json
 *.tar
 *.o
+c-
 lex.yy.c
 parser.tab.h
 parser.tab.c
