@@ -38,6 +38,7 @@ Node * NewNode (Token token, NodeType nodeType) {
         newNode->isArray = 0;
         newNode->isLoop = 0;
         newNode->isConst = 0;
+        newNode->isIO = 0;
         newNode->hasReturn = 0;
         newNode->dataType = unknown;
         newNode->size = 0;

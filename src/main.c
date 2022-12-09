@@ -60,7 +60,7 @@ int main (int argc, char * argv[]) {
         if(errs < 1) PrintPlacementTree(AST, 0);
         if(errs < 1) if(PrintPlacementTreeFlag) printf("Offset for end of global space: %d\n", goffset);
     }
-    // WalkAST(AST);
+    CodeGen();
     printf("Number of warnings: %d\n", warns);
     printf("Number of errors: %d\n", errs);
     return 0;

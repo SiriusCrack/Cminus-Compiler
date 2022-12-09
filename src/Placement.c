@@ -6,7 +6,7 @@ extern Node *AST;
 extern int goffset;
 extern int foffset;
 
-void walkAST (Node *node);
+static void walkAST (Node *node);
 void placeNode (Node *node);
 
 void Placement() {

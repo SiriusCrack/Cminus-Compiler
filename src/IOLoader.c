@@ -10,7 +10,9 @@ Node * fudgeNode (char const * literal, NodeType nodeType) {
     token.lineNum = -1;
     token.literal = strdup(literal);
     token.value.str = strdup(literal);
-    return NewNode(token, nodeType);
+    Node *node = NewNode(token, nodeType);
+    node->isIO = 1;
+    return node;
 }
 
 Node * fudgeTable (Node * node, ScopeTable * table) {

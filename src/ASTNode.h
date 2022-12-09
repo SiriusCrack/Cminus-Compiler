@@ -84,6 +84,7 @@ struct Node {
     int isArray;
     int isLoop;
     int isConst;
+    int isIO;
     int hasReturn;
     DataType dataType;
     int size;
