@@ -53,8 +53,8 @@ void generateCode(Node * node) {
         case ntCompound:
         case ntCompoundwFunc: {
             fprintf(code, "* COMPOUND\n");
-            toffset = node->size;
             int temptoffset = toffset;
+            toffset = node->size;
             fprintf(code, "* TOFF set: %d\n", toffset);
             fprintf(code, "* Compound Body\n");
             for(int child = 0; child < AST_MAX_CHILDREN; child++) {
@@ -66,22 +66,26 @@ void generateCode(Node * node) {
             break;
         }
         case ntCall: {
+            // ghostframe call jump return thing not correct
             fprintf(code, "* EXPRESSION\n");
             fprintf(code, "* CALL %s\n", node->entry->following->node->literal);
             int ghostFrame = -emitWhereAmI();
-            emitRM("ST", 1, toffset, 1, "Store fp in ghost frame for output");
+            emitRM("ST", 1, toffset, 1, "Store fp in ghost frame for _");
             int temptoffset = toffset;
             toffset--;
             fprintf(code, "* TOFF dec: %d\n", toffset);
             for(int child = 0; child < AST_MAX_CHILDREN; child++) {
                 generateCallParam(node->child[child]);
             }
-            emitRM("LDA", 1, -2, 1, "Ghost frame becomes new active frame");
+            toffset--;
+            fprintf(code, "* TOFF dec: %d\n", toffset);
+            fprintf(code, "* Param end %s\n", node->entry->following->node->literal);
+            toffset = temptoffset;
+            emitRM("LDA", 1, toffset, 1, "Ghost frame becomes new active frame");
             emitRM("LDA", 3, 1, 7, "Return address in ac");
-            emitRM("JMP", 7, ghostFrame, 7, "CALL output");
+            emitRM("JMP", 7, ghostFrame, 7, "CALL _");
             emitRM("LDA", 3, 0, 2, "Save the result in ac");
             fprintf(code, "* Call end %s\n", node->entry->following->node->literal);
-            toffset = temptoffset;
             fprintf(code, "* TOFF set: %d\n", toffset);
             break;
         }
@@ -111,9 +115,6 @@ void generateCallParam(Node *node) {
     fprintf(code, "* Param 1\n");
     emitRM("LDC", 3, node->value.integer, 6, "Load integer constant");
     emitRM("ST", 3, toffset, 1, "Push parameter");
-    toffset--;
-    fprintf(code, "* TOFF dec: %d\n", toffset);
-    fprintf(code, "* Param end output\n");
 }
 
 void generateInit() {
