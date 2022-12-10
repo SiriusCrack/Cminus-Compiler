@@ -113,8 +113,16 @@ void generateCallParam(Node *node) {
     toffset--;
     fprintf(code, "* TOFF dec: %d\n", toffset);
     fprintf(code, "* Param 1\n");
-    emitRM("LDC", 3, node->value.integer, 6, "Load integer constant");
-    emitRM("ST", 3, toffset, 1, "Push parameter");
+    switch(node->dataType) {
+        case intData:
+            emitRM("LDC", 3, node->value.integer, 6, "Load integer constant");
+            emitRM("ST", 3, toffset, 1, "Push parameter");
+            break;
+        case boolData:
+            emitRM("LDC", 3, node->value.integer, 6, "Load Boolean constant");
+            emitRM("ST", 3, toffset, 1, "Push parameter");
+            break;
+    }
 }
 
 void generateInit() {
