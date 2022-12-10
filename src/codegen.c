@@ -85,6 +85,17 @@ void generateCode(Node * node) {
             fprintf(code, "* TOFF set: %d\n", toffset);
             break;
         }
+        case ntReturn: {
+            fprintf(code, "* RETURN\n");
+            emitRM("LD", 3, -1, 1, "Load return address");
+            emitRM("LD", 1, 0, 1, "Adjust fp");
+            emitRM("JMP", 7, 0, 3, "Return");
+            break;
+        }
+        case ntNumConst: {
+            fprintf(code, "* EXPRESSION\n");
+            emitRM("LDC", 3, node->value.integer, 6, "Load integer constant");
+        }
         default: {
             for(int child = 0; child < AST_MAX_CHILDREN; child++) {
                 walkAST(node->child[child]);
