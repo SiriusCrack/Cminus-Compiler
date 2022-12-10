@@ -10,11 +10,19 @@ int toffset = 0;
 int returnAddress = 0;
 int mainAddress = 0;
 
-static void walkAST (Node * node);
+static void walkAST (Node *node);
+static void walkChildren (Node *node);
+
 static void generateCode (Node *node);
+static void generateFunction (Node *node);
+static void generateCompound (Node *node);
+static void generateCall (Node *node);
 static void generateCallParam (Node *node);
-static void generateInit ();
+static void generateReturn (Node *node);
+static void generateAssign (Node *node);
+static void generateConstant (Node *node);
 static void generateIO ();
+static void generateInit ();
 
 void CodeGen() {
     generateIO();
@@ -29,83 +37,74 @@ void walkAST(Node * node) {
     walkAST(node->sibling);
 }
 
+void walkChildren(Node *node) {
+    for(int child = 0; child < AST_MAX_CHILDREN; child++) {
+        walkAST(node->child[child]);
+    }
+}
+
 void generateCode(Node * node) {
     switch(node->nodeType) {
-        case ntFunc: {
-            fprintf(code, "* FUNCTION %s\n", node->literal);
-            toffset = node->size;
-            fprintf(code, "* TOFF set: %d\n", toffset);
-            returnAddress = emitWhereAmI();
-            if(strcmp("main", node->literal) == 0) { mainAddress = returnAddress; }
-            emitRM("ST", 3, -1, 1, "Store return address");
-            for(int child = 0; child < AST_MAX_CHILDREN; child++) {
-                walkAST(node->child[child]);
-            }
-            fprintf(code, "* Add standard closing in case there is no return statement\n");
-            emitRM("LDC", 2, 0, 6, "Set return value to 0");
-            emitRM("LD", 3, -1, 1, "Load return address");
-            emitRM("LD", 1, 0, 1, "Adjust fp");
-            emitRM("JMP", 7, 0, 3, "Return");
-            fprintf(code, "* END FUNCTION %s\n", node->literal);
-            toffset = 0;
-            break;
-        }
+        case ntFunc: { generateFunction(node); break; }
         case ntCompound:
-        case ntCompoundwFunc: {
-            fprintf(code, "* COMPOUND\n");
-            int temptoffset = toffset;
-            toffset = node->size;
-            fprintf(code, "* TOFF set: %d\n", toffset);
-            fprintf(code, "* Compound Body\n");
-            for(int child = 0; child < AST_MAX_CHILDREN; child++) {
-                walkAST(node->child[child]);
-            }
-            toffset = temptoffset;
-            fprintf(code, "* TOFF set: %d\n", toffset);
-            fprintf(code, "* END COMPOUND\n");
-            break;
-        }
-        case ntCall: {
-            // ghostframe call jump return thing not correct
-            fprintf(code, "* EXPRESSION\n");
-            fprintf(code, "* CALL %s\n", node->entry->following->node->literal);
-            int ghostFrame = -emitWhereAmI();
-            emitRM("ST", 1, toffset, 1, "Store fp in ghost frame for _");
-            int temptoffset = toffset;
-            toffset--;
-            fprintf(code, "* TOFF dec: %d\n", toffset);
-            for(int child = 0; child < AST_MAX_CHILDREN; child++) {
-                generateCallParam(node->child[child]);
-            }
-            toffset--;
-            fprintf(code, "* TOFF dec: %d\n", toffset);
-            fprintf(code, "* Param end %s\n", node->entry->following->node->literal);
-            toffset = temptoffset;
-            emitRM("LDA", 1, toffset, 1, "Ghost frame becomes new active frame");
-            emitRM("LDA", 3, 1, 7, "Return address in ac");
-            emitRM("JMP", 7, ghostFrame, 7, "CALL _");
-            emitRM("LDA", 3, 0, 2, "Save the result in ac");
-            fprintf(code, "* Call end %s\n", node->entry->following->node->literal);
-            fprintf(code, "* TOFF set: %d\n", toffset);
-            break;
-        }
-        case ntReturn: {
-            fprintf(code, "* RETURN\n");
-            emitRM("LD", 3, -1, 1, "Load return address");
-            emitRM("LD", 1, 0, 1, "Adjust fp");
-            emitRM("JMP", 7, 0, 3, "Return");
-            break;
-        }
-        case ntNumConst: {
-            fprintf(code, "* EXPRESSION\n");
-            emitRM("LDC", 3, node->value.integer, 6, "Load integer constant");
-        }
-        default: {
-            for(int child = 0; child < AST_MAX_CHILDREN; child++) {
-                walkAST(node->child[child]);
-            }
-        }
+        case ntCompoundwFunc: { generateFunction(node); break; }
+        case ntCall: { generateCall(node); break; }
+        case ntReturn: { generateReturn(node); break; }
+        case ntTrueAssign: { generateAssign(node); break; }
+        case ntNumConst: { generateConstant(node); break; }
     }
+}
+
+void generateFunction(Node *node) {
+    int temptoffset = toffset;
+    fprintf(code, "* FUNCTION %s\n", node->literal);
+    toffset = node->size;
+    fprintf(code, "* TOFF set: %d\n", toffset);
+    returnAddress = emitWhereAmI();
+    if(strcmp("main", node->literal) == 0) { mainAddress = returnAddress; }
+    emitRM("ST", 3, -1, 1, "Store return address");
+    walkChildren(node);
+    fprintf(code, "* Add standard closing in case there is no return statement\n");
+    emitRM("LDC", 2, 0, 6, "Set return value to 0");
+    emitRM("LD", 3, -1, 1, "Load return address");
+    emitRM("LD", 1, 0, 1, "Adjust fp");
+    emitRM("JMP", 7, 0, 3, "Return");
+    fprintf(code, "* END FUNCTION %s\n", node->literal);
+    toffset = temptoffset;
+}
+
+void generateCompound(Node *node) {
+    fprintf(code, "* COMPOUND\n");
+    int temptoffset = toffset;
+    toffset = node->size;
+    fprintf(code, "* TOFF set: %d\n", toffset);
+    fprintf(code, "* Compound Body\n");
+    walkChildren(node);
+    toffset = temptoffset;
+    fprintf(code, "* TOFF set: %d\n", toffset);
+    fprintf(code, "* END COMPOUND\n");
+}
+
+void generateCall(Node *node) {
+    // ghostframe call jump return thing not correct
+    fprintf(code, "* EXPRESSION\n");
+    fprintf(code, "* CALL %s\n", node->entry->following->node->literal);
+    int ghostFrame = -emitWhereAmI();
+    emitRM("ST", 1, toffset, 1, "Store fp in ghost frame for _");
+    int temptoffset = toffset;
+    toffset--;
+    fprintf(code, "* TOFF dec: %d\n", toffset);
+    walkChildren(node);
+    toffset--;
+    fprintf(code, "* TOFF dec: %d\n", toffset);
+    fprintf(code, "* Param end %s\n", node->entry->following->node->literal);
+    toffset = temptoffset;
+    emitRM("LDA", 1, toffset, 1, "Ghost frame becomes new active frame");
+    emitRM("LDA", 3, 1, 7, "Return address in ac");
+    emitRM("JMP", 7, ghostFrame, 7, "CALL _");
+    emitRM("LDA", 3, 0, 2, "Save the result in ac");
+    fprintf(code, "* Call end %s\n", node->entry->following->node->literal);
+    fprintf(code, "* TOFF set: %d\n", toffset);
 }
 
 void generateCallParam(Node *node) {
@@ -113,6 +112,11 @@ void generateCallParam(Node *node) {
     toffset--;
     fprintf(code, "* TOFF dec: %d\n", toffset);
     fprintf(code, "* Param 1\n");
+    if(node->nodeType == ntID) {
+        emitRM("LD", 3, -2, 1, "Load variable _");
+        emitRM("ST", 3, toffset, 1, "Push parameter");
+        return;
+    }
     switch(node->dataType) {
         case intData:
             emitRM("LDC", 3, node->value.integer, 6, "Load integer constant");
@@ -123,6 +127,24 @@ void generateCallParam(Node *node) {
             emitRM("ST", 3, toffset, 1, "Push parameter");
             break;
     }
+}
+
+void generateReturn(Node *node) {
+    fprintf(code, "* RETURN\n");
+    emitRM("LD", 3, -1, 1, "Load return address");
+    emitRM("LD", 1, 0, 1, "Adjust fp");
+    emitRM("JMP", 7, 0, 3, "Return");
+}
+
+void generateAssign(Node *node) {
+    fprintf(code, "* EXPRESSION\n");
+    emitRM("LDC", 3, node->child[1]->value.integer, 6, "Load integer constant");
+    emitRM("ST", 3, toffset, 1, "Store variable _");
+}
+
+void generateConstant(Node *node) {
+    fprintf(code, "* EXPRESSION\n");
+    emitRM("LDC", 3, node->value.integer, 6, "Load integer constant");
 }
 
 void generateInit() {
