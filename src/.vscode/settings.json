@@ -12,6 +12,10 @@
         "string_view": "c",
         "stdlib.h": "c",
         "functional": "c",
-        "token.h": "c"
-    }
+        "token.h": "c",
+        "emitcode.h": "c",
+        "hash_map": "c",
+        "initializer_list": "c"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }
