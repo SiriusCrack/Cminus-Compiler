@@ -89,6 +89,7 @@ struct Node {
     DataType dataType;
     int size;
     int location;
+    int tmAddress;
     ReferenceType referenceType;
     char const *dataTypeLiteral; // should probably get rid of this, but would reworking PrintTree()
     

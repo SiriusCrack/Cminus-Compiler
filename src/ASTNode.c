@@ -43,6 +43,7 @@ Node * NewNode (Token token, NodeType nodeType) {
         newNode->dataType = unknown;
         newNode->size = 0;
         newNode->location = 0;
+        newNode->location = 0;
         newNode->referenceType = rtNone;
         switch (token.tokenClass) {
             case NUMCONST:
