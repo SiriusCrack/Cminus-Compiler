@@ -19,6 +19,8 @@ static void walkChildren (Node *node);
 static void generateCode (Node *node);
 static void generateFunction (Node *node);
 static void generateCompound (Node *node);
+static void generateIf (Node *node);
+static void generateWhile (Node *node);
 static void generateCall (Node *node);
 static void generateCallParams (Node *node);
 static void generateArrayDecl (Node *node);
@@ -60,6 +62,8 @@ void generateCode(Node * node) {
         case ntFunc: { generateFunction(node); break; }
         case ntCompound:
         case ntCompoundwFunc: { generateCompound(node); break; }
+        case ntIf: { generateIf(node); break; }
+        case ntIter: { generateWhile(node); break; }
         case ntCall: { generateCall(node); break; }
         case ntVar:
         case ntStaticVar:
@@ -113,6 +117,28 @@ void generateCompound(Node *node) {
     for(int child = 1; child < AST_MAX_CHILDREN; child++) {
         walkAST(node->child[child]);
     }
+    toffset = temptoffset;
+    fprintf(code, "* TOFF set: %d\n", toffset);
+    fprintf(code, "* END COMPOUND\n");
+}
+
+void generateIf(Node *node) {
+    fprintf(code, "* IF\n");
+    int temptoffset = toffset;
+    walkAST(node->child[0]);
+    fprintf(code, "* THEN\n");
+    walkAST(node->child[1]);
+    toffset = temptoffset;
+    fprintf(code, "* TOFF set: %d\n", toffset);
+    fprintf(code, "* END COMPOUND\n");
+}
+
+void generateWhile(Node *node) {
+    fprintf(code, "* WHILE\n");
+    int temptoffset = toffset;
+    walkAST(node->child[0]);
+    fprintf(code, "* DO\n");
+    walkAST(node->child[1]);
     toffset = temptoffset;
     fprintf(code, "* TOFF set: %d\n", toffset);
     fprintf(code, "* END COMPOUND\n");
@@ -207,16 +233,19 @@ void generateAssign(Node *node) {
     //     toffset++;
     //     fprintf(code, "* TOFF inc: %d\n", toffset);
     // }
+    int location = node->child[0]->location;
+    int referenceType = 1;
+    if(node->child[0]->referenceType == rtGlobal) { referenceType = 0; }
     if(node->literal[0] != '=') {
         if(strcmp("+=", node->literal) == 0) { walkAST(node->child[0]); emitRO("ADD", 3, 4, 3, "op +="); } else
         if(strcmp("-=", node->literal) == 0) { walkAST(node->child[0]); emitRO("SUB", 3, 4, 3, "op -="); } else
-        if(strcmp("++", node->literal) == 0) { emitRM("LD", 3, 0, 5, "load lhs variable _"); emitRM("LDA", 3, 1, 3, "increment value of x"); } else
-        if(strcmp("--", node->literal) == 0) { emitRM("LD", 3, 0, 5, "load lhs variable _"); emitRM("LDA", 3, -1, 3, "decrement value of x"); }
+        if(strcmp("++", node->literal) == 0) { emitRM("LD", 3, node->child[0]->location, referenceType, "load lhs variable _"); emitRM("LDA", 3, 1, 3, "increment value of x"); } else
+        if(strcmp("--", node->literal) == 0) { emitRM("LD", 3, node->child[0]->location, referenceType, "load lhs variable _"); emitRM("LDA", 3, -1, 3, "decrement value of x"); }
     }
     stupidOpWorkaround = 1;
     checkID_AC = 0;
     int address = 0;
-    int referenceType = 0;
+    referenceType = 0;
     Node *leftHandVar = node->child[0];
     if(leftHandVar->nodeType == ntArrAd) { leftHandVar = leftHandVar->child[0]; }
     if(
