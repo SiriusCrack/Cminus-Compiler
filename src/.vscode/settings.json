@@ -15,7 +15,7 @@
         "token.h": "c",
         "emitcode.h": "c",
         "hash_map": "c",
-        "initializer_list": "c"
-    },
-    "C_Cpp.errorSquiggles": "disabled"
+        "initializer_list": "c",
+        "system_error": "c"
+    }
 }

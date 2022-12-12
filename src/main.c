@@ -6,6 +6,7 @@
 #include "codegen.h"
 #include "parser.tab.h"
 #include <stdio.h>
+#include <string.h>
 
 extern FILE * yyin;
 extern int yydebug;
@@ -68,7 +69,13 @@ int main (int argc, char * argv[]) {
 
 void parseArgs (int argc, char * argv[]) {
     FILE * fp = fopen(argv[argc-1], "r");
-    code = fopen("out.tm", "w+");
+    // Production
+    char *outFile = argv[argc-1];
+    *strchr(outFile, '.')  = '\0';
+    strcat(outFile, ".tm");
+    code = fopen(outFile, "w+");
+    // Testing
+    // code = fopen("out.tm", "w+");
     if(fp) {
         yyin = fp;
     } else {

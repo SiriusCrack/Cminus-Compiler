@@ -44,7 +44,7 @@ void placeNode(Node *node) {
             for(int i = 0; i < AST_MAX_CHILDREN; i++) {
                 walkAST(node->child[i]);
             }
-            if(node->referenceType == rtStatic || node->referenceType == rtGlobal) {
+            if(node->referenceType == rtStatic || node->referenceType == rtGlobal || node->nodeType == ntStaticVar) {
                 node->location = goffset;
                 if(node->isArray) { node->location -= 1; }
                 goffset -= node->size;
@@ -61,7 +61,7 @@ void placeNode(Node *node) {
         if(node->nodeType == ntCompound || node->nodeType == ntCompoundwFunc || node->nodeType == ntTo || node->nodeType == ntTowComp) {
             node->size = foffset;
             for(Node *cursor = node->child[0]; cursor != NULL ; cursor = cursor->sibling) {
-                node->size -= cursor->size;
+                if(cursor->referenceType != rtGlobal) { node->size -= cursor->size; }
             }
             node->location = 0;
             int foffsetOld = foffset;

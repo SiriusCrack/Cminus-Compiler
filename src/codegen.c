@@ -10,6 +10,8 @@ extern int goffset;
 int toffset;
 int mainAddress;
 int stupidParamWorkaround = 0;
+int stupidOpWorkaround = 0;
+int checkID_AC = 0;
 
 static void walkAST (Node *node);
 static void walkChildren (Node *node);
@@ -23,11 +25,15 @@ static void generateArrayDecl (Node *node);
 static void generateID (Node *node);
 static void generateReturn (Node *node);
 static void generateAssign (Node *node);
+static void generateArrayAssign (Node *node);
 static void generateOperator (Node *node);
 static void generateUnaryOperator (Node *node);
+static void generateArrayAddress (Node *node);
 static void generateConstant (Node *node);
 static void generateIO ();
 static void generateInit ();
+static void initGlobalsAndStatics (Node *node);
+static void generateInitGlobalOrStatic (Node *node);
 
 void CodeGen() {
     toffset = 0;
@@ -65,6 +71,7 @@ void generateCode(Node * node) {
         case ntAndOp:
         case ntOrOp:
         case ntRelOp:
+        case ntArrAd:
         case ntOp: { generateOperator(node); break; }
         case ntSizeofOp:
         case ntSignOp:
@@ -101,8 +108,11 @@ void generateCompound(Node *node) {
     int temptoffset = toffset;
     toffset = node->size;
     fprintf(code, "* TOFF set: %d\n", toffset);
+    walkAST(node->child[0]);
     fprintf(code, "* Compound Body\n");
-    walkChildren(node);
+    for(int child = 1; child < AST_MAX_CHILDREN; child++) {
+        walkAST(node->child[child]);
+    }
     toffset = temptoffset;
     fprintf(code, "* TOFF set: %d\n", toffset);
     fprintf(code, "* END COMPOUND\n");
@@ -145,27 +155,31 @@ void generateCallParams(Node *node) {
     generateCallParams(node->sibling);
 }
 
-void generateArrayDecl(Node *node) {
+void generateArrayDecl(Node *node) { // when?
     if(!node->isArray) { return; }
-    int referenceType = 0;
-    if(
-        node->referenceType != rtGlobal &&
-        node->nodeType != ntStaticVar
-    ) { referenceType = 1; }
-    emitRM("LDC", 3, node->size-1, 0, "");
-    emitRM("ST", 3, node->location+1, referenceType, "");
+    if(!node->isDecl) { return; }
+    if(node->referenceType == rtGlobal || node->nodeType == ntStaticVar) { return; }
+    int referenceType = 1;
+    // if(
+    //     node->referenceType != rtGlobal &&
+    //     node->nodeType != ntStaticVar
+    // ) { referenceType = 1; }
+    emitRM("LDC", 3, node->size-1, 6, "load size of array _");
+    emitRM("ST", 3, node->location+1, referenceType, "save size of array _");
 }
 
 void generateID(Node *node) { // figure out when to call
-    if(!stupidParamWorkaround) { return; }
-    if(node->nodeType != ntArrAd) { return; }
+    if(!stupidParamWorkaround && !stupidOpWorkaround) { return; }
     int referenceType = 0;
+    int _AC = 3;
     if(node->entry == NULL) { printf("ID0\n"); if(node->entry->following == NULL) { printf("ID1\n"); if(node->entry->following->node == NULL) { printf("ID2\n"); } } }
     if(
         node->referenceType != rtGlobal && 
         node->entry->following->node->nodeType != ntStaticVar
     ) { referenceType = 1; }
-    emitRM("LD", 3, node->location, referenceType, "Load variable _");
+    if(checkID_AC == 1) { _AC = 4; }
+    if(node->parent->nodeType == ntArrAd) { emitRM("LDA", _AC, node->location, referenceType, "Load address of base of array _");; }
+    else{ emitRM("LD", _AC, node->location, referenceType, "Load variable _"); }
 }
 
 void generateReturn(Node *node) {
@@ -180,48 +194,84 @@ void generateAssign(Node *node) {
         fprintf(code, "* EXPRESSION\n");
     }
     int temptoffset = toffset;
-    walkAST(node->child[0]);
+    stupidOpWorkaround = 1;
+    if(node->child[0]->nodeType == ntArrAd) { generateArrayAssign(node->child[0]); }
+    else { walkAST(node->child[1]); }
+    checkID_AC = 1;
     // emitRM("ST", 3, toffset, 1, "ass");
     // if(stupidParamWorkaround) {
     //     toffset--;
     //     fprintf(code, "* TOFF dec: %d\n", toffset);
     // }
-    walkAST(node->child[1]);
     // if(stupidParamWorkaround) {
     //     toffset++;
     //     fprintf(code, "* TOFF inc: %d\n", toffset);
     // }
-    if(strlen(node->literal) > 1) {
-        emitRM("LD", 4, toffset, 1, "fakeass");
-        if(strcmp("+=", node->literal) == 0) { emitRO("ADD", 3, 4, 3, ""); } else
-        if(strcmp("-=", node->literal) == 0) { emitRO("SUB", 3, 4, 3, ""); } else
-        if(strcmp("++", node->literal) == 0) { emitRM("LDC", 3, 1, 0, ""); emitRO("ADD", 3, 4, 3, ""); } else
-        if(strcmp("--", node->literal) == 0) { emitRM("LDC", 3, 1, 0, ""); emitRO("SUB", 3, 4, 3, ""); }
+    if(node->literal[0] != '=') {
+        if(strcmp("+=", node->literal) == 0) { walkAST(node->child[0]); emitRO("ADD", 3, 4, 3, "op +="); } else
+        if(strcmp("-=", node->literal) == 0) { walkAST(node->child[0]); emitRO("SUB", 3, 4, 3, "op -="); } else
+        if(strcmp("++", node->literal) == 0) { emitRM("LD", 3, 0, 5, "load lhs variable _"); emitRM("LDA", 3, 1, 3, "increment value of x"); } else
+        if(strcmp("--", node->literal) == 0) { emitRM("LD", 3, 0, 5, "load lhs variable _"); emitRM("LDA", 3, -1, 3, "decrement value of x"); }
     }
+    stupidOpWorkaround = 1;
+    checkID_AC = 0;
     int address = 0;
     int referenceType = 0;
-    if(node->child[0]->entry == NULL) { printf("ass0\n"); if(node->child[0]->entry->following == NULL) { printf("ass1\n"); if(node->child[0]->entry->following->node == NULL) { printf("ass2\n"); } } }
-    if(node->child[0]->nodeType != ntArrAd) { address = node->child[0]->location; } 
+    Node *leftHandVar = node->child[0];
+    if(leftHandVar->nodeType == ntArrAd) { leftHandVar = leftHandVar->child[0]; }
     if(
-        node->child[0]->referenceType != rtGlobal &&
-        node->child[0]->entry->following->node->nodeType != ntStaticVar
+        leftHandVar->referenceType != rtGlobal &&
+        leftHandVar->entry->following->node->nodeType != ntStaticVar
     ) { referenceType = 1; }
+    if(leftHandVar->entry == NULL) { printf("ass0\n"); if(leftHandVar->entry->following == NULL) { printf("ass1\n"); if(leftHandVar->entry->following->node == NULL) { printf("ass2\n"); } } }
+    address = leftHandVar->entry->following->node->location;
+    if(leftHandVar->parent->nodeType == ntArrAd) { address = 0; referenceType = 5; } // Is this real????
     emitRM("ST", 3, address, referenceType, "Store variable _");
     toffset = temptoffset;
 }
 
+void generateArrayAssign(Node *node) {
+    walkAST(node->child[1]);
+    if(node->parent->literal[0] == '=') {
+        emitRM("ST", 3, toffset, 1, "Push index");
+        toffset--;
+        fprintf(code, "* TOFF dec: %d\n", toffset);
+        walkAST(node->parent->child[1]);
+        toffset++;
+        fprintf(code, "* TOFF inc: %d\n", toffset);
+        emitRM("LD", 4, toffset, 1, "Pop index");
+    }
+    int referenceType = 0;
+    int thirdSlot = 4;
+    if(
+        node->child[0]->referenceType != rtGlobal &&
+        node->child[0]->entry->following->node->nodeType != ntStaticVar
+    ) { referenceType = 1; }
+    if(stupidParamWorkaround) { thirdSlot = 3; }
+    if(node->child[0]->entry == NULL) { printf("ass0\n"); if(node->child[0]->entry->following == NULL) { printf("ass1\n"); if(node->child[0]->entry->following->node == NULL) { printf("ass2\n"); } } }
+    emitRM("LDA", 5, node->child[0]->entry->following->node->location, referenceType, "Load address of base of array _");
+    emitRO("SUB", 5, 5, thirdSlot, "Compute offset of value"); //slot 3??
+}
+
 void generateOperator(Node *node) {
+    stupidOpWorkaround = 1;
     walkAST(node->child[0]);
     emitRM("ST", 3, toffset, 1, "Push left side");
     toffset--;
     fprintf(code, "* TOFF dec: %d\n", toffset);
     walkAST(node->child[1]);
+    stupidOpWorkaround = 0;
     toffset++;
     fprintf(code, "* TOFF inc: %d\n", toffset);
     emitRM("LD", 4, toffset, 1, "Pop left into ac1");
     switch(node->nodeType) {
         case ntAndOp: { emitRO("AND", 3, 4, 3, "Op AND"); break; }
         case ntOrOp: { emitRO("OR", 3, 4, 3, "Op OR"); break; }
+        case ntArrAd: {
+            emitRO("SUB", 3, 4, 3, "compute location from index");
+            emitRM("LD", 3, 0, 3, "Load array element");
+            break;
+        }
         case ntRelOp: {
             if(strcmp("<", node->literal) == 0) { emitRO("TLT", 3, 4, 3, "Op <"); } else
             if(strcmp(">", node->literal) == 0) { emitRO("TGT", 3, 4, 3, "Op >"); } else
@@ -243,13 +293,26 @@ void generateOperator(Node *node) {
 }
 
 void generateUnaryOperator(Node *node) {
+    stupidOpWorkaround = 1;
     walkAST(node->child[0]);
+    stupidOpWorkaround = 0;
     switch(node->nodeType) {
         case ntSizeofOp: { fprintf(code, "~~~~~~sizeof~~~~~~\n"); break; } //??
         case ntSignOp: { emitRO("NEG", 3, 3, 3, "Op unary -"); break; }
         case ntQuestOp: { emitRO("RND", 3, 3, 6, "Op ?"); break; }
         case ntNotOp: { emitRM("LDC", 4, 1, 6, "Load 1"); emitRO("XOR", 3, 3, 4, "Op XOR to get logical not"); break; }
     }
+}
+
+void generateArrayAddress(Node *node) {
+    int referenceType = 0;
+    if(
+        node->child[0]->referenceType != rtGlobal &&
+        node->child[0]->entry->following->node->nodeType != ntStaticVar
+    ) { referenceType = 1; }
+    if(node->child[0]->entry == NULL) { printf("ass0\n"); if(node->child[0]->entry->following == NULL) { printf("ass1\n"); if(node->child[0]->entry->following->node == NULL) { printf("ass2\n"); } } }
+    emitRM("LDA", 5, node->child[0]->entry->following->node->location, referenceType, "Load address of base of array _");
+    emitRO("SUB", 5, 5, 4, "Compute offset of value");
 }
 
 void generateConstant(Node *node) {
@@ -266,11 +329,35 @@ void generateInit() {
     emitRM("LDA", 1, goffset, 0, "set first frame at end of globals");
     emitRM("ST", 1, 0, 1, "store old fp (point to self)");
     fprintf(code, "* INIT GLOBALS AND STATICS\n");
+    initGlobalsAndStatics(AST);
     fprintf(code, "* END INIT GLOBALS AND STATICS\n");
     emitRM("LDA", 3, 1, 7, "Return address in ac");
     emitRM("JMP", 7, mainAddress-(emitWhereAmI()+1), 7, "Jump to main");
     emitRO("HALT", 0, 0, 0, "DONE!");
     fprintf(code, "* END INIT\n");
+}
+
+void initGlobalsAndStatics(Node *node) {
+    if(node == NULL) { return; }
+    if(node->isIO) { initGlobalsAndStatics(node->sibling); return; }
+    if(
+        node->referenceType == rtGlobal ||
+        node->nodeType == ntStaticVar
+    ) { generateInitGlobalOrStatic(node); }
+    for(int child = 0; child < AST_MAX_CHILDREN; child++) {
+        initGlobalsAndStatics(node->child[child]);
+    }
+    initGlobalsAndStatics(node->sibling);
+}
+
+void generateInitGlobalOrStatic(Node *node) {
+    if(!node->isDecl) { return; }
+    switch(node->nodeType) {
+        case ntVarArray: {
+            emitRM("LDC", 3, node->size-1, 6, "load size of array _");
+            emitRM("ST", 3, node->location+1, 0, "save size of array _");
+        }
+    }
 }
 
 void generateIO() {

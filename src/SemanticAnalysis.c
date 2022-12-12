@@ -642,15 +642,17 @@ void WriteRefs (Node * tree, ScopeTable * table) {
         }
     }
     if(tree->nodeType == ntFunc) {
-        if(!tree->hasReturn) {
-            if(tree->dataType != voidData) {
-                warns = warns + 1;
-                printf(
-                    "WARNING(%d): Expecting to return %s but function '%s' has no return statement.\n",
-                    tree->lineNum,
-                    DataTypeToString(tree->dataType),
-                    tree->literal
-                );
+        if(!tree->isIO) {
+            if(!tree->hasReturn) {
+                if(tree->dataType != voidData) {
+                    warns = warns + 1;
+                    printf(
+                        "WARNING(%d): Expecting to return %s but function '%s' has no return statement.\n",
+                        tree->lineNum,
+                        DataTypeToString(tree->dataType),
+                        tree->literal
+                    );
+                }
             }
         }
     }
@@ -678,22 +680,22 @@ void CheckMain (ScopeTable *table) {
 }
 
 void CheckUse (ScopeTable *table) {
-    if(!table->isIO) {
         if(table->self != NULL) {
-            if(table->self->node->nodeType == ntFunc) {
-                if(strcmp(table->self->node->literal, "main")) {
-                    if(table->self->followers[0] == NULL) {
-                        warns = warns + 1;
-                        printf(
-                            "WARNING(%d): The function '%s' seems not to be used.\n",
-                            table->self->node->lineNum,
-                            table->self->node->literal
-                        );
+            if(!table->self->node->isIO) {
+                if(table->self->node->nodeType == ntFunc) {
+                    if(strcmp(table->self->node->literal, "main")) {
+                        if(table->self->followers[0] == NULL) {
+                            warns = warns + 1;
+                            printf(
+                                "WARNING(%d): The function '%s' seems not to be used.\n",
+                                table->self->node->lineNum,
+                                table->self->node->literal
+                            );
+                        }
                     }
                 }
             }
         }
-    }
     int i = 0;
     SymbolTableEntry *cur = table->symbolTable;
     while(cur != NULL) {
