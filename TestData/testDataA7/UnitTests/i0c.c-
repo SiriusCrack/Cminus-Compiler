@@ -1,7 +1,0 @@
-// C-F22
-main(){
-    {
-        bool ss: not  true;
-        outputb(ss);
-    }
-}

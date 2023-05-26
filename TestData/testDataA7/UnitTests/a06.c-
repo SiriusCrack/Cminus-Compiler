@@ -1,9 +1,0 @@
-// C-F22
-int x;
-
-main()
-{
-     x = 273;
-     output(x);
-}
-
