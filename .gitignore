@@ -5,6 +5,12 @@
 !.vscode/extensions.json
 *.tar
 *.o
+*.tm
+*.c-
+*.mem
+*.expected
+TestData/*.png
+c-
 lex.yy.c
 parser.tab.h
 parser.tab.c
